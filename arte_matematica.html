@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arte y Matemática: Explorador Didáctico de Obras SVG</title>
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-main: #0b0f19;
+      --bg-card: #151d30;
+      --bg-card-header: #1a243d;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.3);
+      --primary: #6366f1;
+      --primary-light: rgba(99, 102, 241, 0.15);
+      --secondary: #06b6d4;
+      --accent: #f59e0b;
+      --accent-math: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --gold-frame: #d4af37;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    body.high-contrast {
+      --bg-main: #000000;
+      --bg-card: #121212;
+      --bg-card-header: #222222;
+      --border-color: #ffffff;
+      --border-highlight: #ffff00;
+      --primary: #ffff00;
+      --primary-light: #333300;
+      --secondary: #00ffff;
+      --accent: #ff00ff;
+      --accent-math: #00ff00;
+      --text-main: #ffffff;
+      --text-muted: #e0e0e0;
+      --gold-frame: #ffff00;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER & ACCESSIBILITY BAR */
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-content {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #ffffff;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* DUA Controls */
+    .dua-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-dua {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-dua:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-dua.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0f172a;
+    }
+
+    /* HERO */
+    .hero {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 30px 20px 20px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-light);
+      border: 1px solid var(--border-highlight);
+      color: #a5b4fc;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .hero h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      max-width: 850px;
+      margin: 0 auto;
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* PEDAGOGICAL BANNER */
+    .steam-banner {
+      max-width: 1300px;
+      margin: 15px auto 25px;
+      padding: 0 20px;
+    }
+
+    .steam-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.1));
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .steam-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .steam-icon {
+      font-size: 1.8rem;
+      color: var(--accent-math);
+    }
+
+    .steam-info h3 {
+      font-size: 1.05rem;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .steam-info p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .grid-toggle-btn {
+      background: var(--accent-math);
+      color: #062b1a;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .grid-toggle-btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    /* FILTERS */
+    .filters-container {
+      max-width: 1300px;
+      margin: 0 auto 25px;
+      padding: 0 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    /* ARTWORKS GRID */
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px 50px;
+      flex-grow: 1;
+    }
+
+    .artworks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 25px;
+    }
+
+    .artwork-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .artwork-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-highlight);
+    }
+
+    /* FRAME & SVG VIEWER */
+    .artwork-stage {
+      background: #111622;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .frame-wrapper {
+      position: relative;
+      background: #ffffff;
+      padding: 10px;
+      border: 6px solid var(--gold-frame);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      width: 280px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .svg-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .svg-container svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Interactive Cartesian Grid Overlay */
+    .cartesian-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+      background-image: 
+        linear-gradient(to right, rgba(99, 102, 241, 0.3) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(99, 102, 241, 0.3) 1px, transparent 1px);
+      background-size: 46.6px 46.6px;
+    }
+
+    .cartesian-overlay::after {
+      content: '(0,0)';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-size: 10px;
+      font-family: 'Fira Code', monospace;
+      color: #6366f1;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 1px 3px;
+      border-radius: 3px;
+    }
+
+    .show-grid .cartesian-overlay {
+      display: block;
+    }
+
+    .stage-badges {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .badge-round {
+      background: rgba(0, 0, 0, 0.7);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* CARD DETAILS */
+    .artwork-content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      gap: 14px;
+    }
+
+    .artwork-header h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .artwork-header .author {
+      font-size: 0.88rem;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    /* SECTIONS: SVG & MATH */
+    .section-block {
+      background: var(--bg-card-header);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+
+    .section-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .title-tech {
+      color: var(--secondary);
+    }
+
+    .title-math {
+      color: var(--accent-math);
+    }
+
+    .tech-list, .math-list {
+      list-style: none;
+      font-size: 0.86rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tech-list li, .math-list li {
+      position: relative;
+      padding-left: 16px;
+      color: #cbd5e1;
+    }
+
+    .tech-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--secondary);
+      font-weight: bold;
+    }
+
+    .math-list li::before {
+      content: "📐";
+      position: absolute;
+      left: 0;
+      font-size: 0.75rem;
+    }
+
+    .math-list strong {
+      color: #ffffff;
+    }
+
+    /* CODE SNIPPET TOGGLE */
+    .code-toggle-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 6px;
+      transition: all 0.2s;
+    }
+
+    .code-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    .code-block {
+      display: none;
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.76rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-top: 8px;
+    }
+
+    .code-block.open {
+      display: block;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      padding: 30px 20px;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 900px;
+      margin: 0 auto;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-content a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-content a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shapes"></i>
+        </div>
+        <div class="brand-text">
+          <h1>Arte & Matemática: Explorador SVG</h1>
+          <p>Análisis geométrico, vectorial y pedagógico STEAM</p>
+        </div>
+      </div>
+
+      <!-- HERRAMIENTAS DUA -->
+      <div class="dua-toolbar">
+        <button id="btn-contrast" class="btn-dua" title="Modo Alto Contraste">
+          <i class="fa-solid fa-circle-half-stroke"></i> Contraste
+        </button>
+        <button id="btn-font-sub" class="btn-dua" title="Disminuir texto">A-</button>
+        <button id="btn-font-reset" class="btn-dua" title="Restablecer tamaño">A</button>
+        <button id="btn-font-add" class="btn-dua" title="Aumentar texto">A+</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <i class="fa-solid fa-atom"></i> Enfoque STEAM: Geometría, Coordenadas y Arte Abstracto
+    </div>
+    <h2>¿Cómo se Construye el Arte con Código y Geometría?</h2>
+    <p>
+      Cada una de estas 12 obras de arte clásico y moderno fue programada íntegramente en lenguaje vectorial 
+      <strong>SVG (Scalable Vector Graphics)</strong>. Debajo de cada pintura podés explorar su formulación en código y 
+      las múltiples aplicaciones matemáticas (áreas, fracciones, ángulos, homotecias y funciones) para trabajar en el aula.
+    </p>
+    <p style="margin-top: 10px; font-size: 0.88rem; color: #a5b4fc; font-weight: 500;">
+      <i class="fa-solid fa-laptop-code"></i> Creada por <strong>Silvina Busto</strong> usando <strong>Gemini CLI</strong> · Basado en la app <em>Museo de Arte</em> de <strong>Mariela Fernández</strong>
+    </p>
+  </section>
+
+  <!-- STEAM BANNER WITH GRID TOGGLE -->
+  <div class="steam-banner">
+    <div class="steam-card">
+      <div class="steam-info">
+        <i class="fa-solid fa-compass-drafting steam-icon"></i>
+        <div>
+          <h3>Visualizador de Plano Cartesiano</h3>
+          <p>Activá la cuadrícula milimétrica de (0,0) a (300,300) sobre todas las pinturas para medir coordenadas y dimensiones.</p>
+        </div>
+      </div>
+      <button id="toggle-all-grids" class="grid-toggle-btn">
+        <i class="fa-solid fa-border-all"></i> Mostrar Ejes (x, y)
+      </button>
+    </div>
+  </div>
+
+  <!-- FILTROS POR TEMA MATEMÁTICO -->
+  <div class="filters-container">
+    <button class="filter-btn active" data-filter="todos">Todas las Obras (12)</button>
+    <button class="filter-btn" data-filter="areas">Áreas, Fracciones y Proporciones</button>
+    <button class="filter-btn" data-filter="coordenadas">Plano Cartesiano y Rectas</button>
+    <button class="filter-btn" data-filter="circulos">Circunferencia y Radios</button>
+    <button class="filter-btn" data-filter="angulos">Ángulos y Transformaciones</button>
+    <button class="filter-btn" data-filter="curvas">Curvas Bézier y Funciones</button>
+  </div>
+
+  <!-- MAIN CONTAINER WITH ARTWORKS -->
+  <main class="container">
+    <div class="artworks-grid" id="artworks-grid">
+      <!-- Se inyectan dinámicamente con JS -->
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-content">
+      <p>
+        <strong>Arte & Matemática: Explorador Didáctico de Obras SVG</strong>
+      </p>
+      <p>
+        Creada por <strong>Silvina Busto</strong> usando <strong>Gemini CLI</strong>, basado en la app <em>Museo de Arte</em> de <strong>Mariela Fernández</strong>.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // BASE DE DATOS COMPLETA CON ANÁLISIS TÉCNICO Y MATEMÁTICO
+    const OBRAS_DATA = [
+      {
+        id: "obra-1",
+        title: "Composición en Rojo, Azul y Amarillo",
+        author: "Piet Mondrian (1930)",
+        round: "Ronda 1",
+        category: ["areas", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#F0EFE9"/><rect x="80" y="0" width="220" height="200" fill="#DD1A22"/><rect x="0" y="200" width="80" height="100" fill="#004586"/><rect x="250" y="250" width="50" height="50" fill="#FFCC00"/><rect x="70" y="0" width="10" height="300" fill="#111"/><rect x="0" y="190" width="300" height="10" fill="#111"/><rect x="240" y="190" width="10" height="110" fill="#111"/><rect x="70" y="240" width="230" height="10" fill="#111"/></svg>`,
+        techExplanation: [
+          "Lienzo base de 300x300 px con fondo crema (#F0EFE9).",
+          "Rectángulos de colores primarios posicionados en coordenadas precisas (x, y).",
+          "Líneas divisorias negras de 10 px de espesor que generan la retícula ortogonal."
+        ],
+        mathApplications: [
+          "<strong>Cálculo de Áreas y Porcentajes:</strong> El lienzo total es de 300 × 300 = 90.000 px². El rectángulo rojo mide 220 × 200 = 44.000 px², representando exactamente el <strong>48,88%</strong> del total.",
+          "<strong>Ecuaciones de Rectas en el Plano:</strong> Las líneas negras responden a funciones constantes: rectas verticales x = 70, x = 240 y rectas horizontales y = 190, y = 240.",
+          "<strong>Fracciones Equivalentes:</strong> El cuadrado amarillo mide 50 × 50 = 2.500 px², equivalente a 1/36 del área total del cuadro."
+        ]
+      },
+      {
+        id: "obra-2",
+        title: "Algunos Círculos",
+        author: "Vassily Kandinsky (1926)",
+        round: "Ronda 1",
+        category: ["circulos", "areas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#1A1A24"/><circle cx="150" cy="150" r="80" fill="#2E5B88" opacity="0.8"/><circle cx="150" cy="150" r="50" fill="#E74C3C" opacity="0.9"/><circle cx="80" cy="90" r="35" fill="#F1C40F" opacity="0.85"/><circle cx="210" cy="80" r="25" fill="#27AE60" opacity="0.8"/><circle cx="220" cy="200" r="40" fill="#8E44AD" opacity="0.75"/><circle cx="90" cy="220" r="20" fill="#E67E22" opacity="0.9"/><circle cx="130" cy="70" r="12" fill="#3498DB"/><circle cx="170" cy="230" r="15" fill="#2ECC71"/></svg>`,
+        techExplanation: [
+          "Fondo oscuro (#1A1A24) simulando el cosmos o espacio profundo.",
+          "Etiquetas &lt;circle&gt; con centro (cx, cy) y radio (r).",
+          "Uso de canal de transparencia (opacity de 0.75 a 0.9) para superposiciones cromáticas."
+        ],
+        mathApplications: [
+          "<strong>Circunferencias Concéntricas:</strong> En el centro exacto (150, 150) conviven dos círculos concéntricos de radios r₁ = 80 y r₂ = 50.",
+          "<strong>Fórmula de Perímetro y Área Circular:</strong> A = π · r² y P = 2π · r. Permite comparar cómo duplicar el radio cuadruplica el área.",
+          "<strong>Distancia Euclídea entre Centros:</strong> Calcular la distancia entre los centros d = √((x₂-x₁)² + (y₂-y₁)²) para determinar si dos circunferencias son secantes o disjuntas.",
+          "<strong>Teoría de Conjuntos e Intersección:</strong> Las áreas superpuestas permiten enseñar intersección de conjuntos (A ∩ B)."
+        ]
+      },
+      {
+        id: "obra-3",
+        title: "Suprematismo",
+        author: "Kazimir Malevich (1915)",
+        round: "Ronda 1",
+        category: ["angulos", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#F4F1EA"/><rect x="70" y="70" width="90" height="90" fill="#C0392B" transform="rotate(12 115 115)"/><polygon points="150,120 250,180 160,250" fill="#111111"/><rect x="50" y="200" width="120" height="25" fill="#2980B9" transform="rotate(-15 110 212)"/><rect x="180" y="50" width="60" height="12" fill="#27AE60" transform="rotate(35 210 56)"/></svg>`,
+        techExplanation: [
+          "Polígono triangular irregular definido por 3 pares de vértices con &lt;polygon points='...'&gt;.",
+          "Transformaciones afines: rotación de figuras con transform='rotate(grados cx cy)'."
+        ],
+        mathApplications: [
+          "<strong>Transformaciones en el Plano (Rotación):</strong> Análisis del centro de giro (cx, cy) y amplitud angular positiva (horaria: +12°, +35°) y negativa (antihoraria: -15°).",
+          "<strong>Geometría del Triángulo y Determinantes:</strong> Vértices en (150,120), (250,180) y (160,250). Cálculo de área mediante fórmula de Gauss / matriz de coordenadas.",
+          "<strong>Clasificación de Polígonos:</strong> Triángulos escalenos, paralelogramos inclinados y noción de vector director."
+        ]
+      },
+      {
+        id: "obra-4",
+        title: "Senecio",
+        author: "Paul Klee (1922)",
+        round: "Ronda 1",
+        category: ["circulos", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#E59866"/><circle cx="150" cy="140" r="100" fill="#F5CBA7" stroke="#7E5109" stroke-width="4"/><line x1="150" y1="40" x2="150" y2="240" stroke="#7E5109" stroke-width="3"/><line x1="50" y1="140" x2="250" y2="140" stroke="#7E5109" stroke-width="3"/><circle cx="110" cy="110" r="20" fill="#E74C3C"/><circle cx="110" cy="110" r="8" fill="#111"/><rect x="175" y="95" width="30" height="30" fill="#F1C40F"/><circle cx="190" cy="110" r="8" fill="#111"/><rect x="100" y="240" width="45" height="50" fill="#27AE60"/><rect x="155" y="240" width="45" height="50" fill="#E67E22"/></svg>`,
+        techExplanation: [
+          "Círculo facial principal de radio 100 px centrado en (150, 140).",
+          "Partición diametral ortogonal mediante dos segmentos con &lt;line&gt;.",
+          "Ojos asimétricos: uno circular y otro cuadrado, ilustrando tensión formal."
+        ],
+        mathApplications: [
+          "<strong>Simetría vs. Asimetría:</strong> Los diámetros ortogonales dividen el círculo en 4 cuadrantes iguales de 90° (π/2 rad), pero los elementos internos rompen la simetría axial.",
+          "<strong>Inscripción y Circunscripción:</strong> Comparar el área del ojo cuadrado (30 × 30 = 900 px²) vs el ojo circular (A = π · 20² ≈ 1256 px²).",
+          "<strong>Segmentos y Cuerdas:</strong> Identificación de diámetros, radios y arcos de 90°."
+        ]
+      },
+      {
+        id: "obra-5",
+        title: "Amarillo, Rojo y Azul",
+        author: "Vassily Kandinsky (1925)",
+        round: "Ronda 2",
+        category: ["curvas", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#F7F5EC"/><rect x="40" y="50" width="90" height="180" fill="#F1C40F" opacity="0.85"/><circle cx="210" cy="150" r="65" fill="#2980B9" opacity="0.85"/><path d="M 120 70 Q 180 120 130 220" stroke="#E74C3C" stroke-width="25" fill="none"/><path d="M 30 220 C 100 100 200 260 270 90" stroke="#111" stroke-width="5" fill="none"/><circle cx="80" cy="100" r="15" fill="#111"/></svg>`,
+        techExplanation: [
+          "Trazo rojo con curva cuadrática de Bézier con comando Q (punto de control en 180, 120).",
+          "Trazo negro con curva cúbica de Bézier con comando C (dos puntos de control: 100,100 y 200,260).",
+          "Grosor de trazo dinámico (stroke-width: 25 vs stroke-width: 5)."
+        ],
+        mathApplications: [
+          "<strong>Funciones No Lineales y Curvas de Bézier:</strong> Introducción al concepto de interpolación polinómica y cálculo de curvas suaves a partir de puntos de control.",
+          "<strong>Puntos de Inflexión y Concavidad:</strong> La curva cúbica cambia de curvatura (de cóncava a convexa) a lo largo del recorrido horizontal.",
+          "<strong>Dualidad Geométrica:</strong> Rectas ortogonales (rectángulo amarillo) vs. curvas continuas diferenciables."
+        ]
+      },
+      {
+        id: "obra-6",
+        title: "El Ritmo de las Líneas",
+        author: "Piet Mondrian (1935)",
+        round: "Ronda 2",
+        category: ["coordenadas", "areas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#FAFAFA"/><rect x="0" y="0" width="50" height="40" fill="#E74C3C"/><rect x="230" y="220" width="70" height="80" fill="#3498DB"/><rect x="260" y="0" width="40" height="60" fill="#F1C40F"/><line x1="50" y1="0" x2="50" y2="300" stroke="#111" stroke-width="8"/><line x1="140" y1="0" x2="140" y2="300" stroke="#111" stroke-width="8"/><line x1="230" y1="0" x2="230" y2="300" stroke="#111" stroke-width="8"/><line x1="0" y1="40" x2="300" y2="40" stroke="#111" stroke-width="8"/><line x1="0" y1="220" x2="300" y2="220" stroke="#111" stroke-width="8"/></svg>`,
+        techExplanation: [
+          "Rejilla estructural de 5 líneas negras de 8 px de grosor.",
+          "Intersección matemática que divide el plano en 12 celdas rectangulares.",
+          "Acentos cromáticos en las esquinas extremas (noroeste, noreste y sudeste)."
+        ],
+        mathApplications: [
+          "<strong>Matrices y Grillas Bidimensionales:</strong> Representación del espacio como una matriz de 4 columnas × 3 filas.",
+          "<strong>Secuencias y Razones de Aspecto:</strong> Las columnas tienen anchos de 50, 90, 90, 70 px. Permite trabajar secuencias y proporciones.",
+          "<strong>Sistemas de Ecuaciones Lineales:</strong> Hallar analíticamente los puntos de intersección entre las rectas verticales (x=50, 140, 230) y horizontales (y=40, 220)."
+        ]
+      },
+      {
+        id: "obra-7",
+        title: "Estrella de Mar y Figura",
+        author: "Joan Miró (1934)",
+        round: "Ronda 2",
+        category: ["curvas", "circulos"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#EAECEE"/><circle cx="200" cy="100" r="45" fill="#E74C3C"/><circle cx="90" cy="190" r="30" fill="#111"/><path d="M 80 80 Q 150 30 220 180" stroke="#111" stroke-width="4" fill="none"/><path d="M 60 210 Q 180 280 250 200" stroke="#111" stroke-width="4" fill="none"/><circle cx="200" cy="100" r="12" fill="#F1C40F"/><polygon points="120,70 130,90 110,85" fill="#2980B9"/></svg>`,
+        techExplanation: [
+          "Fondo grisáceo neutro (#EAECEE) que maximiza el contraste de las formas flotantes.",
+          "Círculos excéntricos superpuestos (rojo de radio 45 con pupila amarilla de radio 12).",
+          "Trazos curvos abiertos con comando cuadrático Q."
+        ],
+        mathApplications: [
+          "<strong>Topología y Geometría No Euclidiana:</strong> Formas biomórficas libres vs. geometría euclidiana rígida.",
+          "<strong>Distribución y Densidad de Puntos:</strong> Dispersión de centros de gravedad en el plano cartesiano.",
+          "<strong>Corona Circular (Anillo):</strong> Cálculo de la superficie roja visible: A = π(R² - r²) = π(45² - 12²) = π(2025 - 144) ≈ 5.909 px²."
+        ]
+      },
+      {
+        id: "obra-8",
+        title: "Castillo y Sol",
+        author: "Paul Klee (1928)",
+        round: "Ronda 2",
+        category: ["areas", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#34495E"/><circle cx="210" cy="70" r="35" fill="#E67E22"/><rect x="40" y="180" width="40" height="80" fill="#E74C3C"/><polygon points="40,180 60,130 80,180" fill="#F1C40F"/><rect x="80" y="150" width="50" height="110" fill="#2980B9"/><polygon points="80,150 105,100 130,150" fill="#27AE60"/><rect x="130" y="120" width="60" height="140" fill="#F39C12"/><polygon points="130,120 160,60 190,120" fill="#C0392B"/><rect x="190" y="160" width="50" height="100" fill="#8E44AD"/></svg>`,
+        techExplanation: [
+          "Composición arquitectónica modular: rectángulos como muros y polígonos triangulares como tejados.",
+          "Alineación sobre una base horizontal común (y = 260).",
+          "Sol circular en posición excéntrica (210, 70)."
+        ],
+        mathApplications: [
+          "<strong>Descomposición de Figuras Compuestas:</strong> Cada torre es la suma exacta de un rectángulo más un triángulo isósceles: Área Torre = (b · h_rect) + (b · h_tri / 2).",
+          "<strong>Teorema de Pitágoras:</strong> Para el tejado central (base 60 px, altura 60 px), calcular la longitud de la pendiente: L = √(30² + 60²) = √(900 + 3600) ≈ 67,08 px.",
+          "<strong>Polígonos Adyacentes y Teselación:</strong> Encaje perfecto de vértices contiguos sin solapamiento."
+        ]
+      },
+      {
+        id: "obra-9",
+        title: "Cuadrado Negro sobre Fondo Blanco",
+        author: "Kazimir Malevich (1915)",
+        round: "Ronda 3",
+        category: ["areas", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#EDEDED"/><rect x="60" y="60" width="180" height="180" fill="#111111"/></svg>`,
+        techExplanation: [
+          "La máxima expresión del minimalismo geométrico en código SVG: 2 únicas líneas de etiquetas &lt;rect&gt;.",
+          "Cuadrado exterior de 300x300 px y cuadrado interior negro de 180x180 px con margen constante de 60 px."
+        ],
+        mathApplications: [
+          "<strong>Homotecia y Razón de Semejanza (k):</strong> La razón lineal entre lados es k = 180/300 = 0,6 (3:5).",
+          "<strong>Razón de Áreas (k²):</strong> El área del cuadrado negro es 180² = 32.400 px², mientras que el lienzo es 300² = 90.000 px². La razón de áreas es k² = (0,6)² = 0,36, es decir, ocupa exactamente el <strong>36%</strong> del total.",
+          "<strong>Centroide y Simetría Central:</strong> Ambos cuadrados comparten el centro exacto (150, 150) y tienen 4 ejes de simetría axial más simetría rotacional de 90°."
+        ]
+      },
+      {
+        id: "obra-10",
+        title: "El Cazador (Paisaje Catalán)",
+        author: "Joan Miró (1924)",
+        round: "Ronda 3",
+        category: ["coordenadas", "curvas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="150" fill="#F5CBA7"/><rect x="0" y="150" width="300" height="150" fill="#F9E79F"/><circle cx="100" cy="100" r="30" fill="#E74C3C"/><line x1="100" y1="70" x2="100" y2="200" stroke="#111" stroke-width="3"/><circle cx="210" cy="180" r="15" fill="#2980B9"/><path d="M 50 220 L 90 250 L 70 280 Z" fill="#27AE60"/><line x1="30" y1="120" x2="270" y2="120" stroke="#111" stroke-width="2" stroke-dasharray="5,5"/></svg>`,
+        techExplanation: [
+          "Bipartición horizontal del lienzo en dos mitades simétricas de 150 px de alto (cielo ocre y tierra amarilla).",
+          "Línea de horizonte discontinua con stroke-dasharray='5,5'.",
+          "Polígono triangular cerrado con comando path 'L... Z'."
+        ],
+        mathApplications: [
+          "<strong>Semiplanos y Desigualdades:</strong> División del plano en dos semiplanos: y < 150 (zona superior) e y ≥ 150 (zona inferior).",
+          "<strong>Periodicidad y Módulos:</strong> El trazo discontinuo define un periodo repetitivo de 10 px (5 px de trazo + 5 px de espacio).",
+          "<strong>Segmentos y Proyecciones:</strong> El segmento vertical corta perpendicularmente la línea de separación en (100, 150)."
+        ]
+      },
+      {
+        id: "obra-11",
+        title: "Sala de Estar con Rectángulos",
+        author: "Piet Mondrian (1921)",
+        round: "Ronda 3",
+        category: ["areas", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#F2F1EC"/><rect x="0" y="0" width="120" height="150" fill="#2980B9"/><rect x="130" y="160" width="170" height="140" fill="#E74C3C"/><line x1="120" y1="0" x2="120" y2="300" stroke="#111" stroke-width="10"/><line x1="0" y1="150" x2="300" y2="150" stroke="#111" stroke-width="10"/><line x1="250" y1="0" x2="250" y2="150" stroke="#111" stroke-width="8"/></svg>`,
+        techExplanation: [
+          "Asimetría pura: partición del plano mediante dos ejes ortogonales en x=120 e y=150.",
+          "Rectángulo azul en cuadrante superior izquierdo y rojo en cuadrante inferior derecho.",
+          "Líneas negras con espesores diferenciados (10 px vs 8 px)."
+        ],
+        mathApplications: [
+          "<strong>Comparación de Magnitudes y Razón:</strong> El rectángulo rojo mide 170 × 140 = 23.800 px²; el azul mide 120 × 150 = 18.000 px². La razón entre rojo y azul es 23800 / 18000 ≈ 1,32 (un 32% mayor).",
+          "<strong>Problemas de Optimización y Empaquetamiento:</strong> Análisis de partición de una superficie cuadrada fija mediante subdivisiones rectangulares.",
+          "<strong>Perímetros:</strong> Perímetro del rectángulo azul: 2(120+150) = 540 px. Perímetro del rojo: 2(170+140) = 620 px."
+        ]
+      },
+      {
+        id: "obra-12",
+        title: "Sensación de Armonía",
+        author: "Paul Klee (1931)",
+        round: "Ronda 3",
+        category: ["areas", "coordenadas"],
+        svg: `<svg viewBox="0 0 300 300" width="260" height="260"><rect width="300" height="300" fill="#7FB3D5"/><rect x="30" y="30" width="60" height="60" fill="#F1C40F"/><rect x="100" y="30" width="80" height="60" fill="#E67E22"/><rect x="190" y="30" width="80" height="60" fill="#E74C3C"/><rect x="30" y="100" width="110" height="80" fill="#27AE60"/><rect x="150" y="100" width="120" height="80" fill="#8E44AD"/><rect x="30" y="190" width="240" height="70" fill="#D35400"/></svg>`,
+        techExplanation: [
+          "Fondo azul cielo (#7FB3D5) con estructura de mosaicos o teselas horizontales.",
+          "Fila superior: 3 rectángulos de altura 60 px.",
+          "Fila intermedia: 2 rectángulos de altura 80 px.",
+          "Fila inferior: 1 gran bloque horizontal de 240x70 px."
+        ],
+        mathApplications: [
+          "<strong>Propiedad Aditiva de Longitudes y Áreas:</strong> En la fila 1, el ancho total ocupado es 60 + 10 + 80 + 10 + 80 = 240 px (considerando separaciones de 10 px). En la fila 2 es 110 + 10 + 120 = 240 px.",
+          "<strong>Introducción Intuitiva a la Integral de Riemann:</strong> Aproximación de áreas mediante sumas de rectángulos apilados de base variable.",
+          "<strong>Proporciones Armónicas:</strong> Relaciones de aspecto y ritmo modular en la composición."
+        ]
+      }
+    ];
+
+    // RENDERIZAR TARJETAS EN EL DOM
+    const grid = document.getElementById('artworks-grid');
+
+    function renderCards(filter = 'todos') {
+      grid.innerHTML = '';
+      
+      const filtradas = OBRAS_DATA.filter(obra => {
+        if (filter === 'todos') return true;
+        return obra.category.includes(filter);
+      });
+
+      filtradas.forEach((obra, idx) => {
+        const card = document.createElement('article');
+        card.className = 'artwork-card';
+        card.id = obra.id;
+
+        const techHTML = obra.techExplanation.map(item => `<li>${item}</li>`).join('');
+        const mathHTML = obra.mathApplications.map(item => `<li>${item}</li>`).join('');
+        const escapedSVG = obra.svg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        card.innerHTML = `
+          <div class="artwork-stage">
+            <div class="stage-badges">
+              <span class="badge-round">${obra.round}</span>
+              <span class="badge-round" style="color: var(--secondary); border-color: rgba(6, 182, 212, 0.3);">#${idx + 1}</span>
+            </div>
+            <div class="frame-wrapper">
+              <div class="svg-container">
+                ${obra.svg}
+              </div>
+              <div class="cartesian-overlay"></div>
+            </div>
+          </div>
+
+          <div class="artwork-content">
+            <div class="artwork-header">
+              <h3>${obra.title}</h3>
+              <div class="author"><i class="fa-solid fa-paintbrush"></i> ${obra.author}</div>
+            </div>
+
+            <!-- EXPLICACIÓN TÉCNICA SVG -->
+            <div class="section-block">
+              <div class="section-title title-tech">
+                <i class="fa-solid fa-code"></i> ¿Cómo se dibuja en Código SVG?
+              </div>
+              <ul class="tech-list">${techHTML}</ul>
+              
+              <button class="code-toggle-btn" onclick="toggleCode('${obra.id}')">
+                <span><i class="fa-solid fa-terminal"></i> Ver Código SVG</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div id="code-${obra.id}" class="code-block">${escapedSVG}</div>
+            </div>
+
+            <!-- APLICACIONES MATEMÁTICAS -->
+            <div class="section-block" style="background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.2);">
+              <div class="section-title title-math">
+                <i class="fa-solid fa-square-root-variable"></i> Usos Matemáticos & Geométricos en el Aula
+              </div>
+              <ul class="math-list">${mathHTML}</ul>
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // TOGGLE CODE VISIBILITY
+    window.toggleCode = function(id) {
+      const codeBlock = document.getElementById(`code-${id}`);
+      codeBlock.classList.toggle('open');
+    };
+
+    // TOGGLE CARTESIAN GRID OVERLAY
+    let gridsVisible = false;
+    const toggleGridBtn = document.getElementById('toggle-all-grids');
+
+    toggleGridBtn.addEventListener('click', () => {
+      gridsVisible = !gridsVisible;
+      document.body.classList.toggle('show-grid', gridsVisible);
+      toggleGridBtn.innerHTML = gridsVisible 
+        ? '<i class="fa-solid fa-eye-slash"></i> Ocultar Ejes (x, y)'
+        : '<i class="fa-solid fa-border-all"></i> Mostrar Ejes (x, y)';
+    });
+
+    // FILTROS
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filterValue = btn.getAttribute('data-filter');
+        renderCards(filterValue);
+      });
+    });
+
+    // HERRAMIENTAS DUA ACCESIBILIDAD
+    let baseFontSize = 16;
+    const btnFontAdd = document.getElementById('btn-font-add');
+    const btnFontSub = document.getElementById('btn-font-sub');
+    const btnFontReset = document.getElementById('btn-font-reset');
+    const btnContrast = document.getElementById('btn-contrast');
+
+    btnFontAdd.addEventListener('click', () => {
+      if (baseFontSize < 24) {
+        baseFontSize += 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    });
+
+    btnFontSub.addEventListener('click', () => {
+      if (baseFontSize > 12) {
+        baseFontSize -= 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    });
+
+    btnFontReset.addEventListener('click', () => {
+      baseFontSize = 16;
+      document.documentElement.style.fontSize = '16px';
+    });
+
+    btnContrast.addEventListener('click', () => {
+      document.body.classList.toggle('high-contrast');
+      btnContrast.classList.toggle('active');
+    });
+
+    // Inicializar
+    renderCards();
+  </script>
+</body>
+</html>

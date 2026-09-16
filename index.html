@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repositorio apps de Matemática</title>
+  <meta name="description" content="Colección de herramientas y aplicaciones interactivas diseñadas para el aprendizaje matemático.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      /* Fondo Carmesí / Frambuesa Oscuro */
+      --bg-primary: #B8003C;
+      --bg-gradient: linear-gradient(145deg, #B8003C 0%, #C00A40 45%, #940030 100%);
+      
+      --surface-toolbar: rgba(138, 0, 45, 0.88);
+      --border-toolbar: rgba(255, 255, 255, 0.22);
+      
+      --text-hero-title: #ffffff;
+      --text-hero-sub: #ffe5ec;
+      
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      
+      --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Space Grotesk', sans-serif;
+      
+      --base-font-size: 16px;
+    }
+
+    body.high-contrast {
+      --bg-primary: #000000;
+      --bg-gradient: #000000;
+      --surface-toolbar: #111111;
+      --border-toolbar: #ffffff;
+      background: #000000 !important;
+      color: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: var(--base-font-size);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: #1e293b;
+      min-height: 100vh;
+      line-height: 1.6;
+      padding-bottom: 70px;
+    }
+
+    /* Barra Superior de Accesibilidad */
+    .app-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface-toolbar);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-toolbar);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .toolbar-brand {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.08rem;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.2px;
+    }
+
+    .toolbar-brand i {
+      color: #ffccd9;
+    }
+
+    .toolbar-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-tool:hover {
+      background: #ffffff;
+      color: #B8003C;
+      border-color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .btn-tool.active {
+      background: #ffffff;
+      color: #B8003C;
+    }
+
+    /* Layout Principal */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Hero Header */
+    .hero {
+      padding: 42px 0 28px 0;
+      text-align: center;
+    }
+
+    .hero-title-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .hero-svg-badge {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+      width: 58px;
+      height: 58px;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+    }
+
+    .hero-svg-badge:hover {
+      transform: scale(1.08) rotate(3deg);
+    }
+
+    .title-svg {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+    }
+
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: 2.55rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text-hero-title);
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-hero-sub);
+      max-width: 740px;
+      margin: 0 auto;
+      font-weight: 400;
+      line-height: 1.55;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Panel de Búsqueda y Filtros */
+    .filter-panel {
+      background: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      margin-top: 24px;
+      margin-bottom: 34px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Buscador en Tiempo Real */
+    .search-group {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-group i {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 1.15rem;
+    }
+
+    .search-input {
+      width: 100%;
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 14px 16px 14px 48px;
+      color: #0f172a;
+      font-size: 1.02rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      background: #ffffff;
+      border-color: #B8003C;
+      box-shadow: 0 0 0 3px rgba(184, 0, 60, 0.18);
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+    }
+
+    /* Filtros Desplegables */
+    .filters-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .select-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .select-wrapper label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-select {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      color: #0f172a;
+      font-size: 0.96rem;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-select:focus {
+      border-color: #B8003C;
+      background: #ffffff;
+    }
+
+    /* Barra de Estado */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #64748b;
+      padding-top: 4px;
+      border-top: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .status-count strong {
+      color: #B8003C;
+      font-weight: 700;
+    }
+
+    /* Grid de Aplicaciones */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 26px;
+    }
+
+    /* Ficha / Tarjeta de Aplicación en Blanco con Borde de Distinto Color */
+    .app-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+      border-width: 2px;
+      border-style: solid;
+      border-top-width: 7px;
+      border-color: var(--card-accent, #2563eb);
+      overflow: hidden;
+    }
+
+    .app-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24), 0 0 24px var(--card-accent-glow, rgba(37, 99, 235, 0.28));
+    }
+
+    .card-badges {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge-level {
+      font-size: 0.76rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .badge-subject {
+      font-size: 0.76rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 12px;
+      background: var(--card-accent-soft, rgba(37, 99, 235, 0.1));
+      color: var(--card-accent-text, #1d4ed8);
+      border: 1px solid var(--card-accent, #2563eb);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 1.26rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+      line-height: 1.35;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .card-emoji {
+      font-size: 1.6rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    }
+
+    .card-author {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-desc {
+      font-size: 0.93rem;
+      color: #334155;
+      margin-bottom: 16px;
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+
+    .tag {
+      font-size: 0.74rem;
+      font-weight: 600;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .btn-launch {
+      color: #ffffff;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-launch:hover {
+      opacity: 0.92;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Estado Vacío */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      color: #64748b;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: #B8003C;
+      margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.3rem;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    /* Optimización Móvil */
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: 1.85rem;
+      }
+      .filter-panel {
+        padding: 16px;
+      }
+      .apps-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-svg-badge {
+        width: 48px;
+        height: 48px;
+      }
+      .title-svg {
+        width: 38px;
+        height: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra Superior de Accesibilidad -->
+  <header class="app-toolbar" aria-label="Herramientas de Accesibilidad">
+    <div class="toolbar-brand">
+      <i class="fa-solid fa-calculator"></i> Repositorio apps de Matemática
+    </div>
+    <div class="toolbar-controls">
+      <button class="btn-tool" id="btn-font-sub" title="Disminuir tamaño de letra">A-</button>
+      <button class="btn-tool" id="btn-font-reset" title="Restablecer tamaño de letra">A</button>
+      <button class="btn-tool" id="btn-font-add" title="Aumentar tamaño de letra">A+</button>
+      <button class="btn-tool" id="btn-contrast" title="Alternar Alto Contraste"><i class="fa-solid fa-circle-half-stroke"></i> Contraste</button>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="hero-title-wrapper">
+        <!-- Parábola SVG (Lado Izquierdo) -->
+        <div class="hero-svg-badge" title="Parábola matemática">
+          <svg class="title-svg" viewBox="0 0 100 100" aria-label="Parábola matemática">
+            <!-- Eje X con flecha -->
+            <line x1="12" y1="74" x2="88" y2="74" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+            <polyline points="82,70 88,74 82,78" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <!-- Eje Y con flecha -->
+            <line x1="26" y1="88" x2="26" y2="12" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+            <polyline points="22,18 26,12 30,18" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <!-- Curva parábola suave -->
+            <path d="M 22 24 Q 48 84 82 28" fill="none" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" />
+            <!-- Vértice y raíz -->
+            <circle cx="48" cy="54" r="4" fill="#6366F1" />
+            <circle cx="73" cy="38" r="3.5" fill="#F59E0B" />
+          </svg>
+        </div>
+
+        <h1>Repositorio apps de Matemática</h1>
+
+        <!-- Algoritmo de Ruffini SVG (Lado Derecho) -->
+        <div class="hero-svg-badge" title="Regla de Ruffini">
+          <svg class="title-svg" viewBox="0 0 100 100" aria-label="Algoritmo de Ruffini">
+            <!-- Líneas directrices del algoritmo -->
+            <line x1="32" y1="18" x2="32" y2="82" stroke="#6366F1" stroke-width="3.5" stroke-linecap="round" />
+            <line x1="14" y1="62" x2="86" y2="62" stroke="#6366F1" stroke-width="3.5" stroke-linecap="round" />
+            <!-- Raíz / Divisor -->
+            <circle cx="22" cy="44" r="6" fill="#F59E0B" />
+            <!-- Coeficientes del dividendo -->
+            <circle cx="45" cy="34" r="5" fill="#06B6D4" />
+            <circle cx="62" cy="34" r="5" fill="#06B6D4" />
+            <circle cx="78" cy="34" r="5" fill="#06B6D4" />
+            <!-- Cociente y Resto (destacado) -->
+            <circle cx="45" cy="72" r="5" fill="#10B981" />
+            <circle cx="62" cy="72" r="5" fill="#10B981" />
+            <circle cx="78" cy="72" r="6.5" fill="#EC4899" />
+            <!-- Trazo de descenso -->
+            <line x1="45" y1="41" x2="45" y2="60" stroke="#94A3B8" stroke-width="2" stroke-dasharray="2 2" />
+          </svg>
+        </div>
+      </div>
+      <p class="hero-subtitle">
+        Colección de herramientas y aplicaciones interactivas diseñadas para el aprendizaje matemático.
+      </p>
+    </header>
+
+    <!-- Panel de Búsqueda y Filtros Dinámicos -->
+    <section class="filter-panel" aria-label="Búsqueda y Filtros">
+      
+      <!-- Buscador en tiempo real -->
+      <div class="search-group">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input 
+          type="text" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="Buscar por tema matemático, concepto o palabra clave (ej: Ruffini, Polinomios, Lógica)..."
+          aria-label="Buscar aplicaciones de matemática"
+        >
+      </div>
+
+      <!-- Filtros por Categoría -->
+      <div class="filters-row">
+        <div class="select-wrapper">
+          <label for="filter-level">Nivel Educativo</label>
+          <select id="filter-level" class="filter-select" aria-label="Filtrar por Nivel Educativo">
+            <option value="todos">Todos los Niveles</option>
+            <option value="Secundaria">Secundaria</option>
+            <option value="Superior">Nivel Superior / Terciario</option>
+            <option value="Formación Docente">Formación Docente</option>
+          </select>
+        </div>
+
+        <div class="select-wrapper">
+          <label for="filter-topic">Eje Temático</label>
+          <select id="filter-topic" class="filter-select" aria-label="Filtrar por Eje Temático">
+            <option value="todos">Todos los Ejes</option>
+            <option value="Álgebra y Polinomios">Álgebra y Polinomios</option>
+            <option value="Geometría y Trigonometría">Geometría y Trigonometría</option>
+            <option value="Lógica Proposicional">Lógica Proposicional</option>
+            <option value="Funciones y Análisis">Funciones y Análisis</option>
+            <option value="Probabilidad y Estadística">Probabilidad y Estadística</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <span id="status-count" class="status-count">Cargando aplicaciones...</span>
+        <span style="font-size: 0.85rem; color: #64748b;"><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Catálogo interactivo</span>
+      </div>
+
+    </section>
+
+    <!-- Grid de Aplicaciones -->
+    <main class="apps-grid" id="apps-grid" aria-label="Catálogo de Aplicaciones de Matemática">
+      <!-- Las tarjetas se generan dinámicamente desde el array JavaScript de abajo -->
+    </main>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       CATÁLOGO DE APLICACIONES DE MATEMÁTICA
+       Cada ficha cuenta con:
+       - id: identificador único
+       - emoji: emoticón temático representativo que antecede al título
+       - titulo: nombre visible de la aplicación
+       - autor: docente creador/a
+       - nivel: "Secundaria", "Superior", "Formación Docente"
+       - materia: área temática curricular
+       - eje: eje conceptual
+       - color: color hexadecimal distintivo para el borde y acentos
+       - url: ruta relativa al archivo HTML
+       - tags: etiquetas clave de búsqueda
+       - descripcion: síntesis didáctica del recurso
+       ========================================================================== */
+
+    const REPOSITORIO_MATE = [
+      {
+        id: "mate-1",
+        emoji: "➗",
+        titulo: "Mediador Didáctico: Regla de Ruffini",
+        autor: "Silvina Busto",
+        descripcion: "Aplicación interactiva que andamia la división de polinomios casilla a casilla mediante impulsos socráticos, pistas graduadas y apoyos interactivos (A+/A-, Lectura en Voz Alta y Contraste).",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Álgebra y Polinomios",
+        color: "#2563eb", // Azul royal
+        url: "app_ruffini_dua.html",
+        tags: ["Socrático", "Ruffini", "Polinomios", "Pistas", "Álgebra", "División"]
+      },
+      {
+        id: "mate-2",
+        emoji: "🧮",
+        titulo: "Calculadora y Algoritmo de Ruffini",
+        autor: "Silvina Busto",
+        descripcion: "Herramienta de cálculo paso a paso para resolver divisiones polinómicas por el método tradicional de Ruffini con reconstrucción del cociente y resto.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Álgebra y Polinomios",
+        color: "#059669", // Esmeralda
+        url: "ruffini.htm",
+        tags: ["Algoritmo", "Matemática", "Paso a Paso", "Polinomios", "Cálculo"]
+      },
+      {
+        id: "mate-3",
+        emoji: "⚖️",
+        titulo: "Actividad Interactiva: Tablas de Verdad",
+        autor: "Silvina Busto",
+        descripcion: "Aplicación interactiva para resolver, autoevaluar y clasificar tablas de verdad (Tautología, Contradicción y Contingencia) con soporte para 2 y 3 variables, retroalimentación inmediata y puntaje.",
+        nivel: "Superior",
+        materia: "Matemática",
+        eje: "Lógica Proposicional",
+        color: "#7c3aed", // Violeta
+        url: "actividad_tablas_verdad.html",
+        tags: ["Lógica", "Tablas de Verdad", "Tautología", "Proposiciones", "Autoevaluación"]
+      },
+      {
+        id: "mate-4",
+        emoji: "🎨",
+        titulo: "Arte y Matemática: Explorador Didáctico SVG",
+        autor: "Silvina Busto",
+        descripcion: "Galería interactiva STEAM que explora geometría, proporciones, teselaciones y transformaciones geométricas mediante obras generadas en SVG con cuadrícula interactiva e inspección de código.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Geometría y Trigonometría",
+        color: "#d97706", // Ámbar cálido
+        url: "arte_matematica.html",
+        tags: ["Geometría", "STEAM", "Arte", "SVG", "Teselaciones", "Proporciones"]
+      }
+    ];
+
+    // --- LÓGICA DE FILTRADO Y BUSCADOR EN TIEMPO REAL ---
+    const appsGrid = document.getElementById('apps-grid');
+    const searchInput = document.getElementById('search-input');
+    const filterLevel = document.getElementById('filter-level');
+    const filterTopic = document.getElementById('filter-topic');
+    const statusCount = document.getElementById('status-count');
+
+    function renderApps() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      const selectedLevel = filterLevel.value;
+      const selectedTopic = filterTopic.value;
+
+      // Filtrar el array
+      const filtradas = REPOSITORIO_MATE.filter(app => {
+        const matchSearch = 
+          app.titulo.toLowerCase().includes(searchTerm) ||
+          (app.autor && app.autor.toLowerCase().includes(searchTerm)) ||
+          app.descripcion.toLowerCase().includes(searchTerm) ||
+          app.eje.toLowerCase().includes(searchTerm) ||
+          app.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+        const matchLevel = (selectedLevel === 'todos') || (app.nivel === selectedLevel);
+        const matchTopic = (selectedTopic === 'todos') || (app.eje === selectedTopic);
+
+        return matchSearch && matchLevel && matchTopic;
+      });
+
+      // Actualizar contador
+      statusCount.innerHTML = `Mostrando <strong>${filtradas.length}</strong> de <strong>${REPOSITORIO_MATE.length}</strong> aplicaciones`;
+
+      // Limpiar contenedor
+      appsGrid.innerHTML = '';
+
+      // Estado vacío
+      if (filtradas.length === 0) {
+        appsGrid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-shapes"></i>
+            <h3>No se encontraron aplicaciones</h3>
+            <p>Intenta con otros términos de búsqueda o selecciona otros filtros.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Renderizar tarjetas con su color distintivo y emoji
+      filtradas.forEach(app => {
+        const card = document.createElement('article');
+        card.className = 'app-card';
+
+        // Inyectar variables de color de la ficha
+        const accentColor = app.color || '#2563eb';
+        card.style.setProperty('--card-accent', accentColor);
+        card.style.setProperty('--card-accent-soft', accentColor + '18');
+        card.style.setProperty('--card-accent-glow', accentColor + '35');
+        card.style.setProperty('--card-accent-text', accentColor);
+
+        const tagsHTML = app.tags.map(t => `<span class="tag">#${t}</span>`).join('');
+        const autorHTML = app.autor ? `<div class="card-author"><i class="fa-solid fa-user-pen"></i> por: ${app.autor}</div>` : '';
+
+        card.innerHTML = `
+          <div>
+            <div class="card-badges">
+              <span class="badge-level">${app.nivel}</span>
+              <span class="badge-subject">${app.eje}</span>
+            </div>
+            <h2 class="card-title">
+              <span class="card-emoji" aria-hidden="true">${app.emoji}</span>
+              <span>${app.titulo}</span>
+            </h2>
+            ${autorHTML}
+            <p class="card-desc">${app.descripcion}</p>
+            <div class="card-tags">${tagsHTML}</div>
+          </div>
+          <a href="${app.url}" class="btn-launch" style="background: ${accentColor};" target="_blank" aria-label="Abrir aplicación ${app.titulo}">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Aplicación
+          </a>
+        `;
+
+        appsGrid.appendChild(card);
+      });
+    }
+
+    // Eventos de filtrado
+    searchInput.addEventListener('input', renderApps);
+    filterLevel.addEventListener('change', renderApps);
+    filterTopic.addEventListener('change', renderApps);
+
+    // --- HERRAMIENTAS DE ACCESIBILIDAD ---
+    let baseFontSize = 16;
+    const btnFontAdd = document.getElementById('btn-font-add');
+    const btnFontSub = document.getElementById('btn-font-sub');
+    const btnFontReset = document.getElementById('btn-font-reset');
+    const btnContrast = document.getElementById('btn-contrast');
+
+    btnFontAdd.addEventListener('click', () => {
+      if (baseFontSize < 24) {
+        baseFontSize += 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    });
+
+    btnFontSub.addEventListener('click', () => {
+      if (baseFontSize > 12) {
+        baseFontSize -= 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    });
+
+    btnFontReset.addEventListener('click', () => {
+      baseFontSize = 16;
+      document.documentElement.style.fontSize = '16px';
+    });
+
+    btnContrast.addEventListener('click', () => {
+      document.body.classList.toggle('high-contrast');
+      btnContrast.classList.toggle('active');
+    });
+
+    // Inicializar catálogo
+    renderApps();
+  </script>
+</body>
+</html>

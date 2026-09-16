@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Actividad Interactiva: Tablas de Verdad y Lógica Proposicional</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-accent: #0891b2;
+      --primary-dark: #164e63;
+      --header-grad: linear-gradient(135deg, #0e7490 0%, #164e63 100%);
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --green-bg: #dcfce7;
+      --green-border: #16a34a;
+      --green-text: #15803d;
+      --red-bg: #fee2e2;
+      --red-border: #dc2626;
+      --red-text: #b91c1c;
+      --highlight: #f0fdfa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 16px;
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    /* HEADER BANNER */
+    .header-card {
+      background: var(--header-grad);
+      color: white;
+      border-radius: 16px;
+      padding: clamp(20px, 3.5vw, 32px);
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(14,116,144,0.25);
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .header-title {
+      font-size: clamp(20px, 3.5vw, 28px);
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .header-sub {
+      font-size: clamp(14px, 2vw, 16px);
+      color: #a5f3fc;
+      font-weight: 600;
+    }
+    .header-info {
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.85);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    /* NAVIGATION BAR */
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+    }
+    .nav-btn {
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .nav-btn.active {
+      background: #0e7490;
+      color: white;
+      border-color: #0891b2;
+      box-shadow: 0 2px 6px rgba(14,116,144,0.3);
+    }
+    .nav-btn.view-all {
+      background: #475569;
+      color: white;
+      border-color: #334155;
+    }
+    .nav-btn.view-all.active {
+      background: #1e293b;
+      color: #fbbf24;
+    }
+
+    /* GLOBAL SCORE BANNER */
+    .score-banner {
+      background: linear-gradient(135deg, #1e293b, #334155);
+      color: white;
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-weight: 700;
+      font-size: 14.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .score-badge {
+      background: #38bdf8;
+      color: #082f49;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    /* EXERCISE CARDS */
+    .exercise-card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+      overflow: hidden;
+      display: none;
+    }
+    .exercise-card.visible {
+      display: block;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #0e7490 0%, #164e63 100%);
+      color: white;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: white;
+    }
+    .card-formula {
+      font-size: 15px;
+      font-weight: 700;
+      color: #a5f3fc;
+      background: rgba(0,0,0,0.25);
+      padding: 3px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .card-body {
+      padding: clamp(16px, 3vw, 24px);
+    }
+
+    .instruction-box {
+      background: #faf8f6;
+      border: 1px solid #e5e0da;
+      border-left: 4px solid #0891b2;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    /* TABLES */
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .truth-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 13.5px;
+      background: white;
+    }
+    .truth-table th {
+      background: #0e7490;
+      color: white;
+      padding: 10px 6px;
+      border: 1px solid #cbd5e1;
+      font-weight: 700;
+    }
+    .truth-table th.main-col {
+      background: #0891b2;
+      font-weight: 800;
+      color: white;
+    }
+    .truth-table td {
+      padding: 8px 4px;
+      border: 1px solid #cbd5e1;
+    }
+    .truth-table td.val-v {
+      font-weight: 800;
+      color: #16a34a;
+    }
+    .truth-table td.val-f {
+      font-weight: 800;
+      color: #dc2626;
+    }
+    .truth-table td.main-cell {
+      background: #f0fdfa;
+    }
+
+    /* INPUTS / SELECTS INSIDE TABLES */
+    .cell-select {
+      width: 52px;
+      padding: 5px 2px;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+    .cell-select:focus {
+      border-color: #0891b2;
+      box-shadow: 0 0 0 2px rgba(8,145,178,0.2);
+    }
+    .cell-select.correct {
+      background-color: var(--green-bg) !important;
+      border-color: var(--green-border) !important;
+      color: var(--green-text) !important;
+    }
+    .cell-select.incorrect {
+      background-color: var(--red-bg) !important;
+      border-color: var(--red-border) !important;
+      color: var(--red-text) !important;
+    }
+
+    /* CLASSIFICATION BLOCK */
+    .clasif-card {
+      background: #f8fafc;
+      border: 1.5px solid #a5f3fc;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .clasif-title {
+      font-weight: 800;
+      font-size: 14.5px;
+      color: #0e7490;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .clasif-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .clasif-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: white;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .clasif-label:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .clasif-label input[type="radio"] {
+      accent-color: #0e7490;
+      width: 16px;
+      height: 16px;
+    }
+    .clasif-label.correct {
+      background: #dcfce7;
+      border-color: #16a34a;
+      color: #15803d;
+      font-weight: 800;
+    }
+    .clasif-label.incorrect {
+      background: #fee2e2;
+      border-color: #dc2626;
+      color: #b91c1c;
+    }
+
+    /* ACTION BUTTONS */
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .btn-verify {
+      background: #0e7490;
+      color: white;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 2px 6px rgba(14,116,144,0.25);
+    }
+    .btn-verify:hover {
+      background: #0891b2;
+    }
+    .btn-reset {
+      background: #64748b;
+      color: white;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-reset:hover {
+      background: #475569;
+    }
+
+    /* FEEDBACK BOX */
+    .feedback-box {
+      margin-top: 14px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      display: none;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .feedback-box.correct {
+      display: block;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+    .feedback-box.incorrect {
+      display: block;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    /* CARD FOOTER STEPPING */
+    .card-footer-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .btn-step {
+      background: #1e293b;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-step:hover {
+      background: #334155;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 24px 0 10px 0;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER BANNER -->
+  <div class="header-card">
+    <div style="font-size:38px; margin-bottom:4px;">📊</div>
+    <h1 class="header-title">Actividad Interactiva: Tablas de Verdad</h1>
+    <p class="header-sub">Lógica Proposicional &middot; Resolución y Clasificación</p>
+    <p class="header-info">Completá cada tabla con V o F y seleccioná si es Tautología, Contradicción o Contingencia.</p>
+  </div>
+
+  <!-- NAVEGADOR DE EJERCICIOS -->
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="showExercise(1)">Ejercicio 1</button>
+    <button class="nav-btn" onclick="showExercise(2)">Ejercicio 2</button>
+    <button class="nav-btn" onclick="showExercise(3)">Ejercicio 3</button>
+    <button class="nav-btn" onclick="showExercise(4)">Ejercicio 4 (3 variables)</button>
+    <button class="nav-btn view-all" onclick="showAllExercises()">👁️ Ver Todas</button>
+  </div>
+
+  <!-- BARRA DE PUNTAJE GLOBAL -->
+  <div class="score-banner">
+    <span>🏆 Puntaje Total de la Actividad:</span>
+    <span class="score-badge" id="globalScore">0 / 23 pts (0%)</span>
+  </div>
+
+  <!-- ============================================================
+       EJERCICIO 1: (p ∧ q) ∨ ¬p (Contingencia)
+       ============================================================ -->
+  <div class="exercise-card visible" id="card-ex-1">
+    <div class="card-header">
+      <span class="card-title">1. Ejercicio 1: Tabla de Verdad</span>
+      <span class="card-formula">(p ∧ q) ∨ ¬p</span>
+    </div>
+    <div class="card-body">
+      <div class="instruction-box">
+        <strong>📝 Instrucciones:</strong> Completá cada casillero seleccionando <strong>V</strong> o <strong>F</strong>, y luego elegí la clasificación correcta de la fórmula según su columna principal.
+      </div>
+
+      <div class="table-container">
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th style="width:12%;">p</th>
+              <th style="width:12%;">q</th>
+              <th style="width:25%;">p ∧ q</th>
+              <th style="width:25%;">¬p</th>
+              <th style="width:26%;" class="main-col">(p ∧ q) ∨ ¬p</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="val-v">V</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t1-1-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t1-1-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t1-1-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-v">V</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t1-2-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t1-2-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t1-2-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr>
+              <td class="val-f">F</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t1-3-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t1-3-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t1-3-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-f">F</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t1-4-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t1-4-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t1-4-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="clasif-card">
+        <span class="clasif-title">⚖️ Clasificación de la fórmula:</span>
+        <div class="clasif-options">
+          <label class="clasif-label" id="lbl-c1-taut"><input type="radio" name="clasif-1" value="Tautología"> Tautología</label>
+          <label class="clasif-label" id="lbl-c1-cont"><input type="radio" name="clasif-1" value="Contradicción"> Contradicción</label>
+          <label class="clasif-label" id="lbl-c1-ctg"><input type="radio" name="clasif-1" value="Contingencia"> Contingencia</label>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-verify" onclick="verifyExercise(1)">Comprobar Ejercicio 1</button>
+        <button class="btn-reset" onclick="resetExercise(1)">Borrar</button>
+      </div>
+
+      <div class="feedback-box" id="fb-ex-1"></div>
+
+      <div class="card-footer-nav">
+        <span></span>
+        <button class="btn-step" onclick="showExercise(2)">Siguiente: Ejercicio 2 &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       EJERCICIO 2: ¬(p ∨ q) ↔ (p ∨ q) (Contradicción)
+       ============================================================ -->
+  <div class="exercise-card" id="card-ex-2">
+    <div class="card-header">
+      <span class="card-title">2. Ejercicio 2: Tabla de Verdad</span>
+      <span class="card-formula">¬(p ∨ q) ↔ (p ∨ q)</span>
+    </div>
+    <div class="card-body">
+      <div class="instruction-box">
+        <strong>📝 Instrucciones:</strong> Completá cada casillero seleccionando <strong>V</strong> o <strong>F</strong>, y luego elegí la clasificación correcta de la fórmula.
+      </div>
+
+      <div class="table-container">
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th style="width:12%;">p</th>
+              <th style="width:12%;">q</th>
+              <th style="width:25%;">p ∨ q</th>
+              <th style="width:25%;">¬(p ∨ q)</th>
+              <th style="width:26%;" class="main-col">¬(p ∨ q) ↔ (p ∨ q)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="val-v">V</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t2-1-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t2-1-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t2-1-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-v">V</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t2-2-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t2-2-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t2-2-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr>
+              <td class="val-f">F</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t2-3-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t2-3-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t2-3-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-f">F</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t2-4-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t2-4-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t2-4-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="clasif-card">
+        <span class="clasif-title">⚖️ Clasificación de la fórmula:</span>
+        <div class="clasif-options">
+          <label class="clasif-label" id="lbl-c2-taut"><input type="radio" name="clasif-2" value="Tautología"> Tautología</label>
+          <label class="clasif-label" id="lbl-c2-cont"><input type="radio" name="clasif-2" value="Contradicción"> Contradicción</label>
+          <label class="clasif-label" id="lbl-c2-ctg"><input type="radio" name="clasif-2" value="Contingencia"> Contingencia</label>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-verify" onclick="verifyExercise(2)">Comprobar Ejercicio 2</button>
+        <button class="btn-reset" onclick="resetExercise(2)">Borrar</button>
+      </div>
+
+      <div class="feedback-box" id="fb-ex-2"></div>
+
+      <div class="card-footer-nav">
+        <button class="btn-step" onclick="showExercise(1)">&larr; Anterior</button>
+        <button class="btn-step" onclick="showExercise(3)">Siguiente: Ejercicio 3 &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       EJERCICIO 3: (p ∧ ¬q) → (¬p ∨ ¬q) (Tautología)
+       ============================================================ -->
+  <div class="exercise-card" id="card-ex-3">
+    <div class="card-header">
+      <span class="card-title">3. Ejercicio 3: Tabla de Verdad</span>
+      <span class="card-formula">(p ∧ ¬q) → (¬p ∨ ¬q)</span>
+    </div>
+    <div class="card-body">
+      <div class="instruction-box">
+        <strong>📝 Instrucciones:</strong> Completá cada casillero seleccionando <strong>V</strong> o <strong>F</strong>, y luego elegí la clasificación correcta de la fórmula.
+      </div>
+
+      <div class="table-container">
+        <table class="truth-table" style="font-size:12.5px;">
+          <thead>
+            <tr>
+              <th style="width:7%;">p</th>
+              <th style="width:7%;">q</th>
+              <th style="width:10%;">¬p</th>
+              <th style="width:10%;">¬q</th>
+              <th style="width:18%;">p ∧ ¬q</th>
+              <th style="width:18%;">¬p ∨ ¬q</th>
+              <th style="width:30%;" class="main-col">(p ∧ ¬q) → (¬p ∨ ¬q)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="val-v">V</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t3-1-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-1-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-1-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-1-4"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t3-1-5"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-v">V</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t3-2-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-2-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-2-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-2-4"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t3-2-5"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr>
+              <td class="val-f">F</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t3-3-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-3-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-3-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-3-4"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t3-3-5"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-f">F</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t3-4-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-4-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-4-3"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td><select class="cell-select" id="t3-4-4"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t3-4-5"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="clasif-card">
+        <span class="clasif-title">⚖️ Clasificación de la fórmula:</span>
+        <div class="clasif-options">
+          <label class="clasif-label" id="lbl-c3-taut"><input type="radio" name="clasif-3" value="Tautología"> Tautología</label>
+          <label class="clasif-label" id="lbl-c3-cont"><input type="radio" name="clasif-3" value="Contradicción"> Contradicción</label>
+          <label class="clasif-label" id="lbl-c3-ctg"><input type="radio" name="clasif-3" value="Contingencia"> Contingencia</label>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-verify" onclick="verifyExercise(3)">Comprobar Ejercicio 3</button>
+        <button class="btn-reset" onclick="resetExercise(3)">Borrar</button>
+      </div>
+
+      <div class="feedback-box" id="fb-ex-3"></div>
+
+      <div class="card-footer-nav">
+        <button class="btn-step" onclick="showExercise(2)">&larr; Anterior</button>
+        <button class="btn-step" onclick="showExercise(4)">Siguiente: Ejercicio 4 &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       EJERCICIO 4: (p XOR r) ∧ q (Contingencia - 3 variables)
+       ============================================================ -->
+  <div class="exercise-card" id="card-ex-4">
+    <div class="card-header">
+      <span class="card-title">4. Ejercicio 4: Tabla de Verdad (3 variables)</span>
+      <span class="card-formula">(p XOR r) ∧ q</span>
+    </div>
+    <div class="card-body">
+      <div class="instruction-box">
+        <strong>📝 Instrucciones:</strong> Completá las 8 filas seleccionando <strong>V</strong> o <strong>F</strong>, y luego elegí la clasificación correcta de la fórmula.
+      </div>
+
+      <div class="table-container">
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th style="width:10%;">p</th>
+              <th style="width:10%;">q</th>
+              <th style="width:10%;">r</th>
+              <th style="width:35%;">p XOR r</th>
+              <th style="width:35%;" class="main-col">(p XOR r) ∧ q</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="val-v">V</td>
+              <td class="val-v">V</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t4-1-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-1-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-v">V</td>
+              <td class="val-v">V</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t4-2-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-2-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr>
+              <td class="val-v">V</td>
+              <td class="val-f">F</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t4-3-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-3-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-v">V</td>
+              <td class="val-f">F</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t4-4-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-4-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr>
+              <td class="val-f">F</td>
+              <td class="val-v">V</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t4-5-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-5-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-f">F</td>
+              <td class="val-v">V</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t4-6-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-6-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr>
+              <td class="val-f">F</td>
+              <td class="val-f">F</td>
+              <td class="val-v">V</td>
+              <td><select class="cell-select" id="t4-7-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-7-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td class="val-f">F</td>
+              <td class="val-f">F</td>
+              <td class="val-f">F</td>
+              <td><select class="cell-select" id="t4-8-1"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+              <td class="main-cell"><select class="cell-select" id="t4-8-2"><option value="">-</option><option value="V">V</option><option value="F">F</option></select></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="clasif-card">
+        <span class="clasif-title">⚖️ Clasificación de la fórmula:</span>
+        <div class="clasif-options">
+          <label class="clasif-label" id="lbl-c4-taut"><input type="radio" name="clasif-4" value="Tautología"> Tautología</label>
+          <label class="clasif-label" id="lbl-c4-cont"><input type="radio" name="clasif-4" value="Contradicción"> Contradicción</label>
+          <label class="clasif-label" id="lbl-c4-ctg"><input type="radio" name="clasif-4" value="Contingencia"> Contingencia</label>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn-verify" onclick="verifyExercise(4)">Comprobar Ejercicio 4</button>
+        <button class="btn-reset" onclick="resetExercise(4)">Borrar</button>
+      </div>
+
+      <div class="feedback-box" id="fb-ex-4"></div>
+
+      <div class="card-footer-nav">
+        <button class="btn-step" onclick="showExercise(3)">&larr; Anterior</button>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Práctica Interactiva de Lógica Proposicional &middot; Universidad Nacional de Quilmes (UNQ) &mdash; <em>Silvina</em>
+  </div>
+
+</div>
+
+<script>
+  // CLAVES DE CORRECCIÓN
+  const keys = {
+    // Ejercicio 1 (12 celdas + 1 clasif = 13 items)
+    t1: {
+      '1-1': 'V', '1-2': 'F', '1-3': 'V',
+      '2-1': 'F', '2-2': 'F', '2-3': 'F',
+      '3-1': 'F', '3-2': 'V', '3-3': 'V',
+      '4-1': 'F', '4-2': 'V', '4-3': 'V'
+    },
+    clasif1: 'Contingencia',
+
+    // Ejercicio 2 (12 celdas + 1 clasif = 13 items)
+    t2: {
+      '1-1': 'V', '1-2': 'F', '1-3': 'F',
+      '2-1': 'V', '2-2': 'F', '2-3': 'F',
+      '3-1': 'V', '3-2': 'F', '3-3': 'F',
+      '4-1': 'F', '4-2': 'V', '4-3': 'F'
+    },
+    clasif2: 'Contradicción',
+
+    // Ejercicio 3 (20 celdas + 1 clasif = 21 items)
+    t3: {
+      '1-1': 'F', '1-2': 'F', '1-3': 'F', '1-4': 'F', '1-5': 'V',
+      '2-1': 'F', '2-2': 'V', '2-3': 'V', '2-4': 'V', '2-5': 'V',
+      '3-1': 'V', '3-2': 'F', '3-3': 'F', '3-4': 'V', '3-5': 'V',
+      '4-1': 'V', '4-2': 'V', '4-3': 'F', '4-4': 'V', '4-5': 'V'
+    },
+    clasif3: 'Tautología',
+
+    // Ejercicio 4 (16 celdas + 1 clasif = 17 items)
+    t4: {
+      '1-1': 'F', '1-2': 'F',
+      '2-1': 'V', '2-2': 'V',
+      '3-1': 'F', '3-2': 'F',
+      '4-1': 'V', '4-2': 'F',
+      '5-1': 'V', '5-2': 'V',
+      '6-1': 'F', '6-2': 'F',
+      '7-1': 'V', '7-2': 'F',
+      '8-1': 'F', '8-2': 'F'
+    },
+    clasif4: 'Contingencia'
+  };
+
+  // PUNTAJES POR EJERCICIO (Ponderación sobre 23 puntos base: Ex1=5pts, Ex2=5pts, Ex3=7pts, Ex4=6pts)
+  let exerciseScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+  const maxScores = { 1: 5, 2: 5, 3: 7, 4: 6 };
+
+  function updateGlobalScore() {
+    let total = Object.values(exerciseScores).reduce((a, b) => a + b, 0);
+    let pct = Math.round((total / 23) * 100);
+    document.getElementById('globalScore').innerText = `${total} / 23 pts (${pct}%)`;
+  }
+
+  // NAVEGACIÓN
+  function showExercise(num) {
+    document.querySelectorAll('.exercise-card').forEach(c => c.classList.remove('visible'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+    let target = document.getElementById('card-ex-' + num);
+    if(target) target.classList.add('visible');
+
+    let btns = document.querySelectorAll('.nav-btn');
+    if(btns[num-1]) btns[num-1].classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showAllExercises() {
+    document.querySelectorAll('.exercise-card').forEach(c => c.classList.add('visible'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.nav-btn.view-all').classList.add('active');
+  }
+
+  // VERIFICACIÓN EJERCICIO 1
+  function verifyExercise(num) {
+    if (num === 1) {
+      let correctCells = 0;
+      let totalCells = 12;
+      for (let pos in keys.t1) {
+        let el = document.getElementById('t1-' + pos);
+        if (el) {
+          if (el.value === keys.t1[pos]) {
+            el.className = 'cell-select correct';
+            correctCells++;
+          } else {
+            el.className = 'cell-select incorrect';
+          }
+        }
+      }
+
+      let selRadio = document.querySelector('input[name="clasif-1"]:checked');
+      let clasifCorrect = (selRadio && selRadio.value === keys.clasif1);
+      
+      // Resaltar opciones de clasificación
+      document.querySelectorAll('input[name="clasif-1"]').forEach(r => {
+        let lbl = r.parentElement;
+        lbl.className = 'clasif-label';
+        if (r.checked) {
+          lbl.classList.add(r.value === keys.clasif1 ? 'correct' : 'incorrect');
+        }
+      });
+
+      // Cálculo de puntos: 3 pts celdas + 2 pts clasificación = 5 pts
+      let cellPts = Math.round((correctCells / totalCells) * 3);
+      let clasifPts = clasifCorrect ? 2 : 0;
+      let total = cellPts + clasifPts;
+      exerciseScores[1] = total;
+
+      let fb = document.getElementById('fb-ex-1');
+      if (correctCells === totalCells && clasifCorrect) {
+        fb.className = 'feedback-box correct';
+        fb.innerHTML = `<strong>✓ ¡Excelente! (5 / 5 pts)</strong> Todas las celdas y la clasificación son correctas.<br>La columna principal de <code>(p ∧ q) ∨ ¬p</code> es <strong>V, F, V, V</strong>. Al tener al menos un valor verdadero y uno falso, se clasifica como <strong>Contingencia</strong>.`;
+      } else {
+        fb.className = 'feedback-box incorrect';
+        fb.innerHTML = `<strong>Puntaje obtenido: ${total} / 5 pts</strong> (${correctCells}/12 celdas correctas).<br>Revisá las celdas marcadas en rojo.<br>• <code>p ∧ q</code> sólo es V cuando ambas son V.<br>• <code>¬p</code> invierte el valor de p.<br>• <code>∨</code> es V cuando al menos una de las partes es V.`;
+      }
+      fb.style.display = 'block';
+    }
+
+    else if (num === 2) {
+      let correctCells = 0;
+      let totalCells = 12;
+      for (let pos in keys.t2) {
+        let el = document.getElementById('t2-' + pos);
+        if (el) {
+          if (el.value === keys.t2[pos]) {
+            el.className = 'cell-select correct';
+            correctCells++;
+          } else {
+            el.className = 'cell-select incorrect';
+          }
+        }
+      }
+
+      let selRadio = document.querySelector('input[name="clasif-2"]:checked');
+      let clasifCorrect = (selRadio && selRadio.value === keys.clasif2);
+      
+      document.querySelectorAll('input[name="clasif-2"]').forEach(r => {
+        let lbl = r.parentElement;
+        lbl.className = 'clasif-label';
+        if (r.checked) {
+          lbl.classList.add(r.value === keys.clasif2 ? 'correct' : 'incorrect');
+        }
+      });
+
+      let cellPts = Math.round((correctCells / totalCells) * 3);
+      let clasifPts = clasifCorrect ? 2 : 0;
+      let total = cellPts + clasifPts;
+      exerciseScores[2] = total;
+
+      let fb = document.getElementById('fb-ex-2');
+      if (correctCells === totalCells && clasifCorrect) {
+        fb.className = 'feedback-box correct';
+        fb.innerHTML = `<strong>✓ ¡Excelente! (5 / 5 pts)</strong> Todas las celdas y la clasificación son correctas.<br>La columna principal de <code>¬(p ∨ q) ↔ (p ∨ q)</code> es <strong>F, F, F, F</strong>. Como una proposición nunca puede ser equivalente a su propia negación, el resultado es siempre Falso: <strong>Contradicción</strong>.`;
+      } else {
+        fb.className = 'feedback-box incorrect';
+        fb.innerHTML = `<strong>Puntaje obtenido: ${total} / 5 pts</strong> (${correctCells}/12 celdas correctas).<br>Revisá las celdas marcadas en rojo.<br>• <code>p ∨ q</code> es V si al menos una es V.<br>• <code>¬(p ∨ q)</code> invierte todos los valores de <code>p ∨ q</code>.<br>• <code>↔</code> es V sólo cuando ambos lados tienen el mismo valor de verdad.`;
+      }
+      fb.style.display = 'block';
+    }
+
+    else if (num === 3) {
+      let correctCells = 0;
+      let totalCells = 20;
+      for (let pos in keys.t3) {
+        let el = document.getElementById('t3-' + pos);
+        if (el) {
+          if (el.value === keys.t3[pos]) {
+            el.className = 'cell-select correct';
+            correctCells++;
+          } else {
+            el.className = 'cell-select incorrect';
+          }
+        }
+      }
+
+      let selRadio = document.querySelector('input[name="clasif-3"]:checked');
+      let clasifCorrect = (selRadio && selRadio.value === keys.clasif3);
+      
+      document.querySelectorAll('input[name="clasif-3"]').forEach(r => {
+        let lbl = r.parentElement;
+        lbl.className = 'clasif-label';
+        if (r.checked) {
+          lbl.classList.add(r.value === keys.clasif3 ? 'correct' : 'incorrect');
+        }
+      });
+
+      let cellPts = Math.round((correctCells / totalCells) * 5);
+      let clasifPts = clasifCorrect ? 2 : 0;
+      let total = cellPts + clasifPts;
+      exerciseScores[3] = total;
+
+      let fb = document.getElementById('fb-ex-3');
+      if (correctCells === totalCells && clasifCorrect) {
+        fb.className = 'feedback-box correct';
+        fb.innerHTML = `<strong>✓ ¡Excelente! (7 / 7 pts)</strong> Todas las celdas y la clasificación son correctas.<br>La columna principal de <code>(p ∧ ¬q) → (¬p ∨ ¬q)</code> es <strong>V, V, V, V</strong>. Como resulta siempre Verdadera bajo cualquier valuación, se clasifica como <strong>Tautología</strong>.`;
+      } else {
+        fb.className = 'feedback-box incorrect';
+        fb.innerHTML = `<strong>Puntaje obtenido: ${total} / 7 pts</strong> (${correctCells}/20 celdas correctas).<br>Revisá las celdas en rojo.<br>• <code>p ∧ ¬q</code> es V sólo cuando p=V y q=F.<br>• <code>¬p ∨ ¬q</code> es F sólo cuando ambas p=V y q=V.<br>• El condicional <code>→</code> sólo es F cuando el antecedente es V y el consecuente es F.`;
+      }
+      fb.style.display = 'block';
+    }
+
+    else if (num === 4) {
+      let correctCells = 0;
+      let totalCells = 16;
+      for (let pos in keys.t4) {
+        let el = document.getElementById('t4-' + pos);
+        if (el) {
+          if (el.value === keys.t4[pos]) {
+            el.className = 'cell-select correct';
+            correctCells++;
+          } else {
+            el.className = 'cell-select incorrect';
+          }
+        }
+      }
+
+      let selRadio = document.querySelector('input[name="clasif-4"]:checked');
+      let clasifCorrect = (selRadio && selRadio.value === keys.clasif4);
+      
+      document.querySelectorAll('input[name="clasif-4"]').forEach(r => {
+        let lbl = r.parentElement;
+        lbl.className = 'clasif-label';
+        if (r.checked) {
+          lbl.classList.add(r.value === keys.clasif4 ? 'correct' : 'incorrect');
+        }
+      });
+
+      let cellPts = Math.round((correctCells / totalCells) * 4);
+      let clasifPts = clasifCorrect ? 2 : 0;
+      let total = cellPts + clasifPts;
+      exerciseScores[4] = total;
+
+      let fb = document.getElementById('fb-ex-4');
+      if (correctCells === totalCells && clasifCorrect) {
+        fb.className = 'feedback-box correct';
+        fb.innerHTML = `<strong>✓ ¡Excelente! (6 / 6 pts)</strong> Todas las celdas y la clasificación son correctas.<br>La columna principal de <code>(p XOR r) ∧ q</code> es <strong>F, V, F, F, V, F, F, F</strong>. Al contener valores Verdaderos y Falsos, se clasifica como <strong>Contingencia</strong>.`;
+      } else {
+        fb.className = 'feedback-box incorrect';
+        fb.innerHTML = `<strong>Puntaje obtenido: ${total} / 6 pts</strong> (${correctCells}/16 celdas correctas).<br>Revisá las celdas en rojo.<br>• <code>p XOR r</code> (disyunción exclusiva) es V cuando p y r tienen valores de verdad distintos.<br>• <code>(p XOR r) ∧ q</code> sólo es V si ambas partes son V simultáneamente.`;
+      }
+      fb.style.display = 'block';
+    }
+
+    updateGlobalScore();
+  }
+
+  // REINICIAR EJERCICIO
+  function resetExercise(num) {
+    let prefix = 't' + num;
+    for (let pos in keys[prefix]) {
+      let el = document.getElementById(prefix + '-' + pos);
+      if (el) {
+        el.value = '';
+        el.className = 'cell-select';
+      }
+    }
+    document.querySelectorAll(`input[name="clasif-${num}"]`).forEach(r => {
+      r.checked = false;
+      r.parentElement.className = 'clasif-label';
+    });
+    let fb = document.getElementById('fb-ex-' + num);
+    if (fb) fb.style.display = 'none';
+
+    exerciseScores[num] = 0;
+    updateGlobalScore();
+  }
+</script>
+
+</body>
+</html>

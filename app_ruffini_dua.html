@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mediador Didáctico: Regla de Ruffini | Aprendizaje Inclusivo (DUA)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #f4f7fc;
+      --surface: #ffffff;
+      --surface-border: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --accent: #0d9488;
+      --accent-light: #f0fdf4;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      --warning-text: #b45309;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --success-text: #15803d;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #b91c1c;
+      --base-font-size: 16px;
+      --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body.high-contrast {
+      --bg-main: #111827;
+      --surface: #1f2937;
+      --surface-border: #374151;
+      --text-main: #f9fafb;
+      --text-muted: #d1d5db;
+      --primary: #60a5fa;
+      --primary-hover: #93c5fd;
+      --primary-light: #1e3a8a;
+      --accent: #2dd4bf;
+      --accent-light: #134e4a;
+      --warning-bg: #451a03;
+      --warning-border: #78350f;
+      --warning-text: #fef08a;
+      --success-bg: #064e3b;
+      --success-border: #047857;
+      --success-text: #86efac;
+      --error-bg: #7f1d1d;
+      --error-border: #991b1b;
+      --error-text: #fca5a5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: var(--base-font-size);
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 20px 15px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* DUA Control Bar */
+    .dua-toolbar {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 12px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .dua-toolbar-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dua-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-dua {
+      background: var(--bg-main);
+      border: 1px solid var(--surface-border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-dua:hover, .btn-dua:focus {
+      border-color: var(--primary);
+      color: var(--primary);
+      outline: none;
+    }
+
+    .btn-dua.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* Main Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    .header-tag {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 24px;
+    }
+
+    /* Pedagogical Challenge Box */
+    .pedagogical-banner {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .pedagogical-banner strong {
+      color: var(--accent);
+    }
+
+    /* Input Controls */
+    .input-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .input-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--text-main);
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--surface-border);
+      border-radius: 10px;
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn-action {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn-action:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Ruffini Interactive Board */
+    .board-container {
+      margin-top: 24px;
+      overflow-x: auto;
+    }
+
+    .ruffini-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 6px;
+      margin: 16px 0;
+    }
+
+    .ruffini-table td, .ruffini-table th {
+      padding: 12px;
+      text-align: center;
+      vertical-align: middle;
+      border-radius: 8px;
+      font-weight: 600;
+      min-width: 60px;
+    }
+
+    .col-a {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 1.2rem;
+      border-right: 3px solid var(--primary);
+    }
+
+    .row-coef {
+      background: var(--bg-main);
+      border: 1px solid var(--surface-border);
+    }
+
+    .row-mult {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning-text);
+    }
+
+    .row-res {
+      background: var(--accent-light);
+      border: 2px solid var(--accent);
+      color: var(--text-main);
+      font-size: 1.1rem;
+    }
+
+    .cell-input {
+      width: 60px;
+      padding: 8px;
+      text-align: center;
+      font-size: 1rem;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    /* Feedback & Socratism Panel */
+    .feedback-panel {
+      margin-top: 20px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .feedback-panel.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .feedback-panel.info {
+      background: var(--primary-light);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .feedback-panel.success {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .feedback-panel.warning {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning-text);
+    }
+
+    /* Hint Box */
+    .hint-box {
+      margin-top: 12px;
+      background: #faf5ff;
+      border: 1px dashed #a855f7;
+      padding: 14px;
+      border-radius: 10px;
+      color: #6b21a8;
+      display: none;
+    }
+
+    body.high-contrast .hint-box {
+      background: #3b0764;
+      color: #f3e8ff;
+    }
+
+    .hint-box.show {
+      display: block;
+    }
+
+    .btn-hint {
+      background: #f3e8ff;
+      color: #7e22ce;
+      border: 1px solid #d8b4fe;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-hint:hover {
+      background: #e9d5ff;
+    }
+
+    /* Metacognition Box */
+    .metacognition-card {
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 24px;
+      display: none;
+    }
+
+    .metacognition-card.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Barra de Accesibilidad DUA -->
+    <header class="dua-toolbar" aria-label="Herramientas de Accesibilidad DUA">
+      <div class="dua-toolbar-title">
+        <span>♿ Apoyos DUA (Res. 860/25)</span>
+      </div>
+      <div class="dua-controls">
+        <button class="btn-dua" id="btn-font-sub" title="Disminuir tamaño de letra">A-</button>
+        <button class="btn-dua" id="btn-font-reset" title="Restablecer tamaño de letra">A</button>
+        <button class="btn-dua" id="btn-font-add" title="Aumentar tamaño de letra">A+</button>
+        <button class="btn-dua" id="btn-contrast" title="Alternar Alto Contraste">🌓 Contraste</button>
+        <button class="btn-dua" id="btn-tts" title="Lectura Accesible por Voz">🔊 Lectura por Voz</button>
+      </div>
+    </header>
+
+    <!-- Tarjeta Principal del Mediador Didáctico -->
+    <main class="card">
+      <span class="header-tag">Nivel Secundario • Matemática</span>
+      <h1 id="app-title">Mediador Didáctico: Regla de Ruffini</h1>
+      <p class="subtitle" id="app-desc">Una "Socia del Pensamiento" para andamiar paso a paso la división de polinomios por \(x - a\).</p>
+
+      <div class="pedagogical-banner" id="banner-text">
+        💡 <strong>Enfoque Socio-Pedagógico:</strong> Esta aplicación no te da la respuesta hecha. Te ayuda a pensar cada paso, brindándote impulsos socráticos y pistas graduadas para que tú construyas el conocimiento.
+      </div>
+
+      <!-- Sección de Configuración / Selección de Ejercicio -->
+      <section class="input-section">
+        <div class="form-group">
+          <label for="select-example">Seleccionar Ejercicio Guiado:</label>
+          <select id="select-example" aria-label="Seleccionar ejercicio predeterminado">
+            <option value="1">Ejemplo 1: (2x³ - 6x² + 2x - 4) ÷ (x - 2)</option>
+            <option value="2">Ejemplo 2: (x³ - 3x² + 4x - 5) ÷ (x - 3)</option>
+            <option value="3">Ejemplo 3: (3x² - 5x + 2) ÷ (x - 1)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="val-a">Valor de 'a' (del divisor x - a):</label>
+          <input type="text" id="val-a" value="2" readonly aria-label="Valor de a">
+        </div>
+      </section>
+
+      <button class="btn-action" id="btn-start">🚀 Iniciar Andamiaje Paso a Paso</button>
+
+      <!-- Tablero Interactivo de Ruffini -->
+      <div class="board-container" id="board-container" style="display: none;">
+        <h2 style="font-size: 1.2rem; margin-top: 15px;" id="step-title">Paso 1: Identificación y Bajada del Primer Coeficiente</h2>
+        
+        <table class="ruffini-table" aria-label="Tabla del Algoritmo de Ruffini">
+          <thead>
+            <tr id="row-coef-header">
+              <!-- Renderizado dinámico -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="row-mult-middle">
+              <!-- Renderizado dinámico de multiplicaciones -->
+            </tr>
+            <tr id="row-res-bottom">
+              <!-- Renderizado dinámico de resultados -->
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Panel de Feedback e Impulsos Socráticos -->
+        <div class="feedback-panel info show" id="feedback-panel">
+          <strong id="feedback-title">🔍 Impulso Socrático:</strong>
+          <p id="feedback-text">Observa el primer coeficiente del polinomio. En la Regla de Ruffini, el primer número "baja" directamente al resultado. ¿Cuál es ese primer número?</p>
+        </div>
+
+        <button class="btn-hint" id="btn-hint">💡 Pedir una pista graduada</button>
+
+        <div class="hint-box" id="hint-box">
+          <strong>Pista Nivel 1:</strong> El primer coeficiente es el número que multiplica a la mayor potencia de \(x\) (en este caso, \(x^3\)). ¡Simplemente escríbelo en la primera casilla de abajo!
+        </div>
+
+        <div style="margin-top: 20px; text-align: right;">
+          <button class="btn-action" id="btn-next-step" style="width: auto; padding: 10px 20px;">Verificar Paso y Avanzar ➔</button>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Tarjeta Metacognitiva Final -->
+    <div class="metacognition-card" id="metacognition-card">
+      <h2 style="color: var(--accent); margin-bottom: 10px;">🎉 ¡Felicitaciones! Has completado el algoritmo</h2>
+      <p id="result-summary" style="font-size: 1.05rem; margin-bottom: 15px;"></p>
+      
+      <div style="background: var(--bg-main); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+        <h3>🧠 Reflexión Metacognitiva:</h3>
+        <p style="margin-top: 8px;">1. ¿Qué relación hay entre multiplicar por 'a' y sumar en cada columna?</p>
+        <p style="margin-top: 4px;">2. Si el resto es cero (\(R=0\)), ¿qué significa con respecto a la divisibilidad del polinomio?</p>
+      </div>
+
+      <button class="btn-action" id="btn-restart" style="background: var(--accent);">Elegir otro ejercicio para practicar</button>
+    </div>
+
+  </div>
+
+  <script>
+    // --- ESTADO Y DATOS DE LA APP ---
+    const exercises = {
+      "1": { coefs: [2, -6, 2, -4], a: 2, polyStr: "2x³ - 6x² + 2x - 4", divStr: "x - 2" },
+      "2": { coefs: [1, -3, 4, -5], a: 3, polyStr: "x³ - 3x² + 4x - 5", divStr: "x - 3" },
+      "3": { coefs: [3, -5, 2], a: 1, polyStr: "3x² - 5x + 2", divStr: "x - 1" }
+    };
+
+    let currentEx = exercises["1"];
+    let currentStep = 0; // 0: primer coef, 1..N: mult y suma
+    let userInputs = [];
+    let fontSize = 16;
+    let ttsActive = false;
+
+    // --- ELEMENTOS DOM ---
+    const btnFontAdd = document.getElementById('btn-font-add');
+    const btnFontSub = document.getElementById('btn-font-sub');
+    const btnFontReset = document.getElementById('btn-font-reset');
+    const btnContrast = document.getElementById('btn-contrast');
+    const btnTts = document.getElementById('btn-tts');
+
+    const selectExample = document.getElementById('select-example');
+    const valAInput = document.getElementById('val-a');
+    const btnStart = document.getElementById('btn-start');
+
+    const boardContainer = document.getElementById('board-container');
+    const stepTitle = document.getElementById('step-title');
+    const rowCoefHeader = document.getElementById('row-coef-header');
+    const rowMultMiddle = document.getElementById('row-mult-middle');
+    const rowResBottom = document.getElementById('row-res-bottom');
+    const feedbackPanel = document.getElementById('feedback-panel');
+    const feedbackTitle = document.getElementById('feedback-title');
+    const feedbackText = document.getElementById('feedback-text');
+    const btnHint = document.getElementById('btn-hint');
+    const hintBox = document.getElementById('hint-box');
+    const btnNextStep = document.getElementById('btn-next-step');
+    const metacognitionCard = document.getElementById('metacognition-card');
+    const resultSummary = document.getElementById('result-summary');
+    const btnRestart = document.getElementById('btn-restart');
+
+    // --- CONTROLES DUA ---
+    btnFontAdd.addEventListener('click', () => {
+      if (fontSize < 24) {
+        fontSize += 2;
+        document.documentElement.style.fontSize = fontSize + 'px';
+      }
+    });
+
+    btnFontSub.addEventListener('click', () => {
+      if (fontSize > 12) {
+        fontSize -= 2;
+        document.documentElement.style.fontSize = fontSize + 'px';
+      }
+    });
+
+    btnFontReset.addEventListener('click', () => {
+      fontSize = 16;
+      document.documentElement.style.fontSize = '16px';
+    });
+
+    btnContrast.addEventListener('click', () => {
+      document.body.classList.toggle('high-contrast');
+      btnContrast.classList.toggle('active');
+    });
+
+    btnTts.addEventListener('click', () => {
+      ttsActive = !ttsActive;
+      btnTts.classList.toggle('active', ttsActive);
+      if (ttsActive) {
+        speakText("Lectura accesible activada. Se leerán los impulsos socráticos y explicaciones.");
+      } else {
+        window.speechSynthesis.cancel();
+      }
+    });
+
+    function speakText(text) {
+      if (!ttsActive || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // --- SELECCIÓN DE EJERCICIO ---
+    selectExample.addEventListener('change', (e) => {
+      currentEx = exercises[e.target.value];
+      valAInput.value = currentEx.a;
+    });
+
+    btnStart.addEventListener('click', startExercise);
+
+    function startExercise() {
+      currentStep = 0;
+      userInputs = [];
+      boardContainer.style.display = 'block';
+      metacognitionCard.classList.remove('show');
+      hintBox.classList.remove('show');
+      
+      renderBoard();
+      updateStepUI();
+    }
+
+    function renderBoard() {
+      // Limpiar tabla
+      rowCoefHeader.innerHTML = `<td class="col-a">a = ${currentEx.a}</td>`;
+      rowMultMiddle.innerHTML = `<td style="border-right: 3px solid var(--primary);">Multiplicación</td>`;
+      rowResBottom.innerHTML = `<td style="border-right: 3px solid var(--primary);"><strong>Resultado</strong></td>`;
+
+      currentEx.coefs.forEach((c, idx) => {
+        // Fila 1: Coeficientes iniciales
+        const tdCoef = document.createElement('td');
+        tdCoef.className = 'row-coef';
+        tdCoef.textContent = c;
+        rowCoefHeader.appendChild(tdCoef);
+
+        // Fila 2: Multiplicación intermedia
+        const tdMult = document.createElement('td');
+        tdMult.className = 'row-mult';
+        tdMult.id = `mult-cell-${idx}`;
+        tdMult.textContent = idx === 0 ? '-' : '';
+        rowMultMiddle.appendChild(tdMult);
+
+        // Fila 3: Resultado / Inputs
+        const tdRes = document.createElement('td');
+        tdRes.className = 'row-res';
+        tdRes.id = `res-cell-${idx}`;
+        rowResBottom.appendChild(tdRes);
+      });
+
+      renderCurrentStepInput();
+    }
+
+    function renderCurrentStepInput() {
+      const idx = currentStep;
+      const resCell = document.getElementById(`res-cell-${idx}`);
+      
+      if (resCell && !resCell.querySelector('input')) {
+        resCell.innerHTML = `<input type="number" class="cell-input" id="input-step-${idx}" aria-label="Ingresa el resultado para la columna ${idx+1}">`;
+        document.getElementById(`input-step-${idx}`).focus();
+      }
+    }
+
+    function updateStepUI() {
+      hintBox.classList.remove('show');
+      
+      if (currentStep === 0) {
+        stepTitle.textContent = "Paso 1: Bajada del primer coeficiente";
+        setFeedback("info", "🔍 Impulso Socrático:", `El primer coeficiente (${currentEx.coefs[0]}) baja directamente al renglón de resultados. ¿Qué valor corresponde ingresar en el primer casillero?`);
+        btnHint.onclick = () => showHint(`En la primera columna no hay nada que sumar arriba. Por lo tanto, el número simplemente desciende: escribe el valor ${currentEx.coefs[0]}.`);
+      } else if (currentStep < currentEx.coefs.length) {
+        const prevRes = getPreviousResult(currentStep - 1);
+        stepTitle.textContent = `Paso ${currentStep + 1}: Multiplicar y Sumar en Columna ${currentStep + 1}`;
+        setFeedback("info", "🔍 Impulso Socrático:", `Multiplica el último resultado obtenido (${prevRes}) por 'a' (${currentEx.a}). Luego suma ese resultado al coeficiente de la columna (${currentEx.coefs[currentStep]}). ¿Cuál es el valor resultante?`);
+        btnHint.onclick = () => showHint(`1. Multiplica: ${prevRes} × ${currentEx.a} = ${prevRes * currentEx.a}.\n2. Suma al coeficiente superior: ${currentEx.coefs[currentStep]} + (${prevRes * currentEx.a}). ¡Calcula ese resultado final!`);
+      }
+    }
+
+    function getPreviousResult(stepIdx) {
+      if (stepIdx === 0) return currentEx.coefs[0];
+      return userInputs[stepIdx];
+    }
+
+    btnNextStep.addEventListener('click', verifyStep);
+
+    function verifyStep() {
+      const inputElem = document.getElementById(`input-step-${currentStep}`);
+      if (!inputElem) return;
+
+      const val = parseInt(inputElem.value, 10);
+      if (isNaN(val)) {
+        setFeedback("warning", "⚠️ Atención:", "Por favor ingresa un número antes de verificar.");
+        return;
+      }
+
+      // Calcular valor esperado
+      let expectedVal;
+      if (currentStep === 0) {
+        expectedVal = currentEx.coefs[0];
+      } else {
+        const prevRes = userInputs[currentStep - 1];
+        const multVal = prevRes * currentEx.a;
+        // Colocar valor intermedio visualmente
+        document.getElementById(`mult-cell-${currentStep}`).textContent = multVal;
+        expectedVal = currentEx.coefs[currentStep] + multVal;
+      }
+
+      if (val === expectedVal) {
+        userInputs[currentStep] = val;
+        // Fijar celda
+        document.getElementById(`res-cell-${currentStep}`).textContent = val;
+
+        currentStep++;
+
+        if (currentStep < currentEx.coefs.length) {
+          renderCurrentStepInput();
+          updateStepUI();
+        } else {
+          finishExercise();
+        }
+      } else {
+        // Error socrático
+        if (currentStep === 0) {
+          setFeedback("warning", "🤔 Reflexionemos:", `Recuerda que el primer coeficiente desciende directamente. ¿Seguro que el valor es ${val}? Revisa el coeficiente superior (${currentEx.coefs[0]}).`);
+        } else {
+          const prevRes = userInputs[currentStep - 1];
+          setFeedback("warning", "🤔 Revisa tu cálculo:", `Recuerda la secuencia: Multiplica ${prevRes} por a=${currentEx.a} (da ${prevRes * currentEx.a}) y súmalo al coeficiente ${currentEx.coefs[currentStep]}. Inténtalo nuevamente.`);
+        }
+      }
+    }
+
+    function setFeedback(type, title, text) {
+      feedbackPanel.className = `feedback-panel ${type} show`;
+      feedbackTitle.textContent = title;
+      feedbackText.textContent = text;
+      speakText(`${title} ${text}`);
+    }
+
+    function showHint(text) {
+      hintBox.textContent = text;
+      hintBox.classList.add('show');
+      speakText(`Pista: ${text}`);
+    }
+
+    function finishExercise() {
+      boardContainer.style.display = 'none';
+      feedbackPanel.classList.remove('show');
+
+      // Reconstruir cociente y resto
+      const quotientCoefs = userInputs.slice(0, -1);
+      const remainder = userInputs[userInputs.length - 1];
+      
+      let qStr = "";
+      const deg = quotientCoefs.length - 1;
+      quotientCoefs.forEach((c, idx) => {
+        const power = deg - idx;
+        const sign = (c >= 0 && idx > 0) ? " + " : (c < 0 ? " - " : "");
+        const absC = Math.abs(c);
+        const term = power === 0 ? `${absC}` : (power === 1 ? `${absC === 1 ? '' : absC}x` : `${absC === 1 ? '' : absC}x<sup>${power}</sup>`);
+        qStr += `${sign}${term}`;
+      });
+
+      resultSummary.innerHTML = `
+        <strong>Cociente C(x):</strong> ${qStr}<br>
+        <strong>Resto R:</strong> ${remainder}
+      `;
+
+      metacognitionCard.classList.add('show');
+      speakText("¡Felicitaciones! Has completado el algoritmo de Ruffini con éxito. Observa el cociente y el resto obtenidos.");
+    }
+
+    btnRestart.addEventListener('click', () => {
+      metacognitionCard.classList.remove('show');
+      startExercise();
+    });
+  </script>
+</body>
+</html>
