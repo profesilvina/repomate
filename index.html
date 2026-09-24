@@ -491,6 +491,71 @@
         height: 38px;
       }
     }
+
+    /* Pie de página del repositorio */
+    .repo-footer {
+      margin-top: 60px;
+      padding: 30px 20px 40px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .repo-footer-copy {
+      color: var(--text-main);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .repo-footer-licenses {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+
+    .repo-footer-licenses a {
+      color: var(--primary);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .repo-footer-licenses a:hover {
+      color: var(--primary-hover);
+    }
+
+    .repo-footer-licenses .sep {
+      color: var(--text-muted);
+    }
+
+    .repo-footer-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    body.high-contrast .repo-footer {
+      border-top: 2px solid #ffffff;
+      color: #ffffff;
+    }
+
+    body.high-contrast .repo-footer-copy {
+      color: #ffff00;
+    }
+
+    body.high-contrast .repo-footer-licenses a {
+      color: #00ffff;
+    }
+
+    body.high-contrast .repo-footer-note {
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -610,6 +675,19 @@
       <!-- Las tarjetas se generan dinámicamente desde el array JavaScript de abajo -->
     </main>
 
+    <!-- Pie de Página Legal y Licenciamiento Abierto -->
+    <footer class="repo-footer" role="contentinfo">
+      <div class="repo-footer-content">
+        <p class="repo-footer-copy">© 2026 <strong>Repositorio de aplicaciones de Matemática</strong> · Desarrollo y coordinación: <strong>Prof. Silvina Elena Busto</strong> · Asistencia técnica con <strong>Antigravity CLI</strong></p>
+        <p class="repo-footer-licenses">
+          <span><i class="fa-solid fa-code"></i> Código fuente bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU AGPL v3</a></span>
+          <span class="sep">·</span>
+          <span><i class="fa-brands fa-creative-commons"></i> Contenidos didácticos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons CC BY-SA 4.0</a></span>
+        </p>
+        <p class="repo-footer-note">Herramientas y mediadores didácticos abiertos para la comunidad docente y estudiantil (Recursos Educativos Abiertos - REA).</p>
+      </div>
+    </footer>
+
   </div>
 
   <script>
@@ -681,6 +759,19 @@
         color: "#d97706", // Ámbar cálido
         url: "arte_matematica.html",
         tags: ["Geometría", "STEAM", "Arte", "SVG", "Teselaciones", "Proporciones"]
+      },
+      {
+        id: "mate-5",
+        emoji: "🕹️",
+        titulo: "Escape Geométrico: La Cámara del Tiempo",
+        autor: "Silvina Busto",
+        descripcion: "Escape room gamificado con estética retro pixel art. Los estudiantes resuelven problemas de geometría plana (perímetros, áreas y figuras) contra reloj para descubrir las 4 cifras del código secreto y desactivar la cámara temporal.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Geometría y Trigonometría",
+        color: "#0891b2", // Cian brillante / retro
+        url: "escape_geometrico.html",
+        tags: ["Escape Room", "Geometría", "Gamificación", "Perímetro", "Área", "Pixel Art", "Retro", "Desafíos"]
       }
     ];
 

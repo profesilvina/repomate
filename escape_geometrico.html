@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Geométrico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'VT323', monospace;
+            background-color: #0d1a26;
+            color: #e0f7fa;
+            overflow-y: auto;
+            background-image: radial-gradient(#1b4965 1px, transparent 1px);
+            background-size: 15px 15px;
+        }
+        .text-shadow-cyan {
+            text-shadow: 0 0 5px #22d3ee, 0 0 10px #22d3ee, 0 0 15px #22d3ee;
+        }
+        .button-pixel {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #cae9ff;
+            color: #1a2a3a;
+            border: 4px solid #5fa8d3;
+            padding: 15px 25px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 6px 6px 0 #133c55;
+        }
+        .button-pixel:hover {
+            background-color: #a2d2ff;
+            box-shadow: 4px 4px 0 #133c55;
+            transform: translate(2px, 2px);
+        }
+        .button-pixel:active {
+            background-color: #8dbbf2;
+            box-shadow: 0 0 0 #133c55;
+            transform: translate(6px, 6px);
+        }
+        .modal-content {
+            background: #1a2a3a;
+            border: 6px solid #5fa8d3;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+        }
+        .puzzle-item {
+            cursor: pointer;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6));
+        }
+        .puzzle-item:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.9));
+        }
+        .puzzle-item.solved {
+            transform: scale(0.9);
+            filter: grayscale(100%) brightness(0.4) drop-shadow(0 0 0 transparent);
+            cursor: not-allowed;
+        }
+        #final-code-input {
+            font-family: 'Press Start 2P', cursive;
+        }
+        #timer-display {
+            font-family: 'Press Start 2P', cursive;
+            color: #fb7185;
+            text-shadow: 0 0 5px #f43f5e;
+        }
+        #win-animation {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            border: 5px solid #22d3ee;
+            border-radius: 50%;
+            position: relative;
+        }
+        #win-animation::before, #win-animation::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: #e0f7fa;
+            transform-origin: 0% 50%;
+        }
+        #win-animation::before {
+            width: 80px;
+            height: 5px;
+            animation: rotate-hour 1.5s linear infinite;
+        }
+        #win-animation::after {
+            width: 50px;
+            height: 5px;
+            animation: rotate-minute 1s linear infinite;
+        }
+        @keyframes rotate-hour { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes rotate-minute { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(-720deg); } }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Botón Volver al Catálogo de Repomate -->
+    <a href="index.html" class="button-pixel" style="position: fixed; top: 16px; left: 16px; z-index: 50; font-size: 11px; padding: 10px 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        <span>←</span> CATÁLOGO
+    </a>
+
+    <div id="game-container" class="w-full max-w-4xl mx-auto">
+
+
+        <div id="start-screen" class="text-center">
+            <h1 class="text-5xl md:text-7xl font-bold mb-4 text-shadow-cyan" style="font-family: 'Press Start 2P', cursive;">Escape Geométrico</h1>
+            <p class="text-xl mb-8">Resuelve los enigmas de figuras para abrir la cámara del tiempo.</p>
+            <button id="start-game-btn" class="button-pixel">Iniciar Desafío</button>
+        </div>
+
+
+        <div id="game-screen" class="hidden">
+            <div class="text-center mb-6">
+                <div class="flex justify-center items-center space-x-8">
+                     <div>
+                        <h2 class="text-lg font-bold mb-1">CÓDIGO SECRETO</h2>
+                        <div class="bg-gray-900/50 p-4 border-2 border-cyan-500 rounded-lg">
+                            <p class="text-4xl tracking-[0.2em]" id="code-display">????</p>
+                        </div>
+                    </div>
+                     <div>
+                        <h2 class="text-lg font-bold mb-1">CRONÓMETRO</h2>
+                        <div class="bg-gray-900/50 p-4 border-2 border-red-500 rounded-lg">
+                            <p id="timer-display" class="text-4xl">03:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <div id="puzzle-grid" class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8"></div>
+
+
+            <div id="final-challenge" class="hidden text-center">
+                <p class="text-xl mb-4">¡Has reunido todas las claves! Introduce el código para detener el tiempo.</p>
+                <input type="text" id="final-code-input" maxlength="4" class="bg-gray-800 border-2 border-gray-500 rounded-lg text-white text-3xl p-3 w-48 text-center focus:outline-none focus:border-cyan-400">
+                <button id="submit-code-btn" class="button-pixel mt-4">Desactivar</button>
+            </div>
+        </div>
+
+
+        <div id="win-screen" class="hidden text-center p-4">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 text-shadow-cyan" style="font-family: 'Press Start 2P', cursive;">¡Cámara Abierta!</h1>
+            <p class="text-xl md:text-2xl leading-relaxed mb-4">El tiempo se detiene. Tu maestría sobre las formas te ha concedido la victoria.</p>
+            <div id="win-animation"></div>
+            <button id="play-again-btn-win" class="button-pixel mt-8">Jugar de Nuevo</button>
+        </div>
+
+
+        <div id="game-over-screen" class="hidden text-center p-4">
+            <h1 class="text-6xl font-bold mb-4 text-shadow-cyan text-red-500" style="font-family: 'Press Start 2P', cursive;">¡Tiempo Agotado!</h1>
+            <p class="text-2xl mb-8">La cámara del tiempo se ha cerrado para siempre...</p>
+            <button id="play-again-btn-lose" class="button-pixel">Reintentar Misión</button>
+        </div>
+    </div>
+
+
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+        <div class="modal-content text-white p-8 rounded-lg max-w-2xl w-full relative text-center">
+            <div id="modal-content-area"></div>
+            <button id="close-modal-btn" class="button-pixel absolute -top-4 -right-4 bg-red-600 border-red-800 text-2xl px-4 py-2">&times;</button>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Referencias a elementos del DOM ---
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const winScreen = document.getElementById('win-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const playAgainBtnWin = document.getElementById('play-again-btn-win');
+        const playAgainBtnLose = document.getElementById('play-again-btn-lose');
+        const codeDisplay = document.getElementById('code-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const puzzleGrid = document.getElementById('puzzle-grid');
+        const finalChallenge = document.getElementById('final-challenge');
+        const finalCodeInput = document.getElementById('final-code-input');
+        const submitCodeBtn = document.getElementById('submit-code-btn');
+        const modal = document.getElementById('modal');
+        const modalContentArea = document.getElementById('modal-content-area');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+       
+        // --- Estado del juego ---
+        let gameState = { puzzles: [], finalCode: '', collectedDigits: ['?', '?', '?', '?'], solvedPuzzles: 0 };
+        let timerInterval;
+        let timeLeft = 180; // 3 minutos
+
+
+        // --- Generación de Puzles ---
+        function generatePuzzles() {
+            const puzzles = [];
+            let code = '';
+
+
+            // Puzle 1: Perímetro de un rectángulo
+            const ladoA = Math.floor(Math.random() * 10) + 5;
+            const ladoB = Math.floor(Math.random() * 10) + 5;
+            const perimetroRect = 2 * (ladoA + ladoB);
+            puzzles.push({
+                question: `Un holograma muestra un rectángulo de lados ${ladoA}m y ${ladoB}m. ¿Cuál es su perímetro en metros?`,
+                answer: perimetroRect,
+                icon: 'assets/rectangle.svg',
+                title: 'Sello Rectangular'
+            });
+            code += (perimetroRect % 10).toString();
+
+
+            // Puzle 2: Área de un cuadrado
+            const ladoCuadrado = Math.floor(Math.random() * 12) + 4;
+            const areaCuadrado = ladoCuadrado * ladoCuadrado;
+            puzzles.push({
+                question: `Una placa de metal cuadrada tiene un lado de ${ladoCuadrado}cm. ¿Cuál es su área en cm²?`,
+                answer: areaCuadrado,
+                icon: 'assets/square.svg',
+                title: 'Placa Cuadrada'
+            });
+            code += (areaCuadrado % 10).toString();
+           
+            // Puzle 3: Área de un triángulo
+            const baseTri = (Math.floor(Math.random() * 10) + 2) * 2; // Asegura que la base sea par
+            const alturaTri = Math.floor(Math.random() * 10) + 5;
+            const areaTri = (baseTri * alturaTri) / 2;
+            puzzles.push({
+                question: `Un cristal triangular tiene una base de ${baseTri}mm y una altura de ${alturaTri}mm. ¿Cuál es su área en mm²?`,
+                answer: areaTri,
+                icon: 'assets/triangle.svg',
+                title: 'Cristal Triangular'
+            });
+            code += (areaTri % 10).toString();
+
+
+            // Puzle 4: Perímetro de un círculo (Circunferencia)
+            const radio = Math.floor(Math.random() * 10) + 5;
+            const circunferencia = Math.round(2 * 3.14 * radio); // Usamos 3.14 para el cálculo
+            puzzles.push({
+                question: `Un disco de energía circular tiene un radio de ${radio}cm. Calcula su perímetro usando π ≈ 3.14. (Redondea al entero más cercano)`,
+                answer: circunferencia,
+                icon: 'assets/circle.svg',
+                title: 'Disco Circular'
+            });
+            code += (circunferencia % 10).toString();
+
+
+            gameState.puzzles = puzzles;
+            gameState.finalCode = code;
+        }
+
+
+        // --- Creación de Iconos SVG ---
+        function createSvgIcons() {
+            return {
+                'assets/rectangle.svg': `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 md:w-24 md:h-24 mx-auto text-cyan-400"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect></svg>`,
+                'assets/square.svg': `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 md:w-24 md:h-24 mx-auto text-cyan-400"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`,
+                'assets/triangle.svg': `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 md:w-24 md:h-24 mx-auto text-cyan-400"><path d="M12 2L2 22h20L12 2z"></path></svg>`,
+                'assets/circle.svg': `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 md:w-24 md:h-24 mx-auto text-cyan-400"><circle cx="12" cy="12" r="10"></circle></svg>`
+            };
+        }
+
+
+        // --- Lógica del Juego ---
+        function renderPuzzles() {
+            puzzleGrid.innerHTML = '';
+            const icons = createSvgIcons();
+            gameState.puzzles.forEach((puzzle, index) => {
+                const puzzleEl = document.createElement('div');
+                puzzleEl.className = 'puzzle-item p-4 text-center';
+                puzzleEl.dataset.index = index;
+                puzzleEl.innerHTML = `<div class="pointer-events-none">${icons[puzzle.icon]}<p class="mt-2 text-lg">${puzzle.title}</p></div>`;
+                puzzleEl.addEventListener('click', () => handlePuzzleClick(index));
+                puzzleGrid.appendChild(puzzleEl);
+            });
+        }
+
+
+        function handlePuzzleClick(index) {
+            const puzzleItem = document.querySelector(`.puzzle-item[data-index='${index}']`);
+            if (puzzleItem.classList.contains('solved')) return;
+            const puzzle = gameState.puzzles[index];
+            showModal(`<h3 class="text-2xl md:text-3xl font-bold mb-6">${puzzle.question}</h3> <input type="number" id="puzzle-answer" class="bg-gray-800 border-2 border-gray-500 rounded-lg text-white text-2xl p-3 w-40 text-center focus:outline-none focus:border-cyan-400"> <button id="submit-puzzle-btn" class="button-pixel mt-6">Comprobar</button> <p id="feedback" class="mt-4 h-6"></p>`);
+            document.getElementById('puzzle-answer').focus();
+            document.getElementById('submit-puzzle-btn').onclick = () => checkPuzzleAnswer(index, document.getElementById('puzzle-answer').value);
+            document.getElementById('puzzle-answer').onkeydown = (e) => { if (e.key === 'Enter') checkPuzzleAnswer(index, e.target.value); };
+        }
+
+
+        function checkPuzzleAnswer(index, answer) {
+            const feedbackEl = document.getElementById('feedback');
+            const puzzle = gameState.puzzles[index];
+            if (parseInt(answer) === puzzle.answer) {
+                feedbackEl.textContent = '¡Correcto!';
+                feedbackEl.classList.add('text-green-400');
+                gameState.collectedDigits[index] = gameState.finalCode[index];
+                gameState.solvedPuzzles++;
+                updateCodeDisplay();
+                document.querySelector(`.puzzle-item[data-index='${index}']`).classList.add('solved');
+                setTimeout(() => {
+                    hideModal();
+                    if (gameState.solvedPuzzles === gameState.puzzles.length) {
+                        finalChallenge.classList.remove('hidden');
+                    }
+                }, 1000);
+            } else {
+                feedbackEl.textContent = 'Incorrecto. ¡Sigue intentando!';
+                feedbackEl.classList.add('text-red-400');
+            }
+        }
+       
+        function updateCodeDisplay() {
+            codeDisplay.textContent = gameState.collectedDigits.join('');
+        }
+       
+        function checkFinalCode() {
+            if (finalCodeInput.value === gameState.finalCode) {
+                clearInterval(timerInterval);
+                gameScreen.classList.add('hidden');
+                winScreen.classList.remove('hidden');
+            } else {
+                finalCodeInput.classList.add('border-red-500');
+                finalCodeInput.animate([{ transform: 'translateX(-10px)' },{ transform: 'translateX(10px)' },{ transform: 'translateX(0)' }], { duration: 200, iterations: 2 });
+                setTimeout(() => finalCodeInput.classList.remove('border-red-500'), 500);
+            }
+        }
+
+
+        // --- Funciones del Temporizador ---
+        function startTimer() {
+            timeLeft = 180;
+            updateTimerDisplay();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+
+        function updateTimer() {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                gameScreen.classList.add('hidden');
+                gameOverScreen.classList.remove('hidden');
+            }
+        }
+       
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+
+        // --- Funciones de la Interfaz (UI) ---
+        function showModal(content) {
+            modalContentArea.innerHTML = content;
+            modal.classList.remove('hidden');
+        }
+        function hideModal() {
+            modal.classList.add('hidden');
+        }
+        function resetGame() {
+            clearInterval(timerInterval);
+            gameState = { puzzles: [], finalCode: '', collectedDigits: ['?', '?', '?', '?'], solvedPuzzles: 0 };
+            updateCodeDisplay();
+            finalChallenge.classList.add('hidden');
+            finalCodeInput.value = '';
+            puzzleGrid.innerHTML = '';
+            winScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            timerDisplay.textContent = "03:00";
+        }
+
+
+        function initGame() {
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            generatePuzzles();
+            renderPuzzles();
+            startTimer();
+            showModal(`<h2 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: 'Press Start 2P', cursive;">MISIÓN</h2><p class="text-lg md:text-xl leading-relaxed">Has encontrado una antigua cámara temporal. Para abrir la cerradura, debes resolver 4 enigmas geométricos antes de que el cronómetro llegue a cero. Cada enigma revelará un dígito del código final. ¡El tiempo corre!</p><button id="continue-mission-btn" class="button-pixel mt-6">¡Entendido!</button>`);
+            document.getElementById('continue-mission-btn').onclick = () => { hideModal(); };
+        }
+
+
+        // --- Event Listeners ---
+        startGameBtn.addEventListener('click', initGame);
+        playAgainBtnWin.addEventListener('click', resetGame);
+        playAgainBtnLose.addEventListener('click', resetGame);
+        closeModalBtn.addEventListener('click', hideModal);
+        submitCodeBtn.addEventListener('click', checkFinalCode);
+        finalCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkFinalCode(); });
+    </script>
+</body>
+</html>
+
+
+
