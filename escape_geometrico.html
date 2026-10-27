@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -111,7 +112,7 @@
         <div id="start-screen" class="text-center">
             <h1 class="text-5xl md:text-7xl font-bold mb-4 text-shadow-cyan" style="font-family: 'Press Start 2P', cursive;">Escape Geométrico</h1>
             <p class="text-xl mb-8">Resuelve los enigmas de figuras para abrir la cámara del tiempo.</p>
-            <button id="start-game-btn" class="button-pixel">Iniciar Desafío</button>
+            <button id="start-game-btn" class="button-pixel" aria-label="Iniciar desafío de escape geométrico">Iniciar Desafío</button>
         </div>
 
 
@@ -138,8 +139,8 @@
 
             <div id="final-challenge" class="hidden text-center">
                 <p class="text-xl mb-4">¡Has reunido todas las claves! Introduce el código para detener el tiempo.</p>
-                <input type="text" id="final-code-input" maxlength="4" class="bg-gray-800 border-2 border-gray-500 rounded-lg text-white text-3xl p-3 w-48 text-center focus:outline-none focus:border-cyan-400">
-                <button id="submit-code-btn" class="button-pixel mt-4">Desactivar</button>
+                <label for="final-code-input" class="sr-only">Código secreto de 4 dígitos</label><input type="text" id="final-code-input" maxlength="4" aria-label="Código secreto de 4 dígitos para detener el tiempo" class="bg-gray-800 border-2 border-gray-500 rounded-lg text-white text-3xl p-3 w-48 text-center focus:outline-none focus:border-cyan-400">
+                <button id="submit-code-btn" class="button-pixel mt-4" aria-label="Comprobar código y desactivar cámara">Desactivar</button>
             </div>
         </div>
 
@@ -148,14 +149,14 @@
             <h1 class="text-5xl md:text-6xl font-bold mb-4 text-shadow-cyan" style="font-family: 'Press Start 2P', cursive;">¡Cámara Abierta!</h1>
             <p class="text-xl md:text-2xl leading-relaxed mb-4">El tiempo se detiene. Tu maestría sobre las formas te ha concedido la victoria.</p>
             <div id="win-animation"></div>
-            <button id="play-again-btn-win" class="button-pixel mt-8">Jugar de Nuevo</button>
+            <button id="play-again-btn-win" class="button-pixel mt-8" aria-label="Volver a jugar desafío de escape">Jugar de Nuevo</button>
         </div>
 
 
         <div id="game-over-screen" class="hidden text-center p-4">
             <h1 class="text-6xl font-bold mb-4 text-shadow-cyan text-red-500" style="font-family: 'Press Start 2P', cursive;">¡Tiempo Agotado!</h1>
             <p class="text-2xl mb-8">La cámara del tiempo se ha cerrado para siempre...</p>
-            <button id="play-again-btn-lose" class="button-pixel">Reintentar Misión</button>
+            <button id="play-again-btn-lose" class="button-pixel" aria-label="Reintentar misión de escape">Reintentar Misión</button>
         </div>
     </div>
 
@@ -163,7 +164,7 @@
     <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
         <div class="modal-content text-white p-8 rounded-lg max-w-2xl w-full relative text-center">
             <div id="modal-content-area"></div>
-            <button id="close-modal-btn" class="button-pixel absolute -top-4 -right-4 bg-red-600 border-red-800 text-2xl px-4 py-2">&times;</button>
+            <button id="close-modal-btn" class="button-pixel absolute -top-4 -right-4 bg-red-600 border-red-800 text-2xl px-4 py-2" aria-label="Cerrar ventana emergente">&times;</button>
         </div>
     </div>
 
@@ -270,10 +271,19 @@
             const icons = createSvgIcons();
             gameState.puzzles.forEach((puzzle, index) => {
                 const puzzleEl = document.createElement('div');
-                puzzleEl.className = 'puzzle-item p-4 text-center';
+                puzzleEl.className = 'puzzle-item p-4 text-center focus:outline-none focus:ring-4 focus:ring-cyan-400 rounded-xl';
                 puzzleEl.dataset.index = index;
+                puzzleEl.setAttribute('role', 'button');
+                puzzleEl.setAttribute('tabindex', '0');
+                puzzleEl.setAttribute('aria-label', `Enigma ${index + 1}: ${puzzle.title}`);
                 puzzleEl.innerHTML = `<div class="pointer-events-none">${icons[puzzle.icon]}<p class="mt-2 text-lg">${puzzle.title}</p></div>`;
                 puzzleEl.addEventListener('click', () => handlePuzzleClick(index));
+                puzzleEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handlePuzzleClick(index);
+                    }
+                });
                 puzzleGrid.appendChild(puzzleEl);
             });
         }
@@ -283,7 +293,7 @@
             const puzzleItem = document.querySelector(`.puzzle-item[data-index='${index}']`);
             if (puzzleItem.classList.contains('solved')) return;
             const puzzle = gameState.puzzles[index];
-            showModal(`<h3 class="text-2xl md:text-3xl font-bold mb-6">${puzzle.question}</h3> <input type="number" id="puzzle-answer" class="bg-gray-800 border-2 border-gray-500 rounded-lg text-white text-2xl p-3 w-40 text-center focus:outline-none focus:border-cyan-400"> <button id="submit-puzzle-btn" class="button-pixel mt-6">Comprobar</button> <p id="feedback" class="mt-4 h-6"></p>`);
+            showModal(`<h3 class="text-2xl md:text-3xl font-bold mb-6">${puzzle.question}</h3> <label for="puzzle-answer" class="sr-only">Respuesta numérica</label> <input type="number" id="puzzle-answer" aria-label="Respuesta numérica del enigma" class="bg-gray-800 border-2 border-gray-500 rounded-lg text-white text-2xl p-3 w-40 text-center focus:outline-none focus:border-cyan-400"> <button id="submit-puzzle-btn" aria-label="Comprobar respuesta" class="button-pixel mt-6">Comprobar</button> <p id="feedback" class="mt-4 h-6" role="status" aria-live="polite"></p>`);
             document.getElementById('puzzle-answer').focus();
             document.getElementById('submit-puzzle-btn').onclick = () => checkPuzzleAnswer(index, document.getElementById('puzzle-answer').value);
             document.getElementById('puzzle-answer').onkeydown = (e) => { if (e.key === 'Enter') checkPuzzleAnswer(index, e.target.value); };
@@ -396,6 +406,18 @@
         submitCodeBtn.addEventListener('click', checkFinalCode);
         finalCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkFinalCode(); });
     </script>
+
+    <!-- Pie de página accesible y legal VCER -->
+    <footer class="mt-12 py-6 text-center text-sm border-t border-cyan-800/60 bg-gray-900/80 rounded-xl max-w-4xl mx-auto text-cyan-200">
+        <p class="font-bold text-base mb-1">Escape Geométrico: la cámara del tiempo</p>
+        <p class="mb-2">Autora: <strong>Silvina Elena Busto</strong> · EDI: Matemática y el trabajo por proyectos</p>
+        <p class="text-xs text-gray-400 mb-2">
+            Código bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" class="underline text-cyan-400" target="_blank" rel="noopener">GNU AGPL v3</a> · Contenidos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" class="underline text-cyan-400" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+        </p>
+        <p class="text-xs text-gray-400">
+            Desarrollado mediante Vibe Coding con asistencia de Inteligencia Artificial (Antigravity CLI / Gemini) y validación didáctica docente · Octubre de 2026
+        </p>
+    </footer>
 </body>
 </html>
 

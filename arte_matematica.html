@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -22,6 +23,7 @@
       --secondary: #06b6d4;
       --accent: #f59e0b;
       --accent-math: #10b981;
+      --accent-amber: #f59e0b;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --gold-frame: #d4af37;
@@ -156,7 +158,7 @@
     .hero {
       max-width: 1300px;
       margin: 0 auto;
-      padding: 30px 20px 20px;
+      padding: 30px 20px 15px;
       text-align: center;
     }
 
@@ -185,16 +187,137 @@
     }
 
     .hero p {
-      max-width: 850px;
+      max-width: 900px;
       margin: 0 auto;
       color: var(--text-muted);
       font-size: 1rem;
     }
 
-    /* PEDAGOGICAL BANNER */
+    /* MARCO ÉTICO Y DE PROPIEDAD INTELECTUAL */
+    .ethics-container {
+      max-width: 1300px;
+      margin: 15px auto 20px;
+      padding: 0 20px;
+    }
+
+    .ethics-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(99, 102, 241, 0.1));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .ethics-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .ethics-header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ethics-icon {
+      font-size: 1.6rem;
+      color: var(--accent-amber);
+    }
+
+    .ethics-header-title h3 {
+      font-size: 1.05rem;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .ethics-header-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .btn-toggle-ethics {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-toggle-ethics:hover {
+      background: var(--accent-amber);
+      color: #0f172a;
+    }
+
+    .ethics-content {
+      display: none;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(245, 158, 11, 0.3);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .ethics-content.open {
+      display: block;
+    }
+
+    .ethics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .ethics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ethics-col {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+    }
+
+    .ethics-col h4 {
+      font-size: 0.92rem;
+      color: #f8fafc;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ethics-col p {
+      font-size: 0.86rem;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .ethics-col ul {
+      margin-left: 18px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+
+    /* STEAM BANNER */
     .steam-banner {
       max-width: 1300px;
-      margin: 15px auto 25px;
+      margin: 0 auto 20px;
       padding: 0 20px;
     }
 
@@ -202,7 +325,7 @@
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.1));
       border: 1px solid var(--border-highlight);
       border-radius: var(--radius);
-      padding: 16px 20px;
+      padding: 14px 20px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -222,13 +345,13 @@
     }
 
     .steam-info h3 {
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       color: #ffffff;
       margin-bottom: 2px;
     }
 
     .steam-info p {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       color: var(--text-muted);
     }
 
@@ -252,7 +375,7 @@
       transform: translateY(-1px);
     }
 
-    /* FILTERS */
+    /* FILTROS */
     .filters-container {
       max-width: 1300px;
       margin: 0 auto 25px;
@@ -424,7 +547,7 @@
       font-weight: 600;
     }
 
-    /* SECTIONS: SVG & MATH */
+    /* SECTIONS: TECH, MATH & ORIGINAL */
     .section-block {
       background: var(--bg-card-header);
       border: 1px solid var(--border-color);
@@ -449,6 +572,10 @@
 
     .title-math {
       color: var(--accent-math);
+    }
+
+    .title-original {
+      color: var(--accent-amber);
     }
 
     .tech-list, .math-list {
@@ -482,6 +609,59 @@
 
     .math-list strong {
       color: #ffffff;
+    }
+
+    /* ORIGINAL WORK COMPARISON BLOCK */
+    .section-original {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+
+    .real-meta-text {
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .real-meta-text strong {
+      color: #f8fafc;
+    }
+
+    .comparison-note {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      background: rgba(11, 15, 25, 0.7);
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-top: 6px;
+      border-left: 3px solid var(--accent-amber);
+      line-height: 1.45;
+    }
+
+    .btn-museum-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.35));
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      color: #fbbf24;
+      text-decoration: none;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 10px;
+      transition: all 0.2s ease;
+      width: fit-content;
+    }
+
+    .btn-museum-link:hover {
+      background: var(--accent-amber);
+      color: #0f172a;
+      transform: translateY(-2px);
     }
 
     /* CODE SNIPPET TOGGLE */
@@ -566,18 +746,18 @@
         </div>
         <div class="brand-text">
           <h1>Arte & Matemática: Explorador SVG</h1>
-          <p>Análisis geométrico, vectorial y pedagógico STEAM</p>
+          <p>Análisis geométrico, cotejo patrimonial y modelado STEAM</p>
         </div>
       </div>
 
       <!-- HERRAMIENTAS DUA -->
       <div class="dua-toolbar">
-        <button id="btn-contrast" class="btn-dua" title="Modo Alto Contraste">
+        <button id="btn-contrast" class="btn-dua" title="Modo Alto Contraste" aria-label="Activar o desactivar modo de alto contraste">
           <i class="fa-solid fa-circle-half-stroke"></i> Contraste
         </button>
-        <button id="btn-font-sub" class="btn-dua" title="Disminuir texto">A-</button>
-        <button id="btn-font-reset" class="btn-dua" title="Restablecer tamaño">A</button>
-        <button id="btn-font-add" class="btn-dua" title="Aumentar texto">A+</button>
+        <button id="btn-font-sub" class="btn-dua" title="Disminuir texto" aria-label="Disminuir tamaño de letra">A-</button>
+        <button id="btn-font-reset" class="btn-dua" title="Restablecer tamaño" aria-label="Restablecer tamaño de letra">A</button>
+        <button id="btn-font-add" class="btn-dua" title="Aumentar texto" aria-label="Aumentar tamaño de letra">A+</button>
       </div>
     </div>
   </header>
@@ -585,17 +765,70 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-badge">
-      <i class="fa-solid fa-atom"></i> Enfoque STEAM: Geometría, Coordenadas y Arte Abstracto
+      <i class="fa-solid fa-atom"></i> Enfoque STEAM: Geometría, Coordenadas y Transposición Didáctica
     </div>
     <h2>¿Cómo se Construye el Arte con Código y Geometría?</h2>
     <p>
-      Cada una de estas 12 obras de arte clásico y moderno fue programada íntegramente en lenguaje vectorial 
-      <strong>SVG (Scalable Vector Graphics)</strong>. Debajo de cada pintura podés explorar su formulación en código y 
-      las múltiples aplicaciones matemáticas (áreas, fracciones, ángulos, homotecias y funciones) para trabajar en el aula.
+      Cada una de estas 12 obras de arte moderno fue modelada en lenguaje vectorial 
+      <strong>SVG (Scalable Vector Graphics)</strong>. Debajo de cada pieza podés contrastar el modelo matemático 
+      con el enlace a la <strong>pintura original en el museo custodio</strong>, explorando las tensiones entre 
+      abstracción geométrica, código computacional y creación humana.
     </p>
     <p style="margin-top: 10px; font-size: 0.88rem; color: #a5b4fc; font-weight: 500;">
-      <i class="fa-solid fa-laptop-code"></i> Creada por <strong>Silvina Busto</strong> usando <strong>Gemini CLI</strong> · Basado en la app <em>Museo de Arte</em> de <strong>Mariela Fernández</strong>
+      <i class="fa-solid fa-laptop-code"></i> Creada por <strong>Silvina Busto</strong> · Propuesta didáctica interdiscursiva EDI 2026
     </p>
+  </section>
+
+  <!-- MARCO ÉTICO Y DE PROPIEDAD INTELECTUAL -->
+  <section class="ethics-container">
+    <div class="ethics-card">
+      <div class="ethics-header" onclick="toggleEthics()">
+        <div class="ethics-header-title">
+          <i class="fa-solid fa-scale-balanced ethics-icon"></i>
+          <div>
+            <h3>Fundamentación Ética y Epistemológica: Propiedad Intelectual y Modelado</h3>
+            <p>¿Es ético simplificar el arte con matemática? ¿Por qué incluir los enlaces a las obras originales?</p>
+          </div>
+        </div>
+        <button class="btn-toggle-ethics" id="ethics-btn">
+          <span>Leer Fundamentación</span>
+          <i class="fa-solid fa-chevron-down" id="ethics-chevron"></i>
+        </button>
+      </div>
+
+      <div class="ethics-content" id="ethics-content">
+        <p>
+          En la intersección entre <strong>Arte, Matemática e Inteligencia Artificial</strong>, resulta indispensable 
+          explicitar el estatuto de lo que observamos en pantalla para formar una mirada crítica y honesta:
+        </p>
+        <div class="ethics-grid">
+          <div class="ethics-col">
+            <h4><i class="fa-solid fa-copyright" style="color:var(--accent-amber);"></i> 1. Ética de la Propiedad Intelectual y Autoría</h4>
+            <p>
+              Presentar un archivo vectorial de figuras geométricas generado por computadora rotulado como <em>"Piet Mondrian"</em> o 
+              <em>"Vassily Kandinsky"</em> sin aclaración constituiría un <strong>reduccionismo estético y una confusión sobre la autoría</strong>.
+            </p>
+            <ul>
+              <li><strong>El SVG no es la obra:</strong> Es un <em>modelo geométrico derivado</em> con fines estrictamente didácticos.</li>
+              <li><strong>Reconocimiento patrimonial:</strong> La inclusión del enlace directo a los museos custodios (MoMA, Guggenheim, Tate, Pompidou, Kunstmuseum Basel) devuelve la autoría a los creadores originales y permite contemplar la escala, el soporte, el óleo y la materialidad real.</li>
+              <li><strong>Dominio Público y Derecho Moral:</strong> Si bien muchas obras vanguardistas han ingresado al dominio público por antigüedad, el derecho moral a la integridad de la obra exige no falsear su naturaleza matérica.</li>
+            </ul>
+          </div>
+
+          <div class="ethics-col">
+            <h4><i class="fa-solid fa-brain" style="color:var(--accent-math);"></i> 2. ¿Por qué simplificar con Matemática? (El valor del modelado)</h4>
+            <p>
+              La simplificación no es una degradación del arte, sino una <strong>herramienta científica y pedagógica de abstracción</strong>:
+            </p>
+            <ul>
+              <li><strong>La matemática como método de análisis:</strong> Así como la física modela un planeta como una partícula puntual para estudiar su órbita gravitatoria, la matemática abstrae la pintura para analizar su esqueleto compositivo (ejes cartesianos, cálculo de áreas, razones áureas y transformaciones afines).</li>
+              <li><strong>Los propios artistas investigaban la geometría:</strong> Kandinsky (Bauhaus, <em>"Punto y línea sobre el plano"</em>), Mondrian (Neoplasticismo y retícula ortogonal) y Malevich (Suprematismo) buscaban conscientemente las estructuras matemáticas puras del cosmos visual.</li>
+              <li><strong>Pensamiento crítico STEAM:</strong> Al cotejar cara a cara el vector SVG con la pintura real, los estudiantes descubren qué variables puede capturar el algoritmo computacional y qué aspectos pertenecen a la dimensión sensible, histórica y humana.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- STEAM BANNER WITH GRID TOGGLE -->
@@ -605,7 +838,7 @@
         <i class="fa-solid fa-compass-drafting steam-icon"></i>
         <div>
           <h3>Visualizador de Plano Cartesiano</h3>
-          <p>Activá la cuadrícula milimétrica de (0,0) a (300,300) sobre todas las pinturas para medir coordenadas y dimensiones.</p>
+          <p>Activá la cuadrícula milimétrica de (0,0) a (300,300) sobre todas las pinturas para medir coordenadas, áreas y dimensiones.</p>
         </div>
       </div>
       <button id="toggle-all-grids" class="grid-toggle-btn">
@@ -638,13 +871,19 @@
         <strong>Arte & Matemática: Explorador Didáctico de Obras SVG</strong>
       </p>
       <p>
-        Creada por <strong>Silvina Busto</strong> usando <strong>Gemini CLI</strong>, basado en la app <em>Museo de Arte</em> de <strong>Mariela Fernández</strong>.
+        Propuesta formativa desarrollada por <strong>Prof. Silvina Elena Busto</strong> · Espacio de Definición Institucional (EDI 2026).
+      </p>
+      <p style="font-size:0.8rem; color:#64748b;">
+        Los enlaces externos dirigen a los catálogos y colecciones de los respectivos museos custodios (MoMA, Guggenheim, Tate, Pompidou, Kunstmuseum Basel, Kunsthaus Zürich, Stedelijk, Zentrum Paul Klee).
+      </p>
+      <p style="font-size:0.8rem; color:#94a3b8; margin-top: 8px;">
+        Código bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">GNU AGPL v3</a> · Contenidos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · Vibe Coding con asistencia de Inteligencia Artificial (Antigravity CLI) y validación didáctica de la autora (octubre de 2026).
       </p>
     </div>
   </footer>
 
   <script>
-    // BASE DE DATOS COMPLETA CON ANÁLISIS TÉCNICO Y MATEMÁTICO
+    // BASE DE DATOS COMPLETA: CÓDIGO SVG + ANÁLISIS TÉCNICO + APLICACIONES MATEMÁTICAS + COTEJO CON LA OBRA REAL
     const OBRAS_DATA = [
       {
         id: "obra-1",
@@ -662,7 +901,14 @@
           "<strong>Cálculo de Áreas y Porcentajes:</strong> El lienzo total es de 300 × 300 = 90.000 px². El rectángulo rojo mide 220 × 200 = 44.000 px², representando exactamente el <strong>48,88%</strong> del total.",
           "<strong>Ecuaciones de Rectas en el Plano:</strong> Las líneas negras responden a funciones constantes: rectas verticales x = 70, x = 240 y rectas horizontales y = 190, y = 240.",
           "<strong>Fracciones Equivalentes:</strong> El cuadrado amarillo mide 50 × 50 = 2.500 px², equivalente a 1/36 del área total del cuadro."
-        ]
+        ],
+        realWork: {
+          title: "Composition with Red, Blue and Yellow (1930)",
+          museum: "Kunsthaus Zürich (Suiza)",
+          technique: "Óleo sobre lienzo (46 × 46 cm)",
+          url: "https://en.wikipedia.org/wiki/Composition_with_Red,_Blue_and_Yellow",
+          contrastNote: "El modelo geométrico fija rectas de grosor constante (10 px) y ángulos rectos exactos. En la pintura original, Mondrian no usaba regla ni medidas fijas: calibraba las proporciones áureas a ojo y modulaba los blancos con sutiles matices grises."
+        }
       },
       {
         id: "obra-2",
@@ -681,7 +927,14 @@
           "<strong>Fórmula de Perímetro y Área Circular:</strong> A = π · r² y P = 2π · r. Permite comparar cómo duplicar el radio cuadruplica el área.",
           "<strong>Distancia Euclídea entre Centros:</strong> Calcular la distancia entre los centros d = √((x₂-x₁)² + (y₂-y₁)²) para determinar si dos circunferencias son secantes o disjuntas.",
           "<strong>Teoría de Conjuntos e Intersección:</strong> Las áreas superpuestas permiten enseñar intersección de conjuntos (A ∩ B)."
-        ]
+        ],
+        realWork: {
+          title: "Several Circles (Einige Kreise, 1926)",
+          museum: "Solomon R. Guggenheim Museum (Nueva York)",
+          technique: "Óleo sobre lienzo (140.3 × 140.7 cm)",
+          url: "https://www.guggenheim.org/artwork/1992",
+          contrastNote: "El SVG sintetiza 8 círculos planos. En el cuadro real del Guggenheim (¡de 1,40 metros!), Kandinsky pintó decenas de esferas cósmicas luminosas con halos translúcidos superpuestos y gradaciones celestes de enorme profundidad mística."
+        }
       },
       {
         id: "obra-3",
@@ -698,7 +951,14 @@
           "<strong>Transformaciones en el Plano (Rotación):</strong> Análisis del centro de giro (cx, cy) y amplitud angular positiva (horaria: +12°, +35°) y negativa (antihoraria: -15°).",
           "<strong>Geometría del Triángulo y Determinantes:</strong> Vértices en (150,120), (250,180) y (160,250). Cálculo de área mediante fórmula de Gauss / matriz de coordenadas.",
           "<strong>Clasificación de Polígonos:</strong> Triángulos escalenos, paralelogramos inclinados y noción de vector director."
-        ]
+        ],
+        realWork: {
+          title: "Suprematist Painting (1915-1916)",
+          museum: "Stedelijk Museum Ámsterdam / MoMA",
+          technique: "Óleo sobre lienzo (101.5 × 62 cm)",
+          url: "https://www.stedelijk.nl/en/collection/maker/4737-kazimir-malevich",
+          contrastNote: "El modelo simplifica la obra a 4 figuras rotadas. Malevich concibió el Suprematismo usando decenas de planos diagonales en tensión dinámica para simbolizar la ingravidez cósmica y la liberación de la energía pura en el espacio infinito."
+        }
       },
       {
         id: "obra-4",
@@ -716,7 +976,14 @@
           "<strong>Simetría vs. Asimetría:</strong> Los diámetros ortogonales dividen el círculo en 4 cuadrantes iguales de 90° (π/2 rad), pero los elementos internos rompen la simetría axial.",
           "<strong>Inscripción y Circunscripción:</strong> Comparar el área del ojo cuadrado (30 × 30 = 900 px²) vs el ojo circular (A = π · 20² ≈ 1256 px²).",
           "<strong>Segmentos y Cuerdas:</strong> Identificación de diámetros, radios y arcos de 90°."
-        ]
+        ],
+        realWork: {
+          title: "Senecio / Head of a Man (1922)",
+          museum: "Kunstmuseum Basel (Suiza)",
+          technique: "Óleo y tiza sobre gasa montada en cartón (40.5 × 38 cm)",
+          url: "https://en.wikipedia.org/wiki/Senecio_(painting)",
+          contrastNote: "El vector muestra una caricatura geométrica elemental. En el cuadro original de Klee, el rostro es un mosaico lírico modulado en gasa textil, con decenas de parches en degradés cálidos y una ceja levantada que crea una expresión teatral sutil."
+        }
       },
       {
         id: "obra-5",
@@ -734,7 +1001,14 @@
           "<strong>Funciones No Lineales y Curvas de Bézier:</strong> Introducción al concepto de interpolación polinómica y cálculo de curvas suaves a partir de puntos de control.",
           "<strong>Puntos de Inflexión y Concavidad:</strong> La curva cúbica cambia de curvatura (de cóncava a convexa) a lo largo del recorrido horizontal.",
           "<strong>Dualidad Geométrica:</strong> Rectas ortogonales (rectángulo amarillo) vs. curvas continuas diferenciables."
-        ]
+        ],
+        realWork: {
+          title: "Jaune, rouge, bleu (1925)",
+          museum: "Centre Pompidou (París, Francia)",
+          technique: "Óleo sobre lienzo (128 × 201.5 cm)",
+          url: "https://www.centrepompidou.fr/es/ressources/oeuvre/c4b8b6e",
+          contrastNote: "Una obra monumental de más de 2 metros de ancho con dos mundos en pugna (la luz analítica y geométrica a la izquierda frente a la noche orgánica y mística a la derecha). El SVG aísla únicamente el esquema cinético de dos curvas."
+        }
       },
       {
         id: "obra-6",
@@ -752,7 +1026,14 @@
           "<strong>Matrices y Grillas Bidimensionales:</strong> Representación del espacio como una matriz de 4 columnas × 3 filas.",
           "<strong>Secuencias y Razones de Aspecto:</strong> Las columnas tienen anchos de 50, 90, 90, 70 px. Permite trabajar secuencias y proporciones.",
           "<strong>Sistemas de Ecuaciones Lineales:</strong> Hallar analíticamente los puntos de intersección entre las rectas verticales (x=50, 140, 230) y horizontales (y=40, 220)."
-        ]
+        ],
+        realWork: {
+          title: "Composition with Yellow, Blue and Red (1935-1942)",
+          museum: "Tate Modern (Londres)",
+          technique: "Óleo sobre lienzo (56.5 × 56.5 cm)",
+          url: "https://www.tate.org.uk/art/artists/piet-mondrian-1651",
+          contrastNote: "Las rectas digitales del código son matemáticas y frías. En el lienzo de la Tate, Mondrian raspaba y volvía a pintar las cintas negras durante meses, dejando la huella física de la búsqueda del ritmo orgánico."
+        }
       },
       {
         id: "obra-7",
@@ -770,7 +1051,14 @@
           "<strong>Topología y Geometría No Euclidiana:</strong> Formas biomórficas libres vs. geometría euclidiana rígida.",
           "<strong>Distribución y Densidad de Puntos:</strong> Dispersión de centros de gravedad en el plano cartesiano.",
           "<strong>Corona Circular (Anillo):</strong> Cálculo de la superficie roja visible: A = π(R² - r²) = π(45² - 12²) = π(2025 - 144) ≈ 5.909 px²."
-        ]
+        ],
+        realWork: {
+          title: "Personaje y pájaros en la noche (1934-1940)",
+          museum: "Fundació Joan Miró (Barcelona)",
+          technique: "Gouache, pastel y óleo sobre papel",
+          url: "https://www.fmirobcn.org/es/coleccion/catalogo-obras/",
+          contrastNote: "El SVG genera siluetas rígidas y cerradas. La pintura real de Miró está llena de raspaduras, fondos rugosos, grafismos orgánicos viscerales y manchas accidentales que escapan a la rigidez del compás matemático."
+        }
       },
       {
         id: "obra-8",
@@ -788,7 +1076,14 @@
           "<strong>Descomposición de Figuras Compuestas:</strong> Cada torre es la suma exacta de un rectángulo más un triángulo isósceles: Área Torre = (b · h_rect) + (b · h_tri / 2).",
           "<strong>Teorema de Pitágoras:</strong> Para el tejado central (base 60 px, altura 60 px), calcular la longitud de la pendiente: L = √(30² + 60²) = √(900 + 3600) ≈ 67,08 px.",
           "<strong>Polígonos Adyacentes y Teselación:</strong> Encaje perfecto de vértices contiguos sin solapamiento."
-        ]
+        ],
+        realWork: {
+          title: "Burg und Sonne (1928)",
+          museum: "Zentrum Paul Klee (Berna, Suiza)",
+          technique: "Óleo sobre tela montada en madera (50 × 59 cm)",
+          url: "https://www.zpk.org/en/collection-research/collection-33.html",
+          contrastNote: "El SVG sintetiza 5 rectángulos y 3 tejados triangulares. La obra real de Klee es una deslumbrante teselación de cientos de micro-polígonos de colores terrosos modulados que construyen una urbe geométrica medieval."
+        }
       },
       {
         id: "obra-9",
@@ -805,7 +1100,14 @@
           "<strong>Homotecia y Razón de Semejanza (k):</strong> La razón lineal entre lados es k = 180/300 = 0,6 (3:5).",
           "<strong>Razón de Áreas (k²):</strong> El área del cuadrado negro es 180² = 32.400 px², mientras que el lienzo es 300² = 90.000 px². La razón de áreas es k² = (0,6)² = 0,36, es decir, ocupa exactamente el <strong>36%</strong> del total.",
           "<strong>Centroide y Simetría Central:</strong> Ambos cuadrados comparten el centro exacto (150, 150) y tienen 4 ejes de simetría axial más simetría rotacional de 90°."
-        ]
+        ],
+        realWork: {
+          title: "Black Suprematic Square (1915)",
+          museum: "Galería Tretiakov (Moscú) / Tate Modern",
+          technique: "Óleo sobre lienzo (79.5 × 79.5 cm)",
+          url: "https://www.tate.org.uk/art/artists/kazimir-malevich-1568/five-ways-look-malevichs-black-square",
+          contrastNote: "Es el caso conceptualmente más afín al código. Sin embargo, en el lienzo real los lados no son estrictamente paralelos ni el fondo es un blanco puro: tiene un craquelado centenario que atestigua el paso del tiempo como 'grado cero de la pintura'."
+        }
       },
       {
         id: "obra-10",
@@ -823,7 +1125,14 @@
           "<strong>Semiplanos y Desigualdades:</strong> División del plano en dos semiplanos: y < 150 (zona superior) e y ≥ 150 (zona inferior).",
           "<strong>Periodicidad y Módulos:</strong> El trazo discontinuo define un periodo repetitivo de 10 px (5 px de trazo + 5 px de espacio).",
           "<strong>Segmentos y Proyecciones:</strong> El segmento vertical corta perpendicularmente la línea de separación en (100, 150)."
-        ]
+        ],
+        realWork: {
+          title: "The Hunter / Catalan Landscape (1923-1924)",
+          museum: "MoMA - Museum of Modern Art (Nueva York)",
+          technique: "Óleo sobre lienzo (64.8 × 100.3 cm)",
+          url: "https://www.moma.org/collection/works/78724",
+          contrastNote: "El abismo más rotundo entre la matemática y el arte: el SVG aísla únicamente la línea del horizonte y figuras primarias; en el cuadro original del MoMA habita un campesino con bigote y pipa, un ojo volador, un conejo, una sardina y la palabra 'SARD'."
+        }
       },
       {
         id: "obra-11",
@@ -841,7 +1150,14 @@
           "<strong>Comparación de Magnitudes y Razón:</strong> El rectángulo rojo mide 170 × 140 = 23.800 px²; el azul mide 120 × 150 = 18.000 px². La razón entre rojo y azul es 23800 / 18000 ≈ 1,32 (un 32% mayor).",
           "<strong>Problemas de Optimización y Empaquetamiento:</strong> Análisis de partición de una superficie cuadrada fija mediante subdivisiones rectangulares.",
           "<strong>Perímetros:</strong> Perímetro del rectángulo azul: 2(120+150) = 540 px. Perímetro del rojo: 2(170+140) = 620 px."
-        ]
+        ],
+        realWork: {
+          title: "Composition with Large Red Plane, Yellow, Black, Gray and Blue (1921)",
+          museum: "Kunstmuseum Den Haag / MoMA",
+          technique: "Óleo sobre lienzo (59.5 × 59.5 cm)",
+          url: "https://www.moma.org/collection/works/79817",
+          contrastNote: "El cálculo de áreas relativas entre rectángulos demuestra la preocupación neoplásica: cómo evitar la simetría estática logrando un dinamismo visual mediante áreas desiguales que contrapesan ópticamente el plano."
+        }
       },
       {
         id: "obra-12",
@@ -860,7 +1176,14 @@
           "<strong>Propiedad Aditiva de Longitudes y Áreas:</strong> En la fila 1, el ancho total ocupado es 60 + 10 + 80 + 10 + 80 = 240 px (considerando separaciones de 10 px). En la fila 2 es 110 + 10 + 120 = 240 px.",
           "<strong>Introducción Intuitiva a la Integral de Riemann:</strong> Aproximación de áreas mediante sumas de rectángulos apilados de base variable.",
           "<strong>Proporciones Armónicas:</strong> Relaciones de aspecto y ritmo modular en la composición."
-        ]
+        ],
+        realWork: {
+          title: "Polyphony / Polyphon gefasstes Weiss (1930-1932)",
+          museum: "Kunstmuseum Basel (Suiza)",
+          technique: "Óleo y témpera sobre tela (33 × 42 cm)",
+          url: "https://kunstmuseumbasel.ch/en/collection/our-works",
+          contrastNote: "Klee aplicó un sistema 'polifónico' tomado directamente de las leyes matemáticas de la música y el contrapunto de Bach: cientos de capas superpuestas de micro-rectángulos translúcidos que vibran en acordes visuales."
+        }
       }
     ];
 
@@ -925,6 +1248,24 @@
               </div>
               <ul class="math-list">${mathHTML}</ul>
             </div>
+
+            <!-- COTEJO CON LA OBRA ORIGINAL EN MUSEO (PROPIEDAD INTELECTUAL) -->
+            <div class="section-block section-original">
+              <div class="section-title title-original">
+                <i class="fa-solid fa-landmark"></i> Obra Original en Museo & Cotejo
+              </div>
+              <div class="real-meta-text">
+                <div><strong>Título original:</strong> ${obra.realWork.title}</div>
+                <div><strong>Custodia patrimonial:</strong> ${obra.realWork.museum}</div>
+                <div><strong>Técnica y medidas:</strong> ${obra.realWork.technique}</div>
+              </div>
+              <div class="comparison-note">
+                <i class="fa-solid fa-scale-balanced" style="color:var(--accent-amber);"></i> <strong>Cotejo Crítico:</strong> ${obra.realWork.contrastNote}
+              </div>
+              <a href="${obra.realWork.url}" target="_blank" rel="noopener noreferrer" class="btn-museum-link">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver obra en catálogo oficial del museo
+              </a>
+            </div>
           </div>
         `;
 
@@ -936,6 +1277,22 @@
     window.toggleCode = function(id) {
       const codeBlock = document.getElementById(`code-${id}`);
       codeBlock.classList.toggle('open');
+    };
+
+    // TOGGLE ETHICS BANNER
+    window.toggleEthics = function() {
+      const content = document.getElementById('ethics-content');
+      const chevron = document.getElementById('ethics-chevron');
+      const btn = document.getElementById('ethics-btn');
+      
+      const isOpen = content.classList.toggle('open');
+      if (isOpen) {
+        chevron.className = 'fa-solid fa-chevron-up';
+        btn.querySelector('span').textContent = 'Ocultar Fundamentación';
+      } else {
+        chevron.className = 'fa-solid fa-chevron-down';
+        btn.querySelector('span').textContent = 'Leer Fundamentación';
+      }
     };
 
     // TOGGLE CARTESIAN GRID OVERLAY

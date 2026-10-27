@@ -1,0 +1,643 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Diseño 3D: el desafío del envase - Alicia Astigarraga</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4; /* Tailwind green-50 */
+            color: #1f2937; /* Tailwind gray-800 */
+        }
+        
+        .shape-container {
+            perspective: 1000px;
+        }
+
+        .shape {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* Pseudo-3D Styles */
+        .cylinder {
+            background: linear-gradient(to right, #22c55e, #16a34a, #22c55e);
+            border-radius: 50% / 10%;
+            position: relative;
+        }
+        .cylinder::before, .cylinder::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            border-radius: 50%;
+            background-color: #4ade80;
+        }
+        .cylinder::before {
+            top: -10%;
+        }
+        .cylinder::after {
+            bottom: -10%;
+            background-color: #15803d;
+            z-index: -1;
+        }
+
+        .cube {
+            background: #22c55e;
+            position: relative;
+            transform: rotateX(-20deg) rotateY(25deg);
+        }
+        .cube::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: #4ade80;
+            transform-origin: bottom;
+            transform: skewX(-45deg);
+        }
+        .cube::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -20px;
+            width: 20px;
+            height: 100%;
+            background: #16a34a;
+            transform-origin: left;
+            transform: skewY(-45deg);
+        }
+
+        .prism-tri {
+            width: 0;
+            height: 0;
+            border-left: solid transparent;
+            border-right: solid transparent;
+            border-bottom: solid #22c55e;
+            position: relative;
+            transform: rotateY(15deg);
+        }
+        .prism-tri::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 100%;
+            width: 20px;
+            background: #16a34a;
+            transform-origin: left top;
+            transform: skewY(45deg);
+        }
+
+        /* Thermometer */
+        .thermometer-bg {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            position: relative;
+            overflow: hidden;
+        }
+        .thermometer-fill {
+            background: linear-gradient(to top, #3b82f6, #22c55e, #ef4444);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            transition: height 0.5s ease-out;
+        }
+        .target-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            border-top: 3px dashed #1f2937;
+            z-index: 10;
+        }
+
+        /* Modals and Animations */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: hidden !important;
+        }
+        
+        input[type=range] {
+            accent-color: #16a34a;
+        }
+
+        .success-animation {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+    <header class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-green-100">
+        <div class="flex items-center gap-4 mb-4 md:mb-0">
+            <i class="fa-solid fa-leaf text-4xl text-green-600"></i>
+            <div>
+                <h1 class="text-3xl font-bold text-green-800">Eco-Diseño 3D</h1>
+                <p class="text-gray-500 font-medium">El desafío del envase sostenible</p>
+                <div class="mt-1 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
+                        <i class="fa-solid fa-user-pen text-green-600"></i> Autora: Alicia Astigarraga
+                    </span>
+                    <span class="text-xs text-gray-500">EDI: Matemática y el trabajo por proyectos</span>
+                </div>
+            </div>
+        </div>
+        <button onclick="toggleModal('formulasModal')" aria-label="Ver fórmulas matemáticas de ayuda" class="bg-green-100 hover:bg-green-200 text-green-800 font-semibold py-2 px-6 rounded-full transition-colors flex items-center gap-2 border border-green-300 shadow-sm">
+            <i class="fa-solid fa-book-open"></i> Ver fórmulas de ayuda
+        </button>
+    </header>
+
+    <main class="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- PANEL DE CONTROL (Izquierda) -->
+        <section class="lg:col-span-3 bg-white p-6 rounded-2xl shadow-sm border border-green-100 flex flex-col gap-6">
+            <h2 class="text-xl font-bold text-gray-700 border-b pb-2"><i class="fa-solid fa-sliders text-green-600 mr-2"></i>Controles</h2>
+            
+            <div>
+                <label for="shapeSelect" class="block text-sm font-semibold text-gray-700 mb-2">Forma del Envase</label>
+                <select id="shapeSelect" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5">
+                    <option value="cylinder">Cilindro</option>
+                    <option value="cube">Prisma Cuadrangular</option>
+                    <option value="prism">Prisma Triangular</option>
+                </select>
+            </div>
+
+            <div id="controlsContainer" class="space-y-6 flex-grow">
+                <!-- Los controles se inyectan dinámicamente aquí con JS -->
+            </div>
+        </section>
+
+        <!-- PANEL VISUAL (Centro) -->
+        <section class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-green-100 flex flex-col items-center justify-center relative min-h-[400px]">
+            <h2 class="text-xl font-bold text-gray-700 absolute top-6 left-6"><i class="fa-solid fa-eye text-green-600 mr-2"></i>Vista Previa</h2>
+            
+            <div class="flex items-end justify-center w-full h-full gap-8 mt-12">
+                <!-- Contenedor de la Forma -->
+                <div class="shape-container w-2/3 h-[300px] flex items-center justify-center relative">
+                    <!-- Elemento que se transforma -->
+                    <div id="visualShape" class="shape cylinder" style="width: 100px; height: 150px;"></div>
+                </div>
+
+                <!-- Termómetro de Volumen -->
+                <div class="flex flex-col items-center h-[300px] w-24">
+                    <div class="text-sm font-semibold text-gray-600 mb-2 text-center leading-tight">Volumen<br>(cm³)</div>
+                    <div class="thermometer-bg w-8 h-full flex-grow relative shadow-inner">
+                        <div id="thermoFill" class="thermometer-fill" style="height: 0%;"></div>
+                        <div id="thermoTarget" class="target-line" style="bottom: 50%;">
+                            <span id="thermoTargetLabel" class="absolute left-10 -top-3 text-xs font-bold text-red-600 bg-white px-1 rounded shadow-sm whitespace-nowrap">Obj: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL DE DATOS Y GAMIFICACIÓN (Derecha) -->
+        <section class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-green-100 flex flex-col gap-6 relative">
+            
+            <div id="successOverlay" class="hidden absolute inset-0 bg-green-500 bg-opacity-90 rounded-2xl z-10 flex flex-col items-center justify-center text-white text-center p-6 backdrop-blur-sm">
+                <i class="fa-solid fa-trophy text-6xl mb-4 text-yellow-300"></i>
+                <h3 class="text-3xl font-bold mb-2">¡Desafío Logrado!</h3>
+                <p class="text-lg mb-6">Has optimizado el envase perfectamente.</p>
+                <button onclick="generateChallenge()" class="bg-white text-green-600 font-bold py-3 px-6 rounded-full hover:bg-green-50 transition-colors shadow-lg">
+                    Siguiente Desafío <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="text-xl font-bold text-gray-700"><i class="fa-solid fa-chart-pie text-green-600 mr-2"></i>Datos Reales</h2>
+            </div>
+            
+            <div class="bg-gray-50 rounded-xl p-4 text-center border-2 border-dashed border-gray-300">
+                <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider mb-1">Volumen Objetivo</p>
+                <p id="targetVolumeDisplay" class="text-3xl font-bold text-blue-600">-- cm³</p>
+                <p class="text-xs text-gray-400 mt-1">Margen de tolerancia: ±10 cm³</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-green-50 p-3 rounded-lg border border-green-100">
+                    <p class="text-xs text-green-800 font-semibold mb-1">Perímetro Base</p>
+                    <p id="statPerimeter" class="text-lg font-bold text-gray-800">0.0 cm</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded-lg border border-green-100">
+                    <p class="text-xs text-green-800 font-semibold mb-1">Área Base</p>
+                    <p id="statAreaBase" class="text-lg font-bold text-gray-800">0.0 cm²</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded-lg border border-green-100">
+                    <p class="text-xs text-green-800 font-semibold mb-1">Área Lateral</p>
+                    <p id="statAreaLat" class="text-lg font-bold text-gray-800">0.0 cm²</p>
+                </div>
+                <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                    <p class="text-xs text-yellow-800 font-bold mb-1" title="Área Total">Material Consumido</p>
+                    <p id="statAreaTotal" class="text-lg font-bold text-gray-800">0.0 cm²</p>
+                </div>
+            </div>
+
+            <div class="mt-auto bg-gray-800 text-white p-4 rounded-xl text-center shadow-inner relative overflow-hidden">
+                <div id="volumeProgressBar" class="absolute left-0 bottom-0 top-0 bg-blue-500 opacity-20 w-0 transition-all duration-300"></div>
+                <p class="text-sm font-semibold uppercase tracking-wider mb-1 relative z-10 text-gray-300">Volumen Actual</p>
+                <p id="statVolume" class="text-4xl font-bold relative z-10">0.0 <span class="text-xl font-normal">cm³</span></p>
+            </div>
+
+            <button onclick="generateChallenge()" aria-label="Generar nuevo desafío de volumen" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2">
+                <i class="fa-solid fa-dice"></i> Generar Nuevo Desafío
+            </button>
+        </section>
+    </main>
+
+    <!-- Modal Fórmulas -->
+    <div class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50" id="formulasModal">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="toggleModal('formulasModal')"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-4xl mx-auto rounded-2xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
+            
+            <div class="modal-close absolute top-0 right-0 cursor-pointer flex flex-col items-center mt-4 mr-4 text-white text-sm z-50" role="button" tabindex="0" aria-label="Cerrar ventana de fórmulas" onclick="toggleModal('formulasModal')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleModal('formulasModal');}">
+                <i class="fa-solid fa-xmark text-3xl"></i>
+            </div>
+
+            <div class="modal-content py-6 text-left px-8">
+                <div class="flex justify-between items-center pb-4 border-b border-gray-200 mb-6">
+                    <p class="text-2xl font-bold text-green-800"><i class="fa-solid fa-book-open mr-2"></i> Fórmulas de Ayuda</p>
+                    <div class="modal-close cursor-pointer z-50" role="button" tabindex="0" aria-label="Cerrar ventana de fórmulas" onclick="toggleModal('formulasModal')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleModal('formulasModal');}">
+                        <i class="fa-solid fa-xmark text-gray-500 hover:text-gray-800 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Cilindro -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                        <div class="text-center mb-4">
+                            <i class="fa-solid fa-database text-4xl text-green-500"></i>
+                            <h3 class="font-bold text-lg mt-2">Cilindro</h3>
+                        </div>
+                        <ul class="space-y-3 text-sm">
+                            <li><span class="font-semibold text-gray-700">Perímetro Base (Círculo):</span><br> 2 · 3.14 · radio</li>
+                            <li><span class="font-semibold text-gray-700">Área Base:</span><br> 3.14 · radio · radio</li>
+                            <li><span class="font-semibold text-gray-700">Área Lateral:</span><br> Perímetro de la base · Altura</li>
+                            <li class="bg-yellow-100 p-2 rounded"><span class="font-semibold text-gray-700">Área Total (Material):</span><br> 2 · Área de la base + Área Lateral</li>
+                            <li class="bg-blue-100 p-2 rounded"><span class="font-semibold text-gray-700">Volumen:</span><br> Área de la base · Altura</li>
+                        </ul>
+                    </div>
+
+                    <!-- Prisma Cuadrangular -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                        <div class="text-center mb-4">
+                            <i class="fa-solid fa-box text-4xl text-green-500"></i>
+                            <h3 class="font-bold text-lg mt-2">Prisma Cuadrangular</h3>
+                            <p class="text-xs text-gray-500">(Base Cuadrada)</p>
+                        </div>
+                        <ul class="space-y-3 text-sm">
+                            <li><span class="font-semibold text-gray-700">Perímetro Base:</span><br> 4 · Lado</li>
+                            <li><span class="font-semibold text-gray-700">Área Base:</span><br> Lado · Lado</li>
+                            <li><span class="font-semibold text-gray-700">Área Lateral:</span><br> Perímetro de la base · Altura</li>
+                            <li class="bg-yellow-100 p-2 rounded"><span class="font-semibold text-gray-700">Área Total (Material):</span><br> 2 · Área de la base + Área Lateral</li>
+                            <li class="bg-blue-100 p-2 rounded"><span class="font-semibold text-gray-700">Volumen:</span><br> Área de la base · Altura</li>
+                        </ul>
+                    </div>
+
+                    <!-- Prisma Triangular -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                        <div class="text-center mb-4">
+                            <i class="fa-solid fa-play text-4xl text-green-500 transform -rotate-90"></i>
+                            <h3 class="font-bold text-lg mt-2">Prisma Triangular</h3>
+                            <p class="text-xs text-gray-500">(Base Triángulo Equilátero)</p>
+                        </div>
+                        <ul class="space-y-3 text-sm">
+                            <li><span class="font-semibold text-gray-700">Perímetro Base:</span><br> 3 · Lado</li>
+                            <li><span class="font-semibold text-gray-700">Área Base:</span><br> 0.433 · Lado · Lado</li>
+                            <li><span class="font-semibold text-gray-700">Área Lateral:</span><br> Perímetro de la base · Altura</li>
+                            <li class="bg-yellow-100 p-2 rounded"><span class="font-semibold text-gray-700">Área Total (Material):</span><br> 2 · Área de la base + Área Lateral</li>
+                            <li class="bg-blue-100 p-2 rounded"><span class="font-semibold text-gray-700">Volumen:</span><br> Área de la base · Altura</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-6 mt-4 border-t border-gray-200">
+                    <button class="modal-close bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors" onclick="toggleModal('formulasModal')">Entendido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Constantes y Estado ---
+        const PI = Math.PI;
+        const TOLERANCE = 10; // Tolerancia en cm3 para ganar
+        const MAX_VOLUME = 1500; // Para escalar el termómetro (basado en max dims)
+        
+        let targetVolume = 0;
+        let currentShapeType = 'cylinder';
+        let dimensions = { r: 5, h: 10, l: 10 }; // r para cilindro, l para prismas, h para todos
+        
+        // --- Elementos del DOM ---
+        const shapeSelect = document.getElementById('shapeSelect');
+        const controlsContainer = document.getElementById('controlsContainer');
+        const visualShape = document.getElementById('visualShape');
+        
+        // Stats
+        const statPerimeter = document.getElementById('statPerimeter');
+        const statAreaBase = document.getElementById('statAreaBase');
+        const statAreaLat = document.getElementById('statAreaLat');
+        const statAreaTotal = document.getElementById('statAreaTotal');
+        const statVolume = document.getElementById('statVolume');
+        const targetVolumeDisplay = document.getElementById('targetVolumeDisplay');
+        const volumeProgressBar = document.getElementById('volumeProgressBar');
+        
+        // Termómetro
+        const thermoFill = document.getElementById('thermoFill');
+        const thermoTarget = document.getElementById('thermoTarget');
+        const thermoTargetLabel = document.getElementById('thermoTargetLabel');
+        
+        // Overlay éxito
+        const successOverlay = document.getElementById('successOverlay');
+
+        // --- Configuración de Controles por Forma ---
+        const shapeConfigs = {
+            cylinder: {
+                controls: [
+                    { id: 'r', label: 'Radio (cm)', min: 1, max: 15, step: 0.1, default: 5 },
+                    { id: 'h', label: 'Altura (cm)', min: 1, max: 20, step: 0.1, default: 10 }
+                ],
+                className: 'cylinder',
+                calculate: (d) => {
+                    const r = d.r; const h = d.h;
+                    const p = 2 * PI * r;
+                    const ab = PI * Math.pow(r, 2);
+                    const al = p * h;
+                    const at = 2 * ab + al;
+                    const v = ab * h;
+                    return { p, ab, al, at, v };
+                }
+            },
+            cube: { // Prisma cuadrangular
+                controls: [
+                    { id: 'l', label: 'Lado Base (cm)', min: 1, max: 20, step: 0.1, default: 8 },
+                    { id: 'h', label: 'Altura (cm)', min: 1, max: 20, step: 0.1, default: 10 }
+                ],
+                className: 'cube',
+                calculate: (d) => {
+                    const l = d.l; const h = d.h;
+                    const p = 4 * l;
+                    const ab = Math.pow(l, 2);
+                    const al = p * h;
+                    const at = 2 * ab + al;
+                    const v = ab * h;
+                    return { p, ab, al, at, v };
+                }
+            },
+            prism: { // Prisma triangular (equilátero para simplificar)
+                controls: [
+                    { id: 'l', label: 'Lado Base (cm)', min: 1, max: 20, step: 0.1, default: 10 },
+                    { id: 'h', label: 'Altura (cm)', min: 1, max: 20, step: 0.1, default: 10 }
+                ],
+                className: 'prism-tri',
+                calculate: (d) => {
+                    const l = d.l; const h = d.h;
+                    const p = 3 * l;
+                    const ab = (Math.sqrt(3) / 4) * Math.pow(l, 2);
+                    const al = p * h;
+                    const at = 2 * ab + al;
+                    const v = ab * h;
+                    return { p, ab, al, at, v };
+                }
+            }
+        };
+
+        // --- STREAMING_CHUNK:Functions and Event Listeners... ---
+
+        function renderControls(shapeType) {
+            const config = shapeConfigs[shapeType];
+            controlsContainer.innerHTML = '';
+            
+            config.controls.forEach(ctrl => {
+                const value = dimensions[ctrl.id] || ctrl.default;
+                dimensions[ctrl.id] = value; // Asegurar que el estado tenga el valor
+
+                const html = `
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label for="input_${ctrl.id}" class="text-sm font-medium text-gray-700">${ctrl.label}</label>
+                            <span class="text-sm font-bold text-green-700" id="val_${ctrl.id}">${value}</span>
+                        </div>
+                        <input type="range" id="input_${ctrl.id}" min="${ctrl.min}" max="${ctrl.max}" step="${ctrl.step}" value="${value}" 
+                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                `;
+                controlsContainer.insertAdjacentHTML('beforeend', html);
+
+                // Event listener para el slider
+                const slider = document.getElementById(`input_${ctrl.id}`);
+                const display = document.getElementById(`val_${ctrl.id}`);
+                slider.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    display.textContent = val.toFixed(1);
+                    dimensions[ctrl.id] = val;
+                    updateAll();
+                });
+            });
+            
+            // Cambiar clase visual
+            visualShape.className = `shape ${config.className}`;
+        }
+
+        function updateVisual(shapeType, dims) {
+            // Escalar visualmente. Valores max aprox para r=15, l=20, h=20
+            const maxPx = 200; // tamaño maximo en contenedor
+            
+            let w, h, cssText = '';
+            
+            if (shapeType === 'cylinder') {
+                w = (dims.r * 2) * (maxPx / 30); // max r=15 -> diam=30
+                h = dims.h * (maxPx / 20);
+                cssText = `width: ${w}px; height: ${h}px; border-radius: 50% / 10%;`;
+            } else if (shapeType === 'cube') {
+                w = dims.l * (maxPx / 20);
+                h = dims.h * (maxPx / 20);
+                cssText = `width: ${w}px; height: ${h}px;`;
+                
+                // Ajustar pseudo-elementos (requiere variables CSS u otra técnica, para simplicidad estática adaptada)
+                visualShape.style.setProperty('--depth', `${w}px`);
+                // En un caso real 3D, Three.js es mejor, pero aquí simulamos con transform
+                cssText += ` transform: rotateX(-20deg) rotateY(25deg) scale3d(1,1,1);`;
+                
+                // Hack para ajustar tops pseudo
+                const styleSheet = document.styleSheets[0];
+                // Complejo ajustar pseudo elementos dinámicamente sin vars CSS, mantendremos simple
+            } else if (shapeType === 'prism') {
+                w = dims.l * (maxPx / 20);
+                h = dims.h * (maxPx / 20);
+                cssText = `border-left-width: ${w/2}px; border-right-width: ${w/2}px; border-bottom-width: ${h}px;`;
+            }
+
+            if(shapeType === 'cylinder' || shapeType === 'cube') {
+                 visualShape.style.width = `${w}px`;
+                 visualShape.style.height = `${h}px`;
+            } else {
+                 visualShape.style.width = '0';
+                 visualShape.style.height = '0';
+                 visualShape.style.borderLeftWidth = `${w/2}px`;
+                 visualShape.style.borderRightWidth = `${w/2}px`;
+                 visualShape.style.borderBottomWidth = `${h}px`;
+            }
+        }
+
+        function checkWinCondition(currentVol) {
+            if (targetVolume === 0) return; // No hay desafío
+            
+            const diff = Math.abs(currentVol - targetVolume);
+            
+            if (diff <= TOLERANCE && successOverlay.classList.contains('hidden')) {
+                // WIN!
+                successOverlay.classList.remove('hidden');
+                successOverlay.classList.add('flex');
+                
+                // Confeti simple (simulado)
+                document.body.classList.add('modal-active'); // Evitar scroll
+            }
+        }
+
+        function updateAll() {
+            const config = shapeConfigs[currentShapeType];
+            const results = config.calculate(dimensions);
+            
+            // Actualizar Textos
+            statPerimeter.textContent = `${results.p.toFixed(1)} cm`;
+            statAreaBase.textContent = `${results.ab.toFixed(1)} cm²`;
+            statAreaLat.textContent = `${results.al.toFixed(1)} cm²`;
+            statAreaTotal.textContent = `${results.at.toFixed(1)} cm²`;
+            statVolume.innerHTML = `${results.v.toFixed(1)} <span class="text-xl font-normal">cm³</span>`;
+            
+            // Actualizar Termómetro (escala max 1500 aprox)
+            const fillPct = Math.min((results.v / MAX_VOLUME) * 100, 100);
+            thermoFill.style.height = `${fillPct}%`;
+            
+            // Colores termómetro basados en cuan cerca estamos
+            if (targetVolume > 0) {
+                const diff = Math.abs(results.v - targetVolume);
+                if (diff <= TOLERANCE) {
+                    thermoFill.style.background = '#22c55e'; // Verde
+                    statVolume.parentElement.classList.add('success-animation');
+                    statVolume.classList.add('text-green-400');
+                } else if (diff <= TOLERANCE * 3) {
+                    thermoFill.style.background = '#eab308'; // Amarillo
+                    statVolume.parentElement.classList.remove('success-animation');
+                    statVolume.classList.remove('text-green-400');
+                } else if (results.v > targetVolume) {
+                     thermoFill.style.background = '#ef4444'; // Rojo (pasado)
+                     statVolume.parentElement.classList.remove('success-animation');
+                     statVolume.classList.remove('text-green-400');
+                } else {
+                    thermoFill.style.background = '#3b82f6'; // Azul (falta)
+                    statVolume.parentElement.classList.remove('success-animation');
+                    statVolume.classList.remove('text-green-400');
+                }
+            }
+
+            // Barra de progreso fondo volumen
+            volumeProgressBar.style.width = `${fillPct}%`;
+
+            // Actualizar visual
+            updateVisual(currentShapeType, dimensions);
+            
+            // Chequear si ganó
+            checkWinCondition(results.v);
+        }
+
+        // --- STREAMING_CHUNK:Initialization and UI Handlers... ---
+
+        function generateChallenge() {
+            // Ocultar modal de éxito si está visible
+            successOverlay.classList.add('hidden');
+            successOverlay.classList.remove('flex');
+            document.body.classList.remove('modal-active');
+            statVolume.parentElement.classList.remove('success-animation');
+            statVolume.classList.remove('text-green-400');
+
+            // Generar volumen entre 400 y 1000
+            targetVolume = Math.floor(Math.random() * (1000 - 400 + 1)) + 400;
+            
+            // Actualizar UI
+            targetVolumeDisplay.textContent = `${targetVolume} cm³`;
+            
+            // Posicionar línea en termómetro
+            const targetPct = (targetVolume / MAX_VOLUME) * 100;
+            thermoTarget.style.bottom = `${targetPct}%`;
+            thermoTargetLabel.textContent = `Obj: ${targetVolume}`;
+            
+            updateAll();
+        }
+
+        // Event listener para cambio de forma
+        shapeSelect.addEventListener('change', (e) => {
+            currentShapeType = e.target.value;
+            renderControls(currentShapeType);
+            updateAll();
+        });
+
+        // Modal Logic
+        function toggleModal(modalID) {
+            const modal = document.getElementById(modalID);
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('modal-active');
+        }
+        
+        // Evitar que ESC cierre si no está abierto, o permitir cerrarlo con ESC
+        document.onkeydown = function(evt) {
+            evt = evt || window.event;
+            var isEscape = false;
+            if ("key" in evt) {
+                isEscape = (evt.key === "Escape" || evt.key === "Esc");
+            } else {
+                isEscape = (evt.keyCode === 27);
+            }
+            if (isEscape && document.body.classList.contains('modal-active')) {
+                // Cerrar cualquier modal activo
+                if(!document.getElementById('formulasModal').classList.contains('opacity-0')){
+                    toggleModal('formulasModal');
+                }
+            }
+        };
+
+        // --- Iniciar App ---
+        window.onload = () => {
+            // Render Math (usando texto simple simulando LaTeX por ahora para no depender de librerías externas pesadas si no es necesario, ya formateado en HTML)
+            
+            renderControls(currentShapeType);
+            generateChallenge(); // Iniciar con un desafío
+        };
+
+    </script>
+
+    <footer class="mt-8 py-5 text-center text-sm text-gray-600 border-t border-green-200 bg-white/80 rounded-2xl shadow-sm">
+        <p class="font-semibold text-green-900">Eco-Diseño 3D: el desafío del envase sostenible</p>
+        <p class="mt-1">Autora: <strong class="text-green-800">Alicia Astigarraga</strong> · Proyecto de matemática (ABP) · ISFDyT N° 24</p>
+        <p class="mt-2 text-xs text-gray-500">
+            Código bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" class="underline text-green-700" target="_blank" rel="noopener">GNU AGPL v3</a> · Contenidos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" class="underline text-green-700" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+        </p>
+        <p class="mt-1 text-xs text-gray-400">
+            Desarrollado mediante Vibe Coding con asistencia de Inteligencia Artificial (v0.dev / Antigravity CLI) y supervisión didáctica de la autora · Octubre de 2026
+        </p>
+    </footer>
+</body>
+</html>
+

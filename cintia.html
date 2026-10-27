@@ -1,0 +1,1562 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!DOCTYPE html> 
+
+<html lang="es-AR"> 
+
+<head> 
+
+<meta charset="utf-8"> 
+
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site 
+
+like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=1c3e73d2-6c23-4c2a-be02-533590bb9172 
+
+Netlify hosting facts for this site: static/SSR served via Netlify Edge. --> 
+
+<meta name="viewport" content="width=device-width, initial-scale=1"> 
+
+<title>La merienda cambia - Cintia Marcaccio</title> 
+
+<style> 
+
+:root{ 
+
+--bg:#FFF4DF; --card:#FFFFFF; --ink:#2A1A0C; --muted:#5A4330; 
+
+--primary:#B23C06; --primary-ink:#FFFFFF; 
+
+--accent:#075E70; --accent-ink:#FFFFFF; 
+
+--used:#E8590C; --used-ink:#FFFFFF; --free:#FFFFFF; --line:#4A3320; 
+
+--ok-bg:#E2F4E6; --ok-line:#176B30; 
+
+--retry-bg:#FFF0CC; --retry-line:#8A5A00; 
+
+--info-bg:#E4F1F5; --info-line:#075E70; 
+
+--tray:#E7C48F; --focus:#1A3FFF; --soft:#FCE9C8; 
+
+} 
+
+body.hc{ 
+
+--bg:#000; --card:#000; --ink:#fff; --muted:#fff; 
+
+--primary:#FFD600; --primary-ink:#000; 
+
+--accent:#00E5FF; --accent-ink:#000; 
+
+--used:#FFD600; --used-ink:#000; --free:#000; --line:#fff; 
+
+--ok-bg:#000; --ok-line:#7CFF9B; 
+
+--retry-bg:#000; --retry-line:#FFD600; 
+
+--info-bg:#000; --info-line:#00E5FF; 
+
+--tray:#2b2b2b; --focus:#00E5FF; --soft:#111; 
+
+} 
+
+*{box-sizing:border-box} 
+
+html{font-size:100%} 
+
+body{margin:0;font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;font-size:1.05rem} 
+
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px} 
+
+.skip{position:absolute;left:-999px;top:0;background:var(--card);color:var(--ink);padding:.6rem 1rem;z-index:50;border:3px solid var(--line)} 
+
+.skip:focus{left:.5rem;top:.5rem} 
+
+h1,h2,h3,h4{line-height:1.2;margin:.2rem 0 .6rem} 
+
+h2{font-size:1.6rem} h3{font-size:1.3rem} h4{font-size:1.1rem} 
+
+p{margin:.4rem 0 .7rem} 
+
+h1,h2,h3,h4,p,.btn,.chip-prog,.ins{overflow-wrap:anywhere} 
+
+.ins{min-width:0} 
+
+@media (max-width:420px){.btn.big{padding:.8rem 1rem}.hero{padding:1rem .6rem}} 
+
+[hidden]{display:none !important} 
+
+.peq{font-size:.9rem;color:var(--muted)} 
+
+.center{text-align:center} 
+
+ 
+
+/* Botones */ 
+
+.btn{max-width:100%;font:inherit;font-weight:700;min-height:3.2rem;min-width:3.2rem;padding:.55rem 1.1rem;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:0 3px 0 var(--line);touch-action:manipulation} 
+
+.btn:hover{background:var(--soft)} 
+
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)} 
+
+.btn[disabled]{opacity:.45;cursor:not-allowed} 
+
+.btn-primary{background:var(--primary);color:var(--primary-ink)} 
+
+.btn-primary:hover{background:var(--primary);filter:brightness(1.1)} 
+
+.btn-accent{background:var(--accent);color:var(--accent-ink)} 
+
+.btn-accent:hover{background:var(--accent);filter:brightness(1.1)} 
+
+.btn.big{font-size:1.4rem;padding:.9rem 1.8rem;min-height:4rem} 
+
+.btn.sq{font-size:1.8rem;width:3.6rem;padding:0} 
+
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)} 
+
+ 
+
+/* Barra DUA */ 
+
+.dua{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:3px solid var(--line);padding:.5rem .6rem} 
+
+.dua-row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center} 
+
+.dua .btn{flex:1 1 5.2rem;max-width:11rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:.3rem .4rem;line-height:1.15} 
+
+.dua .ic{font-size:1.4rem} 
+
+.dua .tx{font-size:.78rem;font-weight:600} 
+
+.estado{margin:.3rem 0 0;text-align:center;font-size:.9rem;min-height:1.3rem;color:var(--muted)} 
+
+@media (max-height:560px){.dua{position:static}} 
+
+body.letra-grande .dua{position:static} 
+
+ 
+
+/* Encabezado y navegación */ 
+
+.top{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;max-width:980px;margin:0 auto;padding:.8rem 1rem .2rem} 
+
+.brand{font-size:1.3rem;font-weight:900;letter-spacing:.02em} 
+
+.prog{display:flex;flex-wrap:wrap;gap:.5rem} 
+
+.chip-prog{border:3px solid var(--line);background:var(--card);border-radius:999px;padding:.2rem .8rem;font-weight:700} 
+
+.tabs{display:flex;flex-wrap:wrap;gap:.5rem;max-width:980px;margin:.4rem auto;padding:0 1rem} 
+
+.tabs .btn{flex:1 1 7rem} 
+
+.tabs .btn[aria-current="page"]{background:var(--primary);color:var(--primary-ink)} 
+
+main{max-width:980px;margin:0 auto;padding:.5rem 1rem 2rem} 
+
+.card{background:var(--card);border:3px solid var(--line);border-radius:20px;padding:1rem 1.1rem;margin:0 0 1rem;box-shadow:0 4px 0 var(--line)} 
+
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1rem;margin-bottom:1rem} 
+
+.duo .card{margin:0} 
+
+footer{max-width:980px;margin:0 auto;padding:0 1rem 2rem;font-size:.85rem;color:var(--muted);text-align:center} 
+
+ 
+
+/* Inicio */ 
+
+.hero{text-align:center;padding:1.2rem 1rem} 
+
+.hero h1{font-size:clamp(2rem,7vw,3.4rem);margin:.4rem 0;letter-spacing:.02em} 
+
+.hero .sub{font-size:1.4rem;font-weight:700;color:var(--accent)} 
+
+body.hc .hero .sub{color:var(--accent)} 
+
+.hero p.exp{max-width:42rem;margin:.8rem auto 1.4rem;font-size:1.15rem} 
+
+.deco{width:min(100%,24rem);height:auto;display:block;margin:0 auto} 
+
+ 
+
+/* Controles */ 
+
+.stepper{display:flex;align-items:center;justify-content:center;gap:.8rem;margin:.4rem 0} 
+
+.stepper output{min-width:4rem;text-align:center;font-size:2.4rem;font-weight:900} 
+
+input[type=range]{width:100%;height:2.4rem;accent-color:var(--primary)} 
+
+.inp{width:5.4rem;font:inherit;font-size:1.8rem;font-weight:700;text-align:center;padding:.3rem;border:3px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);min-height:3.2rem} 
+
+.inp.small{width:5rem;font-size:1.4rem} 
+
+textarea{width:100%;font:inherit;padding:.6rem;border:3px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)} 
+
+label{font-weight:700} 
+
+ 
+
+/* Fracciones */ 
+
+.frac{display:inline-flex;flex-direction:column;align-items:center;font-weight:900;font-size:3.2rem;line-height:1.05} 
+
+.frac .fl{display:block;width:100%;min-width:4rem;height:6px;background:var(--ink);border-radius:3px;margin:.2rem 0} 
+
+.fin{display:inline-flex;flex-direction:column;align-items:center;gap:.25rem;margin:.4rem 1rem .4rem 0;vertical-align:middle} 
+
+.fin .fl{display:block;width:100%;height:6px;background:var(--ink);border-radius:3px} 
+
+.viz{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:center} 
+
+.frac-box{text-align:center} 
+
+@media (max-width:620px){.viz{grid-template-columns:1fr}} 
+
+.vista{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem} 
+
+.fig-wrap{width:100%;text-align:center} 
+
+.fig{width:100%;height:auto;max-height:18rem;display:block} 
+
+.fig.torta{max-width:17rem;margin:0 auto} 
+
+.p-used{fill:var(--used);stroke:var(--line);stroke-width:2} 
+
+.p-free{fill:var(--free);stroke:var(--line);stroke-width:2;stroke-dasharray:5 4} 
+
+.p-tick{fill:none;stroke:var(--used-ink);stroke-linecap:round;stroke-linejoin:round} 
+
+.tray{fill:var(--tray);stroke:var(--line);stroke-width:3} 
+
+.leyenda{list-style:none;display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;padding:0;margin:.6rem 0} 
+
+.leyenda li{display:flex;align-items:center;gap:.5rem;font-weight:600} 
+
+.nd{margin:.2rem 0} 
+
+.cmp{display:grid;gap:.5rem;margin:.8rem 0} 
+
+.cmp-row .cmp-t{font-weight:800;font-size:1.1rem} 
+
+.cmp .fig{max-height:6rem} 
+
+ 
+
+/* Devolución */ 
+
+.fb{margin-top:.8rem;padding:.8rem 1rem;border-radius:14px;border:3px solid;font-weight:600} 
+
+.fb:empty{display:none} 
+
+.fb.ok{background:var(--ok-bg);border-color:var(--ok-line)} 
+
+.fb.retry{background:var(--retry-bg);border-color:var(--retry-line)} 
+
+.fb.info{background:var(--info-bg);border-color:var(--info-line)} 
+
+.hints{margin:1rem 0 .4rem} 
+
+.hint-list{padding-left:1.4rem;margin:.6rem 0} 
+
+.hint-list li{margin:.4rem 0;padding:.5rem .7rem;background:var(--soft);border-left:6px solid var(--accent);border-radius:8px} 
+
+hr{border:0;border-top:3px dotted var(--line);margin:1.2rem 0} 
+
+.paso{border-top:3px dotted var(--line);padding-top:.7rem;margin-top:.8rem} 
+
+.paso.fijo .fin{opacity:.85} 
+
+ 
+
+/* Desafíos */ 
+
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem} 
+
+.chips .btn{flex:1 1 4.5rem} 
+
+.chips .btn[aria-current="true"]{background:var(--primary);color:var(--primary-ink)} 
+
+.estado-ch{display:inline-block;border:2px solid var(--line);border-radius:999px;padding:.1rem .7rem;font-size:.9rem;font-weight:700;margin-left:.4rem} 
+
+.opts{display:flex;gap:.8rem;flex-wrap:wrap;margin:.6rem 0} 
+
+.hecho{margin-top:1rem;padding:1rem;border:3px solid var(--ok-line);background:var(--ok-bg);border-radius:16px} 
+
+.hecho .resumen{font-size:1.5rem;font-weight:900;text-align:center;margin:.6rem 0} 
+
+.acciones{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem} 
+
+ 
+
+/* Logros */ 
+
+.insignias{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:1rem} 
+
+.ins{border:3px solid var(--line);border-radius:18px;padding:1rem;text-align:center;background:var(--card)} 
+
+.ins.on{background:var(--ok-bg);border-color:var(--ok-line)} 
+
+.ins .em{font-size:3rem} 
+
+.ins .st{font-weight:800} 
+
+.estrellas{font-size:2rem;letter-spacing:.2rem} 
+
+ 
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}} 
+
+</style> 
+
+</head> 
+
+<body> 
+
+<a class="skip" href="#main">Ir al contenido</a> 
+
+ 
+
+<!-- BARRA DE APOYOS DUA --> 
+
+<div class="dua" role="toolbar" aria-label="Apoyos de accesibilidad"> 
+
+<div class="dua-row"> 
+
+<button class="btn" id="bMas" type="button" aria-label="Aumentar tamaño de letra"><span class="ic" aria-hidden="true">A+</span><span class="tx">Letra más grande</span></button> 
+
+<button class="btn" id="bMenos" type="button" aria-label="Disminuir tamaño de letra"><span class="ic" aria-hidden="true">A−</span><span class="tx">Letra más chica</span></button> 
+
+<button class="btn" id="bHC" type="button" aria-pressed="false" aria-label="Activar o desactivar alto contraste"><span class="ic" aria-hidden="true">◐</span><span class="tx">Contraste</span></button> 
+
+<button class="btn" id="bLeer" type="button" aria-pressed="false" aria-label="Escuchar las instrucciones de esta pantalla"><span class="ic" aria-hidden="true">🔊</span><span class="tx">Escuchar</span></button> 
+
+<button class="btn" id="bReset" type="button" aria-label="Restablecer la configuración inicial"><span class="ic" aria-hidden="true">↺</span><span class="tx">Restablecer</span></button> 
+
+</div> 
+
+<p class="estado" id="estado" role="status" aria-live="polite"></p> 
+
+</div> 
+
+ 
+
+<header class="top"> 
+
+<div class="brand"><span aria-hidden="true">🍰</span> LA MERIENDA CAMBIA</div> 
+
+<div class="prog" aria-label="Tu progreso"> 
+
+<span class="chip-prog">✍️ Autora: Cintia Marcaccio</span> 
+
+<span class="chip-prog">🎯 Misiones completadas: <span id="cMis">0</span> de 5</span> 
+
+<span class="chip-prog">⭐ Estrellas: <span id="cEst">0</span></span> 
+
+</div> 
+
+</header> 
+
+ 
+
+<nav class="tabs" aria-label="Secciones"> 
+
+<button class="btn" type="button" data-act="ir" data-to="inicio">🏠 Inicio</button> 
+
+<button class="btn" type="button" data-act="ir" data-to="sim">🧪 Simulador</button> 
+
+<button class="btn" type="button" data-act="ir" data-to="des">🏆 Desafíos</button> 
+
+<button class="btn" type="button" data-act="ir" data-to="logros">🏅 Logros</button> 
+
+</nav> 
+
+ 
+
+<main id="main"> 
+
+ 
+
+<!-- ========== INICIO ========== --> 
+
+<section id="scr-inicio" class="screen" aria-labelledby="h-inicio"> 
+
+<div class="card hero"> 
+
+<svg class="deco" viewBox="0 0 360 200" aria-hidden="true" focusable="false"> 
+
+<rect x="14" y="150" width="332" height="30" rx="15" style="fill:var(--tray);stroke:var(--line);stroke-width:4"/> 
+
+<g transform="translate(110,92)"> 
+
+<circle r="62" fill="#F7C873" stroke="#4A3320" stroke-width="4"/> 
+
+<g stroke="#4A3320" stroke-width="3"> 
+
+<line x1="-62" y1="0" x2="62" y2="0"/><line x1="0" y1="-62" x2="0" y2="62"/> 
+
+<line x1="-44" y1="-44" x2="44" y2="44"/><line x1="-44" y1="44" x2="44" y2="-44"/> 
+
+</g> 
+
+<circle r="12" fill="#C0392B" stroke="#4A3320" stroke-width="3"/> 
+
+</g> 
+
+<g stroke="#4A3320" stroke-width="4" stroke-linejoin="round"> 
+
+<path d="M222 50 L268 50 L260 148 L230 148 Z" fill="#fff"/> 
+
+<path d="M225 84 L265 84 L260 148 L230 148 Z" fill="#F28C28"/> 
+
+<path d="M282 70 L326 70 L319 148 L289 148 Z" fill="#fff"/> 
+
+<path d="M285 100 L324 100 L319 148 L289 148 Z" fill="#F28C28"/> 
+
+</g> 
+
+</svg> 
+
+<h1 id="h-inicio" class="lectura" tabindex="-1">LA MERIENDA CAMBIA</h1> 
+
+<p class="sub lectura">Explorá, compará y descubrí fracciones equivalentes.</p> 
+
+<p class="peq lectura" style="font-weight:700;color:var(--accent);margin:-0.2rem 0 0.8rem">Autora: Cintia Marcaccio · EDI: Matemática y el trabajo por proyectos</p> 
+
+<p class="exp lectura">En esta misión vas a cambiar las cantidades de una merienda y observar qué sucede con las fracciones. Podrás probar, equivocarte, pedir pistas y comprobar tus respuestas.</p> 
+
+<button class="btn btn-primary big" type="button" data-act="ir" data-to="sim">COMENZAR LA MISIÓN</button> 
+
+</div> 
+
+</section> 
+
+ 
+
+<!-- ========== SIMULADOR ========== --> 
+
+<section id="scr-sim" class="screen" hidden aria-labelledby="h-sim"> 
+
+<h2 id="h-sim" tabindex="-1">🧪 Simulador: armá tu merienda</h2> 
+
+<p class="lectura">Cambiá las cantidades y mirá qué pasa con la fracción. Primero pensá, después probá.</p> 
+
+ 
+
+<div class="duo"> 
+
+<div class="card"> 
+
+<h3 id="lblTotal">Cantidad total de partes</h3> 
+
+<div class="stepper"> 
+
+<button class="btn sq" type="button" id="tMenos" data-act="simT" data-d="-1" aria-label="Una parte menos en total">−</button> 
+
+<output id="valTotal" aria-labelledby="lblTotal">12</output> 
+
+<button class="btn sq" type="button" id="tMas" data-act="simT" data-d="1" aria-label="Una parte más en total">+</button> 
+
+</div> 
+
+<input type="range" id="rngTotal" min="2" max="24" step="1" value="12" aria-labelledby="lblTotal"> 
+
+<p class="peq">Elegí entre 2 y 24 partes iguales.</p> 
+
+</div> 
+
+<div class="card"> 
+
+<h3 id="lblUsed">Cantidad de partes utilizadas</h3> 
+
+<div class="stepper"> 
+
+<button class="btn sq" type="button" id="uMenos" data-act="simU" data-d="-1" aria-label="Una parte utilizada menos">−</button> 
+
+<output id="valUsed" aria-labelledby="lblUsed">3</output> 
+
+<button class="btn sq" type="button" id="uMas" data-act="simU" data-d="1" aria-label="Una parte utilizada más">+</button> 
+
+</div> 
+
+<input type="range" id="rngUsed" min="0" max="12" step="1" value="3" aria-labelledby="lblUsed"> 
+
+<p class="peq">Desde 0 hasta el total de partes.</p> 
+
+</div> 
+
+</div> 
+
+ 
+
+<div class="card"> 
+
+<div class="vista" role="group" aria-label="Forma de la representación"> 
+
+<button class="btn" type="button" data-act="vista" data-v="barra" aria-pressed="true">▬ Bandeja</button> 
+
+<button class="btn" type="button" data-act="vista" data-v="torta" aria-pressed="false">🥧 Torta</button> 
+
+</div> 
+
+<div class="viz"> 
+
+<div class="frac-box"> 
+
+<div class="frac" id="simFrac" role="img" aria-label=""><span id="simNum">3</span><span class="fl"></span><span id="simDen">12</span></div> 
+
+<p class="peq">partes utilizadas / partes totales</p> 
+
+</div> 
+
+<div id="simFig" class="fig-wrap"></div> 
+
+</div> 
+
+<ul class="leyenda"> 
+
+<li><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect class="p-used" x="2" y="2" width="30" height="30" rx="6"/><polyline class="p-tick" style="stroke-width:4" points="9,18 15,24 26,11"/></svg> Parte utilizada (con tilde ✔)</li> 
+
+<li><svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect class="p-free" x="2" y="2" width="30" height="30" rx="6"/></svg> Parte disponible (vacía)</li> 
+
+</ul> 
+
+<p id="descSim" class="lectura"></p> 
+
+<p class="lectura nd"><strong>Numerador: <span id="ndN">3</span></strong> → cantidad de partes utilizadas.</p> 
+
+<p class="lectura nd"><strong>Denominador: <span id="ndD">12</span></strong> → cantidad total de partes iguales.</p> 
+
+<p class="lectura nd">El denominador indica en cuántas partes iguales dividimos el entero.</p> 
+
+<p class="lectura nd">El numerador indica cuántas partes estamos utilizando.</p> 
+
+</div> 
+
+ 
+
+<div class="card" id="equiv"> 
+
+<h3>🔎 ¿Se puede escribir de otra manera?</h3> 
+
+<p class="lectura">Pensá una fracción que represente la misma cantidad que la de arriba. Escribila y comprobá tu idea.</p> 
+
+<div class="fin" role="group" aria-label="Tu fracción"> 
+
+<input class="inp" id="gN" inputmode="numeric" autocomplete="off" aria-label="Numerador de tu fracción"> 
+
+<span class="fl"></span> 
+
+<input class="inp" id="gD" inputmode="numeric" autocomplete="off" aria-label="Denominador de tu fracción"> 
+
+</div> 
+
+<button class="btn btn-primary" type="button" data-act="guess">Comprobar mi idea</button> 
+
+<div class="fb" id="fbG" aria-live="polite"></div> 
+
+<div id="cmpG"></div> 
+
+ 
+
+<hr> 
+
+<h4>🧪 Laboratorio: multiplicá o dividí arriba y abajo por el mismo número</h4> 
+
+<p class="lectura">Elegí un número y probá qué pasa con la fracción y con el dibujo.</p> 
+
+<label for="kLab">Número:</label> 
+
+<input class="inp small" id="kLab" inputmode="numeric" value="2" autocomplete="off"> 
+
+<button class="btn btn-accent" type="button" data-act="mult">× Multiplicar</button> 
+
+<button class="btn btn-accent" type="button" data-act="div">÷ Dividir</button> 
+
+<div id="labOut" aria-live="polite"></div> 
+
+<p><label for="nota">Anotá qué observás (con tus palabras):</label></p> 
+
+<textarea id="nota" rows="3" placeholder="Por ejemplo: cambian los números, pero el dibujo…"></textarea> 
+
+ 
+
+<div id="simHints"></div> 
+
+ 
+
+<hr> 
+
+<p class="lectura">Cuando termines de probar, podés ver cómo se simplifica la fracción.</p> 
+
+<button class="btn" type="button" data-act="revelar">Ya probé: mostrame la fracción más simple</button> 
+
+<div id="revOut" aria-live="polite"></div> 
+
+</div> 
+
+ 
+
+<p class="center"><button class="btn btn-primary big" type="button" data-act="ir" data-to="des">Ir a los desafíos 🏆</button></p> 
+
+</section> 
+
+ 
+
+<!-- ========== DESAFÍOS ========== --> 
+
+<section id="scr-des" class="screen" hidden aria-labelledby="h-des"> 
+
+<h2 id="h-des" tabindex="-1">🏆 DESAFÍOS DE LA MERIENDA</h2> 
+
+<p class="lectura">Hacé los desafíos en orden. Si te equivocás, podés volver a intentar. Las pistas te ayudan, pero son opcionales.</p> 
+
+<nav class="chips" id="chips" aria-label="Elegir desafío"></nav> 
+
+<article class="card" id="chCard"></article> 
+
+</section> 
+
+ 
+
+<!-- ========== LOGROS ========== --> 
+
+<section id="scr-logros" class="screen" hidden aria-labelledby="h-logros"> 
+
+<h2 id="h-logros" tabindex="-1">🏅 Mis logros</h2> 
+
+<div class="card"> 
+
+<p class="lectura">Misiones completadas: <strong id="lMis">0</strong> de 5.</p> 
+
+<p class="estrellas" id="lEst" role="img" aria-label="0 estrellas de 5">☆☆☆☆☆</p> 
+
+<p class="lectura" id="lAvance"></p> 
+
+</div> 
+
+<div class="insignias" id="lIns"></div> 
+
+<p class="center" style="margin-top:1.2rem"><button class="btn" type="button" id="bBorrar" data-act="borrar">Borrar mi progreso</button></p> 
+
+</section> 
+
+ 
+
+</main> 
+
+<footer>Proyecto de matemática (ABP) · 1.° año · "¿Alcanzará para todos? Una merienda con fracciones" · Autora: Cintia Marcaccio · Clase 4: La merienda cambia.<br>
+<span style="font-size:0.85em;opacity:0.9;">Código bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" style="color:inherit;text-decoration:underline;" target="_blank" rel="noopener">GNU AGPL v3</a> · Contenidos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" style="color:inherit;text-decoration:underline;" target="_blank" rel="noopener">CC BY-SA 4.0</a> · Vibe Coding asistido por IA con validación didáctica de la autora · Octubre de 2026</span>
+</footer>
+
+ 
+
+<script> 
+
+(function(){ 
+
+'use strict'; 
+
+ 
+
+/* ---------- Utilidades ---------- */ 
+
+var $=function(s,r){return (r||document).querySelector(s);}; 
+
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}; 
+
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=a%b;a=b;b=t;}return a;} 
+
+function equiv(a,b,c,d){return b>0&&d>0&&a*d===c*b;} 
+
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));} 
+
+function entero(v){v=String(v==null?'':v).trim();return /^\d{1,3}$/.test(v)?parseInt(v,10):null;} 
+
+function simplificar(n,d){var g=gcd(n,d)||1;return [n/g,d/g];} 
+
+ 
+
+var OK_MSG='¡Muy bien! Tu respuesta es correcta. Aunque las fracciones tienen números diferentes, representan la misma cantidad.'; 
+
+var RETRY_MSG='Todavía no. Volvé a observar la representación y pensá qué parte del entero está ocupada. Podés pedir una pista.'; 
+
+var HINTS=[ 
+
+'Mirá la representación gráfica. ¿Qué parte del entero está ocupada?', 
+
+'Pensá qué sucede si multiplicás o dividís el numerador y el denominador por el mismo número.', 
+
+'Probá simplificar la fracción dividiendo numerador y denominador por un mismo número.' 
+
+]; 
+
+ 
+
+/* ---------- Configuración y progreso ---------- */ 
+
+var KEY='meriendaCambia.v1'; 
+
+var FS=[90,100,115,130,150,175]; 
+
+var store={fs:1,hc:false,done:{}}; 
+
+function cargar(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&typeof o==='object'){if(typeof o.fs==='number'&&o.fs>=0&&o.fs<FS.length)store.fs=o.fs;store.hc=!!o.hc;if(o.done&&typeof o.done==='object')store.done=o.done;}}}catch(e){}} 
+
+function guardar(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}} 
+
+function say(m){$('#estado').textContent=m;} 
+
+ 
+
+function aplicarAccesibilidad(){ 
+
+document.documentElement.style.fontSize=FS[store.fs]+'%'; 
+
+document.body.classList.toggle('hc',store.hc); 
+
+document.body.classList.toggle('letra-grande',store.fs>=3); 
+
+$('#bHC').setAttribute('aria-pressed',String(store.hc)); 
+
+$('#bMas').disabled=store.fs>=FS.length-1; 
+
+$('#bMenos').disabled=store.fs<=0; 
+
+} 
+
+ 
+
+/* ---------- Dibujos SVG ---------- */ 
+
+function barSVG(total,used,h){ 
+
+var W=600,H=h||110,pad=H<80?9:14,iw=W-2*pad,ih=H-2*pad,pw=iw/total; 
+
+var desc='Bandeja dividida en '+total+' partes iguales. '+used+' partes utilizadas, marcadas con tilde, y '+(total-used)+' partes disponibles, vacías.'; 
+
+var s='<svg viewBox="0 0 '+W+' '+H+'" class="fig" role="img" aria-label="'+desc+'" focusable="false"><title>'+desc+'</title>'; 
+
+s+='<rect class="tray" x="2" y="2" width="'+(W-4)+'" height="'+(H-4)+'" rx="'+(H<80?12:18)+'"/>'; 
+
+for(var i=0;i<total;i++){ 
+
+var x=pad+i*pw; 
+
+s+='<rect class="'+(i<used?'p-used':'p-free')+'" x="'+(x+1.5).toFixed(2)+'" y="'+pad+'" width="'+Math.max(1,pw-3).toFixed(2)+'" height="'+ih+'" rx="'+Math.min(6,pw/4).toFixed(2)+'"/>'; 
+
+if(i<used&&pw>=10){ 
+
+var cx=x+pw/2,cy=pad+ih/2,r=Math.min(pw*0.28,ih*0.3,16); 
+
+s+='<polyline class="p-tick" style="stroke-width:'+Math.max(2,Math.min(5,pw/6)).toFixed(1)+'" points="'+(cx-r).toFixed(1)+','+cy.toFixed(1)+' '+(cx-r*0.3).toFixed(1)+','+(cy+r*0.7).toFixed(1)+' '+(cx+r).toFixed(1)+','+(cy-r*0.7).toFixed(1)+'"/>'; 
+
+} 
+
+} 
+
+return s+'</svg>'; 
+
+} 
+
+function pieSVG(total,used){ 
+
+var cx=150,cy=150,R=128; 
+
+var desc='Torta dividida en '+total+' porciones iguales. '+used+' porciones utilizadas, marcadas con tilde, y '+(total-used)+' porciones disponibles, vacías.'; 
+
+var s='<svg viewBox="0 0 300 300" class="fig torta" role="img" aria-label="'+desc+'" focusable="false"><title>'+desc+'</title>'; 
+
+s+='<circle class="tray" cx="150" cy="150" r="146"/>'; 
+
+for(var i=0;i<total;i++){ 
+
+var a0=-Math.PI/2+i*2*Math.PI/total,a1=-Math.PI/2+(i+1)*2*Math.PI/total; 
+
+var x0=cx+R*Math.cos(a0),y0=cy+R*Math.sin(a0),x1=cx+R*Math.cos(a1),y1=cy+R*Math.sin(a1); 
+
+s+='<path class="'+(i<used?'p-used':'p-free')+'" d="M'+cx+' '+cy+' L'+x0.toFixed(2)+' '+y0.toFixed(2)+' A'+R+' '+R+' 0 0 1 '+x1.toFixed(2)+' '+y1.toFixed(2)+' Z"/>'; 
+
+if(i<used&&total<=16){ 
+
+var am=(a0+a1)/2,mx=cx+R*0.68*Math.cos(am),my=cy+R*0.68*Math.sin(am),r=Math.min(14,R*0.14); 
+
+s+='<polyline class="p-tick" style="stroke-width:5" points="'+(mx-r).toFixed(1)+','+my.toFixed(1)+' '+(mx-r*0.3).toFixed(1)+','+(my+r*0.7).toFixed(1)+' '+(mx+r).toFixed(1)+','+(my-r*0.7).toFixed(1)+'"/>'; 
+
+} 
+
+} 
+
+return s+'</svg>'; 
+
+} 
+
+function cmpHTML(items){ 
+
+var h='<div class="cmp">'; 
+
+items.forEach(function(it){ 
+
+h+='<div class="cmp-row"><div class="cmp-t lectura">'+it.tit+': '+it.n+'/'+it.d+'</div>'; 
+
+h+=it.d<=96?barSVG(it.d,it.n,64):'<p class="peq">Son demasiadas partes para dibujarlas.</p>'; 
+
+h+='</div>'; 
+
+}); 
+
+return h+'</div>'; 
+
+} 
+
+function fracIn(idN,idD,lab){ 
+
+return '<div class="fin" role="group" aria-label="'+lab+'"><input class="inp" id="'+idN+'" inputmode="numeric" autocomplete="off" aria-label="Numerador"><span class="fl"></span><input class="inp" id="'+idD+'" inputmode="numeric" autocomplete="off" aria-label="Denominador"></div>'; 
+
+} 
+
+function showFb(el,type,html){ 
+
+var ic={ok:'✔️',retry:'🔎',info:'ℹ️'}[type]||''; 
+
+el.className='fb '+type; 
+
+el.innerHTML='<span aria-hidden="true">'+ic+'</span> '+html; 
+
+} 
+
+ 
+
+/* ---------- Pistas ---------- */ 
+
+var HS={}; 
+
+function hintHTML(key){ 
+
+var n=HS[key]||0,li=''; 
+
+for(var i=0;i<n;i++)li+='<li><strong>Pista '+(i+1)+':</strong> '+HINTS[i]+'</li>'; 
+
+return '<div class="hints" data-hints="'+key+'"><button class="btn btn-accent" type="button" data-act="hint" data-key="'+key+'"'+(n>=3?' disabled':'')+'>💡 NECESITO UNA PISTA <span class="cuenta">('+n+'/3)</span></button><ol class="lectura hint-list" aria-live="polite">'+li+'</ol></div>'; 
+
+} 
+
+function darPista(key,btn){ 
+
+var n=HS[key]||0;if(n>=3)return; 
+
+HS[key]=++n; 
+
+var box=btn.closest('.hints'),ol=$('.hint-list',box); 
+
+var li=document.createElement('li'); 
+
+li.innerHTML='<strong>Pista '+n+':</strong> '+HINTS[n-1]; 
+
+ol.appendChild(li); 
+
+$('.cuenta',btn).textContent='('+n+'/3)'; 
+
+if(n>=3)btn.disabled=true; 
+
+} 
+
+ 
+
+/* ---------- Progreso ---------- */ 
+
+var INS=[ 
+
+{nombre:'Explorador de fracciones',em:'🧭',req:1}, 
+
+{nombre:'Detective de equivalencias',em:'🕵️',req:3}, 
+
+{nombre:'Maestro de la merienda',em:'👑',req:5} 
+
+]; 
+
+var AVANCE=[ 
+
+'Empezá por el primer desafío. ¡Vos podés!', 
+
+'¡Primera misión cumplida! Ganaste la insignia “Explorador de fracciones”.', 
+
+'¡Dos misiones! Ya estás a mitad de camino de ser “Detective de equivalencias”.', 
+
+'¡Tres misiones! Ganaste la insignia “Detective de equivalencias”.', 
+
+'¡Falta una sola misión para ser “Maestro de la merienda”!', 
+
+'¡Completaste todas las misiones! Sos “Maestro de la merienda”.' 
+
+]; 
+
+function contar(){var n=0;for(var i=0;i<5;i++)if(store.done[i])n++;return n;} 
+
+function actualizarProgreso(){ 
+
+var n=contar(); 
+
+$('#cMis').textContent=n;$('#cEst').textContent=n; 
+
+$('#lMis').textContent=n; 
+
+var st='';for(var i=0;i<5;i++)st+=i<n?'★':'☆'; 
+
+$('#lEst').textContent=st;$('#lEst').setAttribute('aria-label',n+' estrellas de 5'); 
+
+$('#lAvance').textContent=AVANCE[n]; 
+
+var h=''; 
+
+INS.forEach(function(b){ 
+
+var on=n>=b.req; 
+
+h+='<div class="ins'+(on?' on':'')+'"><div class="em" aria-hidden="true">'+(on?b.em:'🔒')+'</div><h3>'+b.nombre+'</h3><p class="st">'+(on?'✔ ¡Insignia conseguida!':'Bloqueada: completá '+b.req+(b.req===1?' desafío':' desafíos'))+'</p></div>'; 
+
+}); 
+
+$('#lIns').innerHTML=h; 
+
+actualizarChips(); 
+
+} 
+
+ 
+
+/* ---------- Navegación ---------- */ 
+
+var pantallaActual='inicio'; 
+
+function detenerVoz(){try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(e){}$('#bLeer').setAttribute('aria-pressed','false');} 
+
+function ir(a){ 
+
+detenerVoz(); 
+
+pantallaActual=a; 
+
+['inicio','sim','des','logros'].forEach(function(p){$('#scr-'+p).hidden=(p!==a);}); 
+
+$$('.tabs .btn').forEach(function(b){if(b.dataset.to===a)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}); 
+
+if(a==='des')renderChallenge(chActual); 
+
+if(a==='logros')actualizarProgreso(); 
+
+window.scrollTo(0,0); 
+
+var h=$('#scr-'+a+' h1, #scr-'+a+' h2');if(h)h.focus({preventScroll:true}); 
+
+} 
+
+ 
+
+/* ---------- Simulador ---------- */ 
+
+var S={total:12,used:3,vista:'barra'}; 
+
+function renderSim(){ 
+
+var t=S.total,u=S.used; 
+
+$('#valTotal').textContent=t;$('#valUsed').textContent=u; 
+
+$('#rngTotal').value=t;$('#rngUsed').max=t;$('#rngUsed').value=u; 
+
+$('#rngTotal').setAttribute('aria-valuetext',t+' partes'); 
+
+$('#rngUsed').setAttribute('aria-valuetext',u+' de '+t+' partes'); 
+
+$('#tMenos').disabled=t<=2;$('#tMas').disabled=t>=24; 
+
+$('#uMenos').disabled=u<=0;$('#uMas').disabled=u>=t; 
+
+$('#simNum').textContent=u;$('#simDen').textContent=t; 
+
+$('#ndN').textContent=u;$('#ndD').textContent=t; 
+
+$('#simFrac').setAttribute('aria-label','Fracción '+u+' sobre '+t); 
+
+$('#simFig').innerHTML=S.vista==='barra'?barSVG(t,u):pieSVG(t,u); 
+
+$('#descSim').textContent='Dibujo: '+(S.vista==='barra'?'una bandeja':'una torta')+' dividida en '+t+' partes iguales. Hay '+u+' partes utilizadas, marcadas con tilde, y '+(t-u)+' partes disponibles, vacías. La fracción es '+u+' sobre '+t+'.'; 
+
+$$('[data-act="vista"]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===S.vista));}); 
+
+} 
+
+function limpiarSim(){ 
+
+$('#fbG').className='fb';$('#fbG').innerHTML='';$('#cmpG').innerHTML=''; 
+
+$('#labOut').innerHTML='';$('#revOut').innerHTML=''; 
+
+} 
+
+function setSim(t,u){ 
+
+S.total=clamp(t,2,24);S.used=clamp(u,0,S.total); 
+
+renderSim();limpiarSim(); 
+
+} 
+
+function guessSim(){ 
+
+var n=entero($('#gN').value),d=entero($('#gD').value),fb=$('#fbG'); 
+
+$('#cmpG').innerHTML=''; 
+
+if(n===null||d===null){showFb(fb,'info','Escribí dos números enteros: el numerador arriba y el denominador abajo.');return;} 
+
+if(d===0){showFb(fb,'info','El denominador no puede ser 0: indica en cuántas partes iguales dividimos el entero.');return;} 
+
+if(n>d){showFb(fb,'info','El numerador no puede ser mayor que el denominador en esta bandeja: no se pueden usar más partes de las que hay.');return;} 
+
+if(n===S.used&&d===S.total){showFb(fb,'info','Esa es la misma fracción escrita igual. ¿Podés escribirla con otros números que representen la misma cantidad?');return;} 
+
+var items=[{tit:'Tu bandeja',n:S.used,d:S.total},{tit:'Tu idea',n:n,d:d}]; 
+
+if(equiv(n,d,S.used,S.total)){ 
+
+showFb(fb,'ok',OK_MSG+' Mirá los dibujos: ocupan la misma parte de la bandeja.'); 
+
+}else{ 
+
+showFb(fb,'retry',RETRY_MSG+' Comparalo con tu idea: ¿ocupan la misma parte?'); 
+
+} 
+
+$('#cmpG').innerHTML=cmpHTML(items); 
+
+} 
+
+function labSim(op){ 
+
+var k=entero($('#kLab').value),out=$('#labOut'),n=S.used,d=S.total; 
+
+if(k===null||k<2){out.innerHTML='<div class="fb info"><span aria-hidden="true">ℹ️</span> Elegí un número entero mayor que 1 (por ejemplo 2, 3, 4…).</div>';return;} 
+
+var nn,dd,txt; 
+
+if(op==='mult'){ 
+
+nn=n*k;dd=d*k; 
+
+txt=n+' × '+k+' = '+nn+' y '+d+' × '+k+' = '+dd; 
+
+}else{ 
+
+if(n%k!==0||d%k!==0){ 
+
+out.innerHTML='<div class="fb retry"><span aria-hidden="true">🔎</span> Con el '+k+' no se puede: '+n+' ÷ '+k+' o '+d+' ÷ '+k+' no da un número entero. Probá con otro número que divida a los dos.</div>'; 
+
+return; 
+
+} 
+
+nn=n/k;dd=d/k; 
+
+txt=n+' ÷ '+k+' = '+nn+' y '+d+' ÷ '+k+' = '+dd; 
+
+} 
+
+out.innerHTML='<p class="lectura"><strong>'+txt+'</strong>. La nueva fracción es <strong>'+nn+'/'+dd+'</strong>.</p>'+cmpHTML([{tit:'Fracción original',n:n,d:d},{tit:'Fracción nueva',n:nn,d:dd}])+'<p class="lectura">Mirá los dos dibujos. ¿Qué pasó con la parte ocupada de la bandeja?</p>'; 
+
+} 
+
+function revelarSim(){ 
+
+var n=S.used,d=S.total,g=gcd(n,d),s=simplificar(n,d),h; 
+
+if(n===0){ 
+
+h='<p class="lectura">No se utilizó ninguna parte. Por eso '+n+'/'+d+' vale lo mismo que 0/1: nada de la bandeja.</p>'; 
+
+}else if(g===1){ 
+
+h='<p class="lectura">La fracción '+n+'/'+d+' ya es irreducible: el único número que divide a '+n+' y a '+d+' al mismo tiempo es 1. No se puede simplificar más.</p>'; 
+
+}else{ 
+
+h='<p class="lectura">El mayor número que divide a '+n+' y a '+d+' es '+g+' (el máximo común divisor).</p><p class="lectura"><strong>'+n+' ÷ '+g+' = '+s[0]+'</strong> y <strong>'+d+' ÷ '+g+' = '+s[1]+'</strong>. Entonces <strong>'+n+'/'+d+' = '+s[0]+'/'+s[1]+'</strong>.'+(n===d?' La bandeja completa es 1 entero.':'')+'</p>'+cmpHTML([{tit:'Original',n:n,d:d},{tit:'Simplificada',n:s[0],d:s[1]}]); 
+
+} 
+
+$('#revOut').innerHTML='<div class="fb info"><span aria-hidden="true">ℹ️</span> <span>Fracción más simple</span></div>'+h; 
+
+} 
+
+ 
+
+/* ---------- Desafíos ---------- */ 
+
+var CH=[ 
+
+{tipo:'frac',em:'🍰',total:12,used:6,enun:'Tenemos 12 porciones de torta y utilizamos 6.'}, 
+
+{tipo:'frac',em:'🥤',total:16,used:8,enun:'Tenemos 16 vasos de jugo y utilizamos 8.'}, 
+
+{tipo:'frac',em:'🥧',total:20,used:15,enun:'Tenemos 20 porciones y utilizamos 15.'}, 
+
+{tipo:'cmp',em:'🍪',enun:'Un grupo utilizó 3/4 de una bandeja y otro grupo utilizó 9/12.'}, 
+
+{tipo:'libre',em:'🎨',enun:'Creá tu propia situación de merienda.'} 
+
+]; 
+
+var CS=[{stage:'A'},{stage:'A'},{stage:'A'},{stage:'A'},{stage:'A',total:8,used:6}]; 
+
+var chActual=0; 
+
+ 
+
+function sit(i){var c=CH[i];if(c.tipo==='libre')return {total:CS[i].total,used:CS[i].used};return {total:c.total,used:c.used};} 
+
+ 
+
+function actualizarChips(){ 
+
+var h=''; 
+
+for(var i=0;i<5;i++){ 
+
+h+='<button class="btn" type="button" data-act="chgo" data-i="'+i+'" aria-current="'+(i===chActual?'true':'false')+'" aria-label="Desafío '+(i+1)+(store.done[i]?', superado':'')+'">'+(i+1)+(store.done[i]?' ⭐':'')+'</button>'; 
+
+} 
+
+$('#chips').innerHTML=h; 
+
+} 
+
+ 
+
+function stepper5(w,label,val,idv){ 
+
+return '<div class="card" style="box-shadow:none"><h4 id="l5'+w+'">'+label+'</h4><div class="stepper"><button class="btn sq" type="button" data-act="c5" data-w="'+w+'" data-d="-1" id="'+idv+'M" aria-label="Menos: '+label+'">−</button><output id="'+idv+'" aria-labelledby="l5'+w+'">'+val+'</output><button class="btn sq" type="button" data-act="c5" data-w="'+w+'" data-d="1" id="'+idv+'P" aria-label="Más: '+label+'">+</button></div></div>'; 
+
+} 
+
+ 
+
+function renderChallenge(i){ 
+
+chActual=i; 
+
+var c=CH[i],st=CS[i],h=''; 
+
+h+='<h3 id="chTitulo" tabindex="-1"><span aria-hidden="true">'+c.em+'</span> Desafío '+(i+1)+(store.done[i]?'<span class="estado-ch">⭐ Superado</span>':'')+'</h3>'; 
+
+h+='<p class="lectura"><strong>'+c.enun+'</strong></p>'; 
+
+if(c.tipo==='libre'){ 
+
+h+='<div class="duo">'+stepper5('total','Cantidad total',st.total,'c5T')+stepper5('used','Cantidad utilizada',st.used,'c5U')+'</div>'; 
+
+} 
+
+if(c.tipo==='cmp'){ 
+
+h+='<p class="lectura"><strong>¿Utilizaron la misma cantidad?</strong></p><div id="chFig">'+cmpHTML([{tit:'Primer grupo',n:3,d:4},{tit:'Segundo grupo',n:9,d:12}])+'</div>'; 
+
+h+='<div class="paso" id="stA"><h4>Paso 1 · Elegí tu respuesta</h4><div class="opts"><button class="btn btn-primary big" type="button" data-act="c4" data-v="si">SÍ</button><button class="btn big" type="button" data-act="c4" data-v="no">NO</button></div><div class="fb" id="fbA" aria-live="polite"></div></div>'; 
+
+h+='<div class="paso" id="stB" hidden><h4>Paso 2 · Justificá tu respuesta</h4><p class="lectura">Para pasar de 3/4 a 9/12, multiplicamos el numerador y el denominador por el mismo número. ¿Por cuál número?</p><p class="lectura">3 × <input class="inp small" id="k4" inputmode="numeric" autocomplete="off" aria-label="Número por el que se multiplica"> = 9 &nbsp;y&nbsp; 4 × el mismo número = 12</p><p><label for="just4">Si querés, escribí con tus palabras por qué (opcional):</label></p><textarea id="just4" rows="3"></textarea><p><button class="btn btn-primary" type="button" data-act="chkB">Comprobar</button></p><div class="fb" id="fbB" aria-live="polite"></div></div>'; 
+
+}else{ 
+
+h+='<p class="lectura"><strong>¿Qué fracción representa la cantidad utilizada?</strong></p><div id="chFig" class="fig-wrap"></div>'; 
+
+h+='<div class="paso" id="stA"><h4>Paso 1 · Escribí la fracción</h4><p class="lectura">Numerador: partes utilizadas. Denominador: partes iguales en total.</p>'+fracIn('aN','aD','Tu fracción')+'<button class="btn btn-primary" type="button" data-act="chkA">Comprobar</button><div class="fb" id="fbA" aria-live="polite"></div></div>'; 
+
+h+='<div class="paso" id="stB" hidden><h4>Paso 2 · Buscá una fracción equivalente</h4><p class="lectura">¿Podés encontrar una fracción equivalente?</p>'+fracIn('bN','bD','Fracción equivalente')+'<button class="btn btn-primary" type="button" data-act="chkB">Comprobar</button><div class="fb" id="fbB" aria-live="polite"></div></div>'; 
+
+} 
+
+h+='<div class="hecho" id="chDone" hidden></div>'; 
+
+h+=hintHTML('c'+i); 
+
+h+='<div class="acciones">'+(i>0?'<button class="btn" type="button" data-act="chgo" data-i="'+(i-1)+'">⬅ Anterior</button>':'')+(i<4?'<button class="btn" type="button" data-act="chgo" data-i="'+(i+1)+'">Siguiente ➡</button>':'')+'</div>'; 
+
+$('#chCard').innerHTML=h; 
+
+actualizarChips(); 
+
+pintarFigura(i); 
+
+aplicarEtapa(i); 
+
+} 
+
+function pintarFigura(i){ 
+
+var c=CH[i];if(c.tipo==='cmp')return; 
+
+var s=sit(i); 
+
+$('#chFig').innerHTML=barSVG(s.total,s.used); 
+
+if(c.tipo==='libre'){ 
+
+$('#c5T').textContent=s.total;$('#c5U').textContent=s.used; 
+
+$('#c5TM').disabled=s.total<=2;$('#c5TP').disabled=s.total>=24; 
+
+$('#c5UM').disabled=s.used<=0;$('#c5UP').disabled=s.used>=s.total; 
+
+} 
+
+} 
+
+function aplicarEtapa(i){ 
+
+var st=CS[i].stage,A=$('#stA'),B=$('#stB'),D=$('#chDone'); 
+
+if(st==='done'){A.hidden=true;B.hidden=true;D.hidden=false;return;} 
+
+A.hidden=false;D.hidden=true;B.hidden=(st==='A'); 
+
+A.classList.toggle('fijo',st==='B'); 
+
+} 
+
+function marcarSuperado(i,resumen){ 
+
+var nuevo=!store.done[i]; 
+
+store.done[i]=true;guardar(); 
+
+CS[i].stage='done'; 
+
+var n=contar(); 
+
+var sig=i<4?'<button class="btn btn-primary" type="button" data-act="chgo" data-i="'+(i+1)+'">Siguiente desafío ➡</button>':'<button class="btn btn-primary" type="button" data-act="ir" data-to="logros">Ver mis logros 🏅</button>'; 
+
+$('#chDone').innerHTML='<p class="lectura"><strong>⭐ ¡Desafío '+(i+1)+' superado!</strong></p><p class="resumen lectura">'+resumen+'</p><p class="lectura">'+AVANCE[n]+'</p><div class="acciones">'+sig+'<button class="btn" type="button" data-act="redo">↺ Probar de nuevo</button></div>'; 
+
+actualizarProgreso(); 
+
+aplicarEtapa(i); 
+
+var t=$('#chTitulo');if(t&&!t.querySelector('.estado-ch'))t.insertAdjacentHTML('beforeend','<span class="estado-ch">⭐ Superado</span>'); 
+
+say(nuevo?'¡Nueva estrella! Misiones completadas: '+n+' de 5.':'Desafío superado otra vez.'); 
+
+} 
+
+function chkA(){ 
+
+var i=chActual,s=sit(i),n=entero($('#aN').value),d=entero($('#aD').value),fb=$('#fbA'); 
+
+if(n===null||d===null){showFb(fb,'info','Escribí dos números enteros en las casillas.');return;} 
+
+if(d===0){showFb(fb,'info','El denominador no puede ser 0: indica en cuántas partes iguales dividimos el entero.');return;} 
+
+if(n===s.used&&d===s.total){ 
+
+CS[i].stage='B'; 
+
+var extra=(CH[i].tipo==='libre'&&gcd(s.used,s.total)===1&&s.used>0)?' Ojo: esta fracción ya no se puede simplificar. Para el paso 2, probá multiplicar numerador y denominador por un mismo número.':''; 
+
+showFb(fb,'ok','¡Muy bien! Tu respuesta es correcta: '+s.used+'/'+s.total+'. Ahora pensá: ¿podés escribir la misma cantidad con otros números?'+extra); 
+
+aplicarEtapa(i);$('#bN').focus(); 
+
+}else if(equiv(n,d,s.used,s.total)){ 
+
+showFb(fb,'info','Esa fracción representa la misma cantidad, ¡buen ojo! Pero acá buscamos la que sale directamente de la situación: ¿cuántas porciones usamos y cuántas había en total?'); 
+
+}else{ 
+
+showFb(fb,'retry',RETRY_MSG); 
+
+} 
+
+} 
+
+function chkB(){ 
+
+var i=chActual,c=CH[i],fb=$('#fbB'); 
+
+if(c.tipo==='cmp'){ 
+
+var k=entero($('#k4').value); 
+
+if(k===null||k===0){showFb(fb,'info','Escribí un número entero mayor que 0.');return;} 
+
+if(k===3){ 
+
+showFb(fb,'ok',OK_MSG); 
+
+marcarSuperado(i,'3/4 = 9/12'); 
+
+}else{ 
+
+showFb(fb,'retry',RETRY_MSG+' Comprobá: 3 × '+k+' = '+(3*k)+' y 4 × '+k+' = '+(4*k)+'. ¿Llegás a 9 y a 12?'); 
+
+} 
+
+return; 
+
+} 
+
+var s=sit(i),n=entero($('#bN').value),d=entero($('#bD').value); 
+
+if(n===null||d===null){showFb(fb,'info','Escribí dos números enteros en las casillas.');return;} 
+
+if(d===0){showFb(fb,'info','El denominador no puede ser 0: indica en cuántas partes iguales dividimos el entero.');return;} 
+
+if(n===s.used&&d===s.total){showFb(fb,'info','Esa es la misma fracción escrita igual. Buscá otra forma de escribir la misma cantidad.');return;} 
+
+if(!equiv(n,d,s.used,s.total)){showFb(fb,'retry',RETRY_MSG);return;} 
+
+var irred=gcd(n,d)===1; 
+
+if(c.tipo==='frac'&&!irred){ 
+
+showFb(fb,'info','¡Vas bien! '+n+'/'+d+' representa la misma cantidad que '+s.used+'/'+s.total+'. ¿Podés encontrar otra con números todavía más chicos?'); 
+
+return; 
+
+} 
+
+showFb(fb,'ok',OK_MSG+(c.tipo==='libre'&&irred?' Además, es la fracción más simple posible.':'')); 
+
+marcarSuperado(i,s.used+'/'+s.total+' = '+n+'/'+d); 
+
+} 
+
+function chk4(v){ 
+
+var fb=$('#fbA'); 
+
+if(v==='si'){ 
+
+CS[3].stage='B'; 
+
+showFb(fb,'ok','¡Muy bien! Tu respuesta es correcta. Ahora justificá por qué.'); 
+
+aplicarEtapa(3);$('#k4').focus(); 
+
+}else{ 
+
+showFb(fb,'retry',RETRY_MSG); 
+
+} 
+
+} 
+
+function c5(w,d){ 
+
+var st=CS[4]; 
+
+if(w==='total'){st.total=clamp(st.total+d,2,24);st.used=Math.min(st.used,st.total);} 
+
+else st.used=clamp(st.used+d,0,st.total); 
+
+st.stage='A'; 
+
+['aN','aD','bN','bD'].forEach(function(id){$('#'+id).value='';}); 
+
+$('#fbA').className='fb';$('#fbA').innerHTML='';$('#fbB').className='fb';$('#fbB').innerHTML=''; 
+
+pintarFigura(4);aplicarEtapa(4); 
+
+} 
+
+function rehacer(){ 
+
+var i=chActual;CS[i].stage='A';renderChallenge(i); 
+
+} 
+
+ 
+
+/* ---------- Lectura por voz ---------- */ 
+
+function textoParaLeer(){ 
+
+var pant=$('#scr-'+pantallaActual),partes=[]; 
+
+$$('.lectura',pant).forEach(function(el){ 
+
+if(el.closest('[hidden]'))return; 
+
+var t=(el.innerText||el.textContent||'').replace(/\s+/g,' ').trim(); 
+
+if(t)partes.push(t.replace(/(\d+)\s*\/\s*(\d+)/g,'$1 sobre $2').replace(/×/g,' por ').replace(/÷/g,' dividido ').replace(/=/g,' es igual a ')); 
+
+}); 
+
+return partes; 
+
+} 
+
+function leer(){ 
+
+var btn=$('#bLeer'); 
+
+if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance==='undefined'){say('Tu navegador no tiene lectura en voz alta.');return;} 
+
+var ss=window.speechSynthesis; 
+
+if(ss.speaking||btn.getAttribute('aria-pressed')==='true'){detenerVoz();say('Lectura detenida.');return;} 
+
+var partes=textoParaLeer(); 
+
+if(!partes.length){say('No hay texto para leer en esta pantalla.');return;} 
+
+var voces=ss.getVoices?ss.getVoices():[]; 
+
+var voz=null; 
+
+for(var i=0;i<voces.length&&!voz;i++)if(/^es[-_]AR/i.test(voces[i].lang))voz=voces[i]; 
+
+for(var j=0;j<voces.length&&!voz;j++)if(/^es/i.test(voces[j].lang))voz=voces[j]; 
+
+btn.setAttribute('aria-pressed','true');say('Leyendo en voz alta…'); 
+
+partes.forEach(function(t,idx){ 
+
+var u=new window.SpeechSynthesisUtterance(t); 
+
+u.lang=voz?voz.lang:'es-AR';if(voz)u.voice=voz;u.rate=0.95; 
+
+if(idx===partes.length-1){u.onend=function(){btn.setAttribute('aria-pressed','false');say('');};u.onerror=u.onend;} 
+
+ss.speak(u); 
+
+}); 
+
+} 
+
+ 
+
+/* ---------- Eventos ---------- */ 
+
+document.addEventListener('click',function(e){ 
+
+var b=e.target.closest('[data-act]');if(!b||b.disabled)return; 
+
+var a=b.dataset.act; 
+
+switch(a){ 
+
+case 'ir':ir(b.dataset.to);break; 
+
+case 'simT':setSim(S.total+parseInt(b.dataset.d,10),S.used);break; 
+
+case 'simU':setSim(S.total,S.used+parseInt(b.dataset.d,10));break; 
+
+case 'vista':S.vista=b.dataset.v;renderSim();break; 
+
+case 'guess':guessSim();break; 
+
+case 'mult':labSim('mult');break; 
+
+case 'div':labSim('div');break; 
+
+case 'revelar':revelarSim();break; 
+
+case 'hint':darPista(b.dataset.key,b);break; 
+
+case 'chgo':renderChallenge(parseInt(b.dataset.i,10));window.scrollTo(0,0);break; 
+
+case 'chkA':chkA();break; 
+
+case 'chkB':chkB();break; 
+
+case 'c4':chk4(b.dataset.v);break; 
+
+case 'c5':c5(b.dataset.w,parseInt(b.dataset.d,10));break; 
+
+case 'redo':rehacer();break; 
+
+case 'borrar': 
+
+if(b.dataset.sure==='1'){ 
+
+store.done={};guardar();CS.forEach(function(c){c.stage='A';});HS={}; 
+
+b.dataset.sure='0';b.textContent='Borrar mi progreso'; 
+
+actualizarProgreso();say('Progreso borrado.'); 
+
+}else{ 
+
+b.dataset.sure='1';b.textContent='¿Seguro? Tocá de nuevo para borrar'; 
+
+setTimeout(function(){b.dataset.sure='0';b.textContent='Borrar mi progreso';},5000); 
+
+} 
+
+break; 
+
+} 
+
+}); 
+
+document.addEventListener('keydown',function(e){ 
+
+if(e.key!=='Enter')return; 
+
+var inp=e.target.closest&&e.target.closest('input.inp');if(!inp)return; 
+
+var scope=inp.closest('.paso')||inp.closest('#equiv');if(!scope)return; 
+
+var btn=$('[data-act="chkA"],[data-act="chkB"],[data-act="guess"]',scope); 
+
+if(inp.id==='kLab')btn=$('[data-act="mult"]',scope); 
+
+if(btn&&!btn.closest('[hidden]')){e.preventDefault();btn.click();} 
+
+}); 
+
+$('#rngTotal').addEventListener('input',function(e){setSim(parseInt(e.target.value,10),S.used);}); 
+
+$('#rngUsed').addEventListener('input',function(e){setSim(S.total,parseInt(e.target.value,10));}); 
+
+ 
+
+$('#bMas').addEventListener('click',function(){if(store.fs<FS.length-1){store.fs++;aplicarAccesibilidad();guardar();say('Tamaño de letra: '+FS[store.fs]+' %');}}); 
+
+$('#bMenos').addEventListener('click',function(){if(store.fs>0){store.fs--;aplicarAccesibilidad();guardar();say('Tamaño de letra: '+FS[store.fs]+' %');}}); 
+
+$('#bHC').addEventListener('click',function(){store.hc=!store.hc;aplicarAccesibilidad();guardar();say(store.hc?'Alto contraste activado.':'Alto contraste desactivado.');}); 
+
+$('#bLeer').addEventListener('click',leer); 
+
+$('#bReset').addEventListener('click',function(){store.fs=1;store.hc=false;aplicarAccesibilidad();guardar();detenerVoz();say('Configuración inicial restablecida.');}); 
+
+ 
+
+/* ---------- Inicio ---------- */ 
+
+cargar(); 
+
+aplicarAccesibilidad(); 
+
+$('#simHints').innerHTML=hintHTML('sim'); 
+
+renderSim(); 
+
+actualizarProgreso(); 
+
+})(); 
+
+</script> 
+
+</body> 
+
+</html> 
+
+ 
+
+ 
+
+ 

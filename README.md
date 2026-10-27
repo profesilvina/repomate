@@ -2,7 +2,8 @@
 
 Colección de herramientas, mediadores didácticos y aplicaciones interactivas diseñadas para potenciar la enseñanza y el aprendizaje significativo de la matemática en el nivel secundario y superior.
 
-Desarrollado y coordinado por la **Prof. Silvina Busto**.
+> **Coordinación y Desarrollo:** Prof. Silvina Elena Busto  
+> **Asistencia Técnica y Vibe Coding:** Antigravity CLI  
 
 ---
 
@@ -25,6 +26,9 @@ El repositorio está diseñado como un catálogo dinámico y responsivo, listo p
 | **🧮 Calculadora y Algoritmo de Ruffini** | Álgebra y Polinomios | Secundaria | Resolución procedimental paso a paso del método tradicional de Ruffini con reconstrucción del cociente y cálculo del resto. |
 | **⚖️ Actividad Interactiva: Tablas de Verdad** | Lógica Proposicional | Superior / Terciario | Entorno de resolución, autoevaluación y clasificación de tablas lógicas (Tautología, Contradicción y Contingencia) para 2 y 3 variables con puntaje. |
 | **🎨 Arte y Matemática: Explorador Didáctico SVG** | Geometría y Trigonometría | Secundaria | Laboratorio STEAM que aborda proporciones, simetría, teselaciones y transformaciones geométricas mediante arte vectorial interactivo con cuadrícula e inspección de código. |
+| **🕹️ Escape Geométrico: La Cámara del Tiempo** | Geometría y Trigonometría | Secundaria | Escape room retro pixel art contra reloj donde los estudiantes resuelven problemas de geometría plana (perímetros, áreas y figuras) para descifrar el código y detener el tiempo. |
+| **📦 Eco-Diseño 3D: el desafío del envase sostenible** (Alicia Astigarraga) | Geometría y Magnitudes | Secundaria | Simulador interactivo 3D para modelizar y comparar recipientes (cilindros y prismas), analizando la relación entre volumen y área superficial para optimizar material. |
+| **🍰 La merienda cambia: fracciones equivalentes** (Cintia Marcaccio) | Números y Operaciones | Secundaria | Simulador interactivo con accesibilidad DUA y gamificación para explorar repartos equitativos y equivalencias de fracciones mediante misiones. |
 
 ---
 
@@ -34,6 +38,9 @@ El repositorio está diseñado como un catálogo dinámico y responsivo, listo p
 repoapps_mate/
 │
 ├── index.html                   # Catálogo principal con buscador, filtros y renderizado dinámico
+├── alicia.html                  # Eco-Diseño 3D (Alicia Astigarraga)
+├── cintia.html                  # La merienda cambia (Cintia Marcaccio)
+├── escape_geometrico.html       # Escape Room retro pixel art de geometría y cálculo
 ├── app_ruffini_dua.html         # Mediador socrático interactivo de Ruffini
 ├── ruffini.htm                  # Calculadora algorítmica de Ruffini paso a paso
 ├── actividad_tablas_verdad.html # Laboratorio interactivo de Tablas de Verdad
@@ -44,8 +51,11 @@ repoapps_mate/
 ├── gemini-svg fraccion.svg      # Gráfico vectorial SVG de fracción
 ├── gemini-svg triangulo.svg     # Gráfico vectorial SVG de trigonometría
 │
+├── DECISIONES.md                # Nota de decisiones de diseño y arquitectura (ADR)
+├── evaluacion-vcer.md           # Informe de evaluación VCER (Vibe coding responsable)
 ├── README.md                    # Documentación del proyecto
-└── LICENSE                      # Licencia de uso libre y abierto
+├── LICENSE                      # Licencia de software (GNU AGPL v3 / MIT)
+└── LICENSE-CONTENT              # Licencia de contenidos (Creative Commons CC BY-SA 4.0)
 ```
 
 ---
@@ -104,16 +114,18 @@ El buscador y los filtros reconocerán y renderizarán automáticamente la nueva
 
 ---
 
-## 📄 Licencia
+## 📄 Licenciamiento y Autoría
 
-Este repositorio se distribuye bajo la licencia **MIT**.
+Este repositorio se publica y comparte bajo un **esquema dual de licencias abiertas**:
 
-Eres libre de utilizar, compartir, adaptar y enriquecer estas herramientas didácticas, siempre que se reconozca la autoría original. Para proyectos educativos sin fines de lucro, también se promueve el licenciamiento **Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)**.
+- **Código fuente (software y estructura interactiva):** Licenciado bajo [GNU AGPL v3 (Affero General Public License)](https://www.gnu.org/licenses/agpl-3.0.html). Garantiza que las aplicaciones y sus mejoras permanezcan libres y comunitarias en la web.
+- **Contenidos pedagógicos (problemas, explicaciones didácticas y gráficos SVG):** Licenciados bajo [Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/). Permite adaptar, traducir y enriquecer los materiales citando la autoría original y compartiendo las mejoras bajo la misma libertad.
 
 ---
 
 ## 👩‍🏫 Autoría y Contacto
 
-- **Coordinación y Autoría:** Prof. Silvina Busto
+- **Coordinación y Autoría:** Prof. Silvina Elena Busto
+- **Asistencia Técnica e Inteligencia Artificial:** Antigravity CLI (Google DeepMind)
 - **Especialidad:** Matemática y Tecnologías Educativas
 - **Contacto:** profesilvina@gmail.com
