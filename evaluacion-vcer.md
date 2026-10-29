@@ -1,4 +1,4 @@
-# Evaluación VCER: catálogo de aplicaciones de matemática (`repoapps_mate`)
+﻿# Evaluación VCER: catálogo de aplicaciones de matemática (`repoapps_mate`)
 
 Rúbrica VCER: Recomendable (90 %)  
 Versión evaluada: Repositorio curado `repoapps_mate` (7 aplicaciones didácticas de matemática en HTML/CSS/JS para secundaria y nivel superior, nota de decisiones `DECISIONES.md`, licencia dual libre y apoyos DUA integrados), 27 de octubre de 2026.
@@ -17,7 +17,7 @@ Recomendable: cumple lo esencial de la guía y puede utilizarse o publicarse; la
   - **Comunicaciones salientes:** Cero llamadas de red salientes (`fetch`, `XMLHttpRequest`, `axios`).
 
 - **Direcciones externas y dependencias de código:**
-  - `https://fonts.googleapis.com` y `https://fonts.gstatic.com`: Servicio de tipografías web de Google Fonts (*Outfit*, *Space Grotesk*, *Inter*, *Press Start 2P*, *VT323*).
+  - `https://fonts.googleapis.com` y `https://fonts.gstatic.com`: Servicio de tipografías web de Google Fonts (*Outfit*, *Space Grotesk*, *Inter*, *Press Start 2P*, *VT323*, *Baloo 2*, *Nunito*).
   - `https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/` y `6.0.0`: Iconografía vectorial accesible de FontAwesome.
   - `https://cdn.tailwindcss.com`: Framework de utilidades CSS en tiempo de ejecución (utilizado en `alicia.html` y `escape_geometrico.html`).
   - *Comportamiento sin internet:* Si el repositorio se abre descargado en una computadora sin conexión a internet, las tipografías son sustituidas automáticamente por las fuentes genéricas del sistema operativo (*sans-serif*, *monospace*) y los iconos vectoriales de FontAwesome se mostrarán como recuadros vacíos. En las dos aplicaciones vinculadas a Tailwind CDN (`alicia.html` y `escape_geometrico.html`), se mantendrán la lógica, controles y contenidos, adaptándose a los estilos base del navegador.

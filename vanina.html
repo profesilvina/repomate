@@ -1,0 +1,1551 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudio InfinitA: Arte, Geometría y Transformaciones — Vanina Julia Malatesta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+
+<style>
+  :root {
+    --bg: #0f2a2e;
+    --bg-deep: #0a1f22;
+    --panel: #163b40;
+    --panel-light: #1c464c;
+    --grid-line: rgba(234, 244, 242, 0.06);
+    --accent: #ffb454;
+    --accent-dim: #8a6a3a;
+    --mint: #7fd9a8;
+    --coral: #e8735c;
+    --text: #eaf4f2;
+    --text-dim: #9fc1bd;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Space Grotesk', sans-serif;
+    --bw: 2px;
+    --focus: #ffb454;
+    font-size: 16px;
+  }
+
+  /* Modo Alto Contraste (DUA) */
+  body.hc {
+    --bg: #ffffff;
+    --bg-deep: #f8fafc;
+    --panel: #ffffff;
+    --panel-light: #e2e8f0;
+    --grid-line: rgba(0, 0, 0, 0.15);
+    --accent: #000000;
+    --accent-dim: #334155;
+    --mint: #065f46;
+    --coral: #991b1b;
+    --text: #000000;
+    --text-dim: #1e293b;
+    --bw: 3px;
+    --focus: #000000;
+  }
+
+  * { box-sizing: border-box; }
+  
+  html, body {
+    margin: 0;
+    min-height: 100vh;
+    background: 
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 40px 40px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 40px 40px,
+      radial-gradient(ellipse at top, var(--bg) 0%, var(--bg-deep) 75%);
+    color: var(--text);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  body.hc {
+    background: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Barra Superior DUA Accesible */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-deep);
+    border-bottom: var(--bw) solid var(--panel-light);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  body.hc .topbar {
+    background: #ffffff;
+    border-color: #000000;
+  }
+
+  .topbar-brand {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  .topbar-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .tb-btn {
+    background: var(--panel);
+    border: 1px solid var(--panel-light);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .tb-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  body.hc .tb-btn {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+  }
+  body.hc .tb-btn[aria-pressed="true"] {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+  }
+
+  /* Encabezado */
+  header.hero {
+    border-bottom: 1px dashed var(--accent-dim);
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+  }
+  .tag {
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin: 0 0 8px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(26px, 4.5vw, 38px);
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+  .brief {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--text-dim);
+    max-width: 75ch;
+    margin: 0;
+  }
+
+  /* Navegación Modular Principal */
+  nav.main-nav {
+    display: flex;
+    gap: 10px;
+    margin: 24px 0 28px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--panel-light);
+    padding-bottom: 12px;
+  }
+  nav.main-nav button {
+    background: var(--panel);
+    border: 1px solid var(--panel-light);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  nav.main-nav button.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--panel-light);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  body.hc nav.main-nav button {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+  }
+  body.hc nav.main-nav button.active {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  /* Contenedores de Módulos */
+  .module-section {
+    display: none;
+    animation: fadeIn 0.25s ease-in;
+  }
+  .module-section.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Componentes Comunes */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-light);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  body.hc .panel {
+    background: #ffffff;
+    border-color: #000000;
+  }
+  .panel h2 {
+    font-family: var(--display);
+    font-size: 19px;
+    margin: 0 0 10px;
+    color: var(--text);
+  }
+  .consigna {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+  }
+  .consigna b { color: var(--text); }
+
+  /* MÓDULO 1: LIBRO DE GEOGEBRA */
+  nav.sub-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  nav.sub-tabs button {
+    background: var(--bg-deep);
+    border: 1px solid var(--panel-light);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  nav.sub-tabs button.active {
+    border-color: var(--mint);
+    color: var(--mint);
+    background: rgba(127, 217, 168, 0.08);
+  }
+  body.hc nav.sub-tabs button.active {
+    background: #000000;
+    color: #ffffff;
+  }
+  .sub-chapter { display: none; }
+  .sub-chapter.active { display: block; }
+
+  .ggb-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .ggb-layout { grid-template-columns: 1fr; }
+  }
+  .ggb-container {
+    width: 100%;
+    min-height: 460px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid var(--panel-light);
+  }
+  .readout {
+    background: var(--bg-deep);
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--text-dim);
+    border: 1px solid var(--panel-light);
+  }
+  .readout b { color: var(--text); }
+  .readout .big {
+    font-family: var(--display);
+    font-size: 24px;
+    color: var(--accent);
+    margin: 4px 0 10px;
+  }
+  .badge {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .badge.gold {
+    border: 1px solid var(--mint);
+    color: var(--mint);
+    background: rgba(127,217,168,0.08);
+    font-weight: 600;
+  }
+  .badge.off {
+    border: 1px solid var(--panel-light);
+    color: var(--text-dim);
+  }
+  .swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 7px;
+    vertical-align: middle;
+  }
+  .offline-notice {
+    background: rgba(255, 180, 84, 0.12);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* MÓDULO 2: ESCAPE ROOM */
+  .variants {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  .variants button {
+    background: var(--bg-deep);
+    border: 1px solid var(--panel-light);
+    color: var(--text);
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 700;
+    padding: 18px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .variants button small {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .variants button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+  body.hc .variants button {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+  }
+
+  .team-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+  .team-bar b {
+    color: var(--accent);
+    font-family: var(--display);
+    font-size: 17px;
+  }
+  button.ghost {
+    background: transparent;
+    border: 1px solid var(--panel-light);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button.ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .track {
+    display: flex;
+    gap: 10px;
+    margin: 18px 0 28px;
+  }
+  .slot {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--panel-light);
+    border-radius: 8px;
+    padding: 14px 8px;
+    text-align: center;
+  }
+  .slot .lbl {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .slot .digit {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-dim);
+  }
+  .slot.solved {
+    border-color: var(--mint);
+    animation: pop 0.35s ease;
+  }
+  .slot.solved .digit { color: var(--mint); }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .station {
+    background: var(--panel);
+    border: 1px solid var(--panel-light);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .station.locked {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .station.done {
+    border-color: var(--mint);
+  }
+  .station-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .station-head h3 {
+    font-family: var(--display);
+    font-size: 18px;
+    margin: 0;
+  }
+  .station-head .idx {
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .station p.desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin: 0 0 16px;
+    max-width: 65ch;
+  }
+  svg.graph {
+    width: 100%;
+    height: 220px;
+    display: block;
+    margin-bottom: 16px;
+    background: var(--bg-deep);
+    border-radius: 8px;
+    border: 1px solid var(--panel-light);
+  }
+  body.hc svg.graph {
+    background: #f8fafc;
+  }
+  .answer-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .answer-row label {
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+  input[type="text"] {
+    background: var(--bg-deep);
+    border: 1px solid var(--panel-light);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 15px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    width: 120px;
+    outline: none;
+  }
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+  body.hc input[type="text"] {
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+  }
+  button.main-btn {
+    background: var(--accent);
+    border: none;
+    color: #1c1204;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  button.main-btn:hover {
+    filter: brightness(1.08);
+  }
+  body.hc button.main-btn {
+    background: #000000;
+    color: #ffffff;
+  }
+  .feedback {
+    margin-top: 12px;
+    font-size: 13.5px;
+    min-height: 20px;
+  }
+  .feedback.ok { color: var(--mint); }
+  .feedback.bad { color: var(--coral); }
+  .shake { animation: shake 0.3s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .done-mark {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    font-size: 11px;
+    color: var(--mint);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+  #final {
+    display: none;
+    background: linear-gradient(180deg, var(--panel-light), var(--panel));
+    border: 1px solid var(--mint);
+    border-radius: 12px;
+    padding: 30px 26px;
+    margin-top: 24px;
+  }
+  #final h2 {
+    font-family: var(--display);
+    font-size: 22px;
+    color: var(--mint);
+    margin: 0 0 12px;
+  }
+  #final .formula {
+    font-family: var(--display);
+    font-size: 18px;
+    color: var(--accent);
+    background: var(--bg-deep);
+    padding: 14px 18px;
+    border-radius: 8px;
+    display: inline-block;
+    margin: 10px 0 16px;
+    line-height: 1.5;
+    border: 1px solid var(--panel-light);
+  }
+
+  /* MÓDULO 3: CERTIFICACIÓN (QUIZ) */
+  .progress-dots {
+    display: flex;
+    gap: 8px;
+    margin: 18px 0 24px;
+  }
+  .dot {
+    flex: 1;
+    height: 8px;
+    background: var(--panel-light);
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+  .dot.current { background: var(--accent); }
+  .dot.done { background: var(--mint); }
+  .dot.wrong { background: var(--coral); }
+
+  .q-num {
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+  .q-text {
+    font-family: var(--display);
+    font-size: 18px;
+    line-height: 1.45;
+    margin: 0 0 20px;
+    color: var(--text);
+  }
+  .options-grid {
+    display: grid;
+    gap: 10px;
+  }
+  .opt {
+    background: var(--bg-deep);
+    border: 1px solid var(--panel-light);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .opt:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+  .opt.correct {
+    border-color: var(--mint);
+    background: rgba(127, 217, 168, 0.12);
+    color: var(--mint);
+    font-weight: 700;
+  }
+  .opt.wrong {
+    border-color: var(--coral);
+    background: rgba(232, 115, 92, 0.12);
+    color: var(--coral);
+  }
+  .opt:disabled { cursor: default; }
+
+  .explain {
+    margin-top: 18px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 14px 16px;
+    border-radius: 8px;
+    display: none;
+  }
+  .explain.ok {
+    display: block;
+    background: rgba(127, 217, 168, 0.08);
+    border: 1px solid var(--mint);
+    color: var(--mint);
+  }
+  .explain.bad {
+    display: block;
+    background: rgba(232, 115, 92, 0.08);
+    border: 1px solid var(--coral);
+    color: var(--coral);
+  }
+  .pista-card {
+    background: rgba(127, 217, 168, 0.1);
+    border: 1px solid var(--mint);
+    padding: 18px;
+    border-radius: 10px;
+    margin: 18px 0;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .nopass-card {
+    background: rgba(232, 115, 92, 0.1);
+    border: 1px solid var(--coral);
+    padding: 18px;
+    border-radius: 10px;
+    margin: 18px 0;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  /* Pie de Página VCER */
+  .vcer-footer {
+    margin-top: 4rem;
+    padding: 2rem 1rem 1.5rem;
+    border-top: var(--bw) solid var(--panel-light);
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+  body.hc .vcer-footer {
+    border-color: #000000;
+    color: #000000;
+  }
+  .vcer-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .vcer-title {
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.98rem;
+  }
+  body.hc .vcer-title { color: #000000; }
+  .vcer-licenses {
+    margin-bottom: 0.5rem;
+    font-size: 0.88rem;
+  }
+  .vcer-licenses a {
+    color: var(--accent);
+    text-decoration: underline;
+    font-weight: 700;
+  }
+  body.hc .vcer-licenses a { color: #000000; }
+  .vcer-sep { margin: 0 0.5rem; opacity: 0.6; }
+  .vcer-note { font-size: 0.82rem; margin-bottom: 0.4rem; }
+  .vcer-principles { font-size: 0.78rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<!-- BARRA SUPERIOR DUA -->
+<div class="topbar" role="toolbar" aria-label="Accesibilidad y controles generales">
+  <a href="index.html" class="tb-btn" aria-label="Volver al catálogo general de aplicaciones">← Catálogo</a>
+  <div class="topbar-brand">
+    <span>📐 ESTUDIO INFINITA</span>
+    <span style="font-size: 0.8rem; opacity: 0.8; font-weight: 400;">· Vanina Malatesta</span>
+  </div>
+  <div class="topbar-controls">
+    <button type="button" class="tb-btn" onclick="adjustFontSize(-1)" aria-label="Disminuir tamaño tipográfico">A−</button>
+    <button type="button" class="tb-btn" onclick="adjustFontSize(1)" aria-label="Aumentar tamaño tipográfico">A+</button>
+    <button type="button" class="tb-btn" id="btnHC" onclick="toggleHC()" aria-pressed="false">Alto Contraste</button>
+    <button type="button" class="tb-btn" id="btnVoice" onclick="toggleSpeak()">🔊 Escuchar</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ENCABEZADO PRINCIPAL -->
+  <header class="hero" id="mainHeader">
+    <p class="tag">// PROYECTO INDIVIDUAL ABP 2026 · ISFDyT N° 24 (BERNAL)</p>
+    <h1>Estudio InfinitA: Arte, Geometría y Transformaciones</h1>
+    <p class="brief">
+      Entorno educativo interactivo para estudiantes de secundaria (4° año). Articula la modelización de razones y la proporción áurea en GeoGebra, la fragmentación cubista mediante transformaciones geométricas (reflexión, rotación, traslación y homotecia) en un Escape Room gamificado y un quiz de autoevaluación diagnóstica.
+    </p>
+  </header>
+
+  <!-- NAVEGACIÓN MODULAR ENTRE LOS 3 RECURSOS -->
+  <nav class="main-nav" role="tablist" aria-label="Módulos interactivos del proyecto">
+    <button type="button" class="active" id="tabMod1" role="tab" aria-selected="true" aria-controls="mod1" onclick="switchModule(1)">📐 Libro de GeoGebra</button>
+    <button type="button" id="tabMod2" role="tab" aria-selected="false" aria-controls="mod2" onclick="switchModule(2)">🕹️ Escape Room: El Cubista</button>
+    <button type="button" id="tabMod3" role="tab" aria-selected="false" aria-controls="mod3" onclick="switchModule(3)">📜 Certificación Nivel 1</button>
+  </nav>
+
+  <!-- =========================================================================
+       MÓDULO 1: LIBRO DE GEOGEBRA INTEGRADOR (Capítulo 1 y 2)
+       ========================================================================= -->
+  <section class="module-section active" id="mod1" role="tabpanel" aria-labelledby="tabMod1">
+    <div id="offlineNotice" class="offline-notice">
+      ℹ️ <strong>Nota de conectividad:</strong> Los applets interactivos de GeoGebra requieren conexión para inicializar el motor de geogebra.org. Los módulos de <em>Escape Room</em> y <em>Certificación</em> son 100% autónomos y funcionan sin conexión.
+    </div>
+
+    <nav class="sub-tabs" role="tablist" aria-label="Capítulos del Libro GeoGebra">
+      <button type="button" class="active" id="btnSub0" role="tab" aria-selected="true" onclick="showChapter(0)">📐 Capítulo 1 — La Grilla Áurea</button>
+      <button type="button" id="btnSub1" role="tab" aria-selected="false" onclick="showChapter(1)">🔺 Capítulo 2 — El Cubista</button>
+    </nav>
+
+    <!-- CAPÍTULO 1 -->
+    <div class="sub-chapter active" id="chapter-0">
+      <div class="panel">
+        <h2>Capítulo 1 — La Grilla Áurea (Clase 1)</h2>
+        <p class="consigna">
+          <b>Consigna:</b> El lienzo mide 10 × 6 unidades. Arrastrá el punto deslizante <b>corte</b> (abajo, sobre el eje horizontal x) hasta que la relación entre el rectángulo mayor y el menor se acerque lo más posible a la razón áurea <b>φ ≈ 1,618</b>. El panel de la derecha te muestra el cálculo en tiempo real.
+        </p>
+        <div class="ggb-layout">
+          <div class="ggb-container" id="ggb1" aria-label="Applet GeoGebra Capítulo 1"></div>
+          <div>
+            <div class="readout">
+              <div>Lienzo base: <b>10 × 6</b></div>
+              <div>Corte en x: <b id="r1-corte">5,00</b></div>
+              <div style="margin-top:8px;">Rectángulo mayor (ancho): <b id="r1-mayor">5,00</b></div>
+              <div>Rectángulo menor (ancho): <b id="r1-menor">5,00</b></div>
+              <div class="big" id="r1-razon">razón = 1,000</div>
+              <div class="legend">
+                <div><span class="swatch" style="background:#ffb454;"></span>Rectángulo 1 (izquierda)</div>
+                <div><span class="swatch" style="background:#7fd9a8;"></span>Rectángulo 2 (derecha)</div>
+              </div>
+              <div class="badge off" id="r1-badge">Buscá acercarte a φ ≈ 1.618</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPÍTULO 2 -->
+    <div class="sub-chapter" id="chapter-1">
+      <div class="panel">
+        <h2>Capítulo 2 — El Cubista: Transformaciones en el Plano (Clase 3)</h2>
+        <p class="consigna">
+          <b>Consigna:</b> El triángulo original es <span class="swatch" style="background:#1c1c1c; border:1px solid #7fd9a8;"></span> <b>A(1,1), B(3,1), C(2,3)</b>. Arrastrá los deslizadores dentro del gráfico de GeoGebra para observar cómo actúan las transformaciones geométricas y cómo se combinan:
+        </p>
+        <div class="ggb-layout">
+          <div class="ggb-container" id="ggb2" aria-label="Applet GeoGebra Capítulo 2"></div>
+          <div>
+            <div class="readout">
+              <div><b>Transformaciones simultáneas:</b></div>
+              <div class="legend" style="margin-top:10px;">
+                <div><span class="swatch" style="background:#1c1c1c; border:1px solid #7fd9a8;"></span>Original: <b>A(1,1), B(3,1), C(2,3)</b></div>
+                <div><span class="swatch" style="background:#e8735c;"></span>Reflexión respecto al eje y: <b id="r2-ref">x → −x</b></div>
+                <div><span class="swatch" style="background:#4ea1ff;"></span>Rotación: ángulo α = <b id="r2-angulo">0</b>°</div>
+                <div><span class="swatch" style="background:#7fd9a8;"></span>Traslación: vector v = (<b id="r2-vx">2.0</b>, <b id="r2-vy">2.0</b>)</div>
+                <div><span class="swatch" style="background:#ffb454;"></span>Homotecia: centro (0,0), k = <b id="r2-k">1.0</b></div>
+              </div>
+              <div style="margin-top:16px; font-size:12px; color:var(--text-dim); line-height:1.6;">
+                💡 <b>Pista para el Escape Room:</b> Prestá atención a qué coordenada cambia en cada caso para descifrar los acertijos de tu equipo.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       MÓDULO 2: ESCAPE ROOM DE TRANSFORMACIONES GEOMÉTRICAS
+       ========================================================================= -->
+  <section class="module-section" id="mod2" role="tabpanel" aria-labelledby="tabMod2">
+    <section id="selector" class="panel">
+      <h2>Elegí la variante de tu equipo</h2>
+      <p class="consigna">
+        Cada equipo investiga una obra secreta extraviada de Estudio InfinitA. Cada variante cuenta con puntos, ejes, ángulos, vectores y razones distintas. Tu docente te asignará una letra: resolvé únicamente el ticket que corresponde a tu equipo.
+      </p>
+      <div class="variants" id="variants"></div>
+    </section>
+
+    <div id="game" style="display:none;">
+      <div class="team-bar">
+        <span>Equipo asignado: <b id="teamLetter"></b></span>
+        <button type="button" class="ghost" onclick="backToSelector()">Cambiar de equipo</button>
+      </div>
+      <div class="track" id="track"></div>
+      <div id="stations"></div>
+
+      <section id="final">
+        <h2>¡CÓDIGO DESCIFRADO! OBRA CUBISTA RECUPERADA</h2>
+        <p>Tu equipo logró descifrar las 4 transformaciones geométricas y reconstruir la fórmula original de la obra.</p>
+        <div>Código maestro: <b id="masterCode" style="font-size:24px; color:var(--mint); font-family:var(--display);"></b></div>
+        <div class="formula" id="masterFormula"></div>
+        <p>
+          ¡Felicitaciones! Presentale este código a tu docente y registralo en la ficha técnica de la Muestra InfinitA.
+        </p>
+        <button type="button" class="main-btn" onclick="backToSelector()" style="margin-top:10px;">Elegir otra variante</button>
+      </section>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       MÓDULO 3: CERTIFICACIÓN NIVEL 1 (QUIZ)
+       ========================================================================= -->
+  <section class="module-section" id="mod3" role="tabpanel" aria-labelledby="tabMod3">
+    <div class="panel">
+      <h2>Certificación Nivel 1 — Estudio InfinitA</h2>
+      <p class="consigna">
+        Evaluación diagnóstica y formativa de acreditación inicial. Respondé las 5 preguntas conceptuales para validar tus saberes sobre proporciones, razón áurea y transformaciones geométricas. Obtené al menos 4 aciertos para desbloquear la pista clave de la Clase 3.
+      </p>
+
+      <div id="quiz-block">
+        <div class="progress-dots" id="progress"></div>
+        <div class="q-num" id="qnum">PREGUNTA 1 / 5</div>
+        <div class="q-text" id="qtext">Cargando desafío...</div>
+        <div class="options-grid" id="options"></div>
+        <div class="explain" id="explain"></div>
+        <div style="margin-top: 20px;">
+          <button type="button" class="main-btn" id="nextBtn" style="display:none;" onclick="nextQuestion()">Siguiente →</button>
+        </div>
+      </div>
+
+      <div id="result-block" style="display:none; text-align:center; padding:20px 10px;">
+        <h3 style="font-family:var(--display); font-size:24px; margin-bottom:8px;">Resultado de la Certificación</h3>
+        <p style="font-size:15px; color:var(--text-dim); margin-bottom:14px;">Puntaje obtenido:</p>
+        <div id="score" style="font-family:var(--display); font-size:46px; font-weight:700; color:var(--accent); margin-bottom:18px;"></div>
+        <div id="verdict"></div>
+        <button type="button" class="main-btn" onclick="restartQuiz()" style="margin-top:16px;">Reintentar la Certificación</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIE DE PÁGINA VCER -->
+  <footer class="vcer-footer" role="contentinfo">
+    <div class="vcer-container">
+      <p class="vcer-title">
+        <strong>Estudio InfinitA: Arte, Geometría y Transformaciones</strong> · Propuesta didáctica: <strong>Vanina Julia Malatesta</strong> · <em>EDI: Matemática y el trabajo por proyectos</em> · ISFDyT N° 24 (Bernal) · Prof. Silvina Busto
+      </p>
+      <p class="vcer-licenses">
+        <span>Código fuente bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU AGPL v3</a></span>
+        <span class="vcer-sep">·</span>
+        <span>Contenidos didácticos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons CC BY-SA 4.0</a></span>
+      </p>
+      <p class="vcer-note">
+        Desarrollado mediante <em>vibe coding</em> con asistencia de Inteligencia Artificial y supervisión didáctica de la autora · Octubre de 2026 · Recursos Educativos Abiertos (REA).
+      </p>
+      <p class="vcer-principles">
+        Privacidad garantizada (sin recolección de datos personales, ejecución 100 % local en el cliente) · Apoyos de accesibilidad DUA (alto contraste, tipografía escalable, síntesis de voz y navegación accesible por teclado).
+      </p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =========================================================================
+     1. HERRAMIENTAS DE ACCESIBILIDAD DUA
+     ========================================================================= */
+  let curFs = 16;
+  let isHC = false;
+
+  window.adjustFontSize = function(delta) {
+    curFs = Math.max(13, Math.min(22, curFs + delta * 1.5));
+    document.documentElement.style.fontSize = curFs + 'px';
+  };
+
+  window.toggleHC = function() {
+    isHC = !isHC;
+    document.body.classList.toggle('hc', isHC);
+    const btn = document.getElementById('btnHC');
+    btn.setAttribute('aria-pressed', String(isHC));
+  };
+
+  window.toggleSpeak = function() {
+    if (!('speechSynthesis' in window)) {
+      alert('Tu navegador no soporta síntesis de voz nativa.');
+      return;
+    }
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+      document.getElementById('btnVoice').textContent = '🔊 Escuchar';
+      return;
+    }
+    const activeMod = document.querySelector('.module-section.active');
+    const textToRead = activeMod ? activeMod.innerText : document.querySelector('header.hero').innerText;
+    const utterance = new SpeechSynthesisUtterance(textToRead.slice(0, 1000));
+    utterance.lang = 'es-AR';
+    utterance.rate = 0.95;
+    utterance.onend = () => { document.getElementById('btnVoice').textContent = '🔊 Escuchar'; };
+    document.getElementById('btnVoice').textContent = '⏹️ Detener';
+    speechSynthesis.speak(utterance);
+  };
+
+  /* =========================================================================
+     2. GESTOR DE PESTAÑAS PRINCIPALES
+     ========================================================================= */
+  window.switchModule = function(modNum) {
+    for (let i = 1; i <= 3; i++) {
+      const tab = document.getElementById('tabMod' + i);
+      const mod = document.getElementById('mod' + i);
+      const isActive = i === modNum;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', String(isActive));
+      mod.classList.toggle('active', isActive);
+    }
+    if (modNum === 1) {
+      setTimeout(() => {
+        if (typeof updateReadout1 === 'function') updateReadout1();
+        if (typeof updateReadout2 === 'function') updateReadout2();
+      }, 100);
+    }
+  };
+
+  /* =========================================================================
+     3. MÓDULO 1: LIBRO DE GEOGEBRA (CAPÍTULOS 1 Y 2)
+     ========================================================================= */
+  window.showChapter = function(i) {
+    document.querySelectorAll(".sub-chapter").forEach((s, idx) => s.classList.toggle("active", idx === i));
+    document.querySelectorAll("nav.sub-tabs button").forEach((b, idx) => {
+      b.classList.toggle("active", idx === i);
+      b.setAttribute('aria-selected', String(idx === i));
+    });
+  };
+
+  var ggbApplet1, ggbApplet2;
+
+  window.updateReadout1 = function() {
+    if (!ggbApplet1) return;
+    try {
+      const W = ggbApplet1.getValue("W") || 10;
+      const corte = ggbApplet1.getValue("corte");
+      const mayor = Math.max(corte, W - corte);
+      const menor = Math.min(corte, W - corte);
+      const razon = menor > 0 ? (mayor / menor) : 1;
+      
+      const corteEl = document.getElementById("r1-corte");
+      if (corteEl) corteEl.textContent = corte.toFixed(2);
+      document.getElementById("r1-mayor").textContent = mayor.toFixed(2);
+      document.getElementById("r1-menor").textContent = menor.toFixed(2);
+      document.getElementById("r1-razon").textContent = "razón = " + razon.toFixed(3);
+      
+      const badge = document.getElementById("r1-badge");
+      const diff = Math.abs(razon - 1.618);
+      if (diff < 0.035) {
+        badge.className = "badge gold";
+        badge.textContent = "★ ¡Proporción áurea lograda! (φ ≈ 1.618)";
+      } else {
+        badge.className = "badge off";
+        badge.textContent = "Te faltan " + diff.toFixed(2) + " para llegar a φ ≈ 1.618.";
+      }
+    } catch(e) {}
+  };
+
+  window.updateReadout2 = function() {
+    if (!ggbApplet2) return;
+    try {
+      document.getElementById("r2-angulo").textContent = Math.round(ggbApplet2.getValue("angulo"));
+      document.getElementById("r2-vx").textContent = ggbApplet2.getValue("vx").toFixed(1);
+      document.getElementById("r2-vy").textContent = ggbApplet2.getValue("vy").toFixed(1);
+      document.getElementById("r2-k").textContent = ggbApplet2.getValue("k").toFixed(1);
+    } catch(e) {}
+  };
+
+  const params1 = {
+    id: "ggbApplet1",
+    appName: "classic",
+    width: 580,
+    height: 440,
+    showToolBar: false,
+    showMenuBar: false,
+    showAlgebraInput: false,
+    showResetIcon: true,
+    enableRightClick: false,
+    showZoomButtons: true,
+    language: "es",
+    appletOnLoad: function(){
+      ggbApplet1.evalCommand("h=6");
+      ggbApplet1.evalCommand("W=10");
+      ggbApplet1.evalCommand("corte=Slider(1,9,0.01)");
+      ggbApplet1.evalCommand("SetValue(corte,5)");
+      ggbApplet1.evalCommand("A=(0,0)");
+      ggbApplet1.evalCommand("B=(W,0)");
+      ggbApplet1.evalCommand("C=(W,h)");
+      ggbApplet1.evalCommand("D=(0,h)");
+      ggbApplet1.evalCommand("SetFixed(A,true)");
+      ggbApplet1.evalCommand("SetFixed(B,true)");
+      ggbApplet1.evalCommand("SetFixed(C,true)");
+      ggbApplet1.evalCommand("SetFixed(D,true)");
+      ggbApplet1.evalCommand("M=(corte,0)");
+      ggbApplet1.evalCommand("N=(corte,h)");
+      ggbApplet1.evalCommand("poly1=Polygon(A,M,N,D)");
+      ggbApplet1.evalCommand("poly2=Polygon(M,B,C,N)");
+      ggbApplet1.evalCommand('SetColor(poly1,"#ffb454")');
+      ggbApplet1.evalCommand('SetColor(poly2,"#7fd9a8")');
+      ggbApplet1.setVisible("corte", true);
+      ggbApplet1.registerObjectUpdateListener("corte", "updateReadout1");
+      updateReadout1();
+    }
+  };
+
+  const params2 = {
+    id: "ggbApplet2",
+    appName: "classic",
+    width: 580,
+    height: 440,
+    showToolBar: false,
+    showMenuBar: false,
+    showAlgebraInput: false,
+    showResetIcon: true,
+    enableRightClick: false,
+    showZoomButtons: true,
+    language: "es",
+    appletOnLoad: function(){
+      ggbApplet2.evalCommand("A=(1,1)");
+      ggbApplet2.evalCommand("B=(3,1)");
+      ggbApplet2.evalCommand("C=(2,3)");
+      ggbApplet2.evalCommand("SetFixed(A,true)");
+      ggbApplet2.evalCommand("SetFixed(B,true)");
+      ggbApplet2.evalCommand("SetFixed(C,true)");
+      ggbApplet2.evalCommand("poly1=Polygon(A,B,C)");
+      ggbApplet2.evalCommand('SetColor(poly1,"#1c1c1c")');
+      ggbApplet2.evalCommand("polyR=Reflect(poly1,yAxis)");
+      ggbApplet2.evalCommand('SetColor(polyR,"#e8735c")');
+      ggbApplet2.evalCommand("angulo=Slider(0,360,1)");
+      ggbApplet2.evalCommand("SetValue(angulo,0)");
+      ggbApplet2.evalCommand("anguloRad=angulo*pi/180");
+      ggbApplet2.evalCommand("polyRot=Rotate(poly1,anguloRad,(0,0))");
+      ggbApplet2.evalCommand('SetColor(polyRot,"#4ea1ff")');
+      ggbApplet2.evalCommand("vx=Slider(-5,5,0.1)");
+      ggbApplet2.evalCommand("vy=Slider(-5,5,0.1)");
+      ggbApplet2.evalCommand("SetValue(vx,2)");
+      ggbApplet2.evalCommand("SetValue(vy,2)");
+      ggbApplet2.evalCommand("vec1=Vector((0,0),(vx,vy))");
+      ggbApplet2.evalCommand("polyT=Translate(poly1,vec1)");
+      ggbApplet2.evalCommand('SetColor(polyT,"#7fd9a8")');
+      ggbApplet2.evalCommand("k=Slider(0.2,3,0.1)");
+      ggbApplet2.evalCommand("SetValue(k,1)");
+      ggbApplet2.evalCommand("polyH=Dilate(poly1,k,(0,0))");
+      ggbApplet2.evalCommand('SetColor(polyH,"#ffb454")');
+      ["angulo","vx","vy","k"].forEach(function(name){
+        ggbApplet2.registerObjectUpdateListener(name, "updateReadout2");
+      });
+      updateReadout2();
+    }
+  };
+
+  function initGeoGebra() {
+    if (typeof GGBApplet !== 'undefined') {
+      try {
+        const applet1 = new GGBApplet(params1, true);
+        applet1.inject("ggb1");
+        const applet2 = new GGBApplet(params2, true);
+        applet2.inject("ggb2");
+      } catch(e) {
+        console.warn("Error inyectando GeoGebra:", e);
+      }
+    } else {
+      const notice = document.getElementById("offlineNotice");
+      if (notice) notice.style.display = "block";
+    }
+  }
+
+  /* =========================================================================
+     4. MÓDULO 2: ESCAPE ROOM DE TRANSFORMACIONES GEOMÉTRICAS
+     ========================================================================= */
+  const VARIANTS = {
+    A: {
+      reflect:   {pt:[5,2], axis:'y', ask:'x', abs:true},
+      rotate:    {pt:[0,4], deg:90,  ask:'x', abs:true},
+      translate: {pt:[1,1], v:[2,5], ask:'y', abs:false},
+      dilate:    {pt:[3,2], k:3,     ask:'x', abs:false}
+    },
+    B: {
+      reflect:   {pt:[3,7], axis:'x', ask:'y', abs:true},
+      rotate:    {pt:[2,1], deg:90,  ask:'y', abs:false},
+      translate: {pt:[4,2], v:[3,1], ask:'x', abs:false},
+      dilate:    {pt:[2,3], k:2,     ask:'y', abs:false}
+    },
+    C: {
+      reflect:   {pt:[6,1], axis:'y', ask:'x', abs:true},
+      rotate:    {pt:[3,0], deg:180, ask:'x', abs:true},
+      translate: {pt:[2,3], v:[4,2], ask:'y', abs:false},
+      dilate:    {pt:[1,4], k:2,     ask:'y', abs:false}
+    },
+    D: {
+      reflect:   {pt:[4,5], axis:'x', ask:'y', abs:true},
+      rotate:    {pt:[1,3], deg:270, ask:'y', abs:true},
+      translate: {pt:[1,4], v:[5,3], ask:'y', abs:false},
+      dilate:    {pt:[2,1], k:4,     ask:'x', abs:false}
+    },
+    E: {
+      reflect:   {pt:[2,9], axis:'y', ask:'y', abs:false},
+      rotate:    {pt:[4,0], deg:90,  ask:'y', abs:false},
+      translate: {pt:[3,2], v:[1,6], ask:'x', abs:false},
+      dilate:    {pt:[1,2], k:3,     ask:'x', abs:false}
+    },
+    F: {
+      reflect:   {pt:[7,3], axis:'x', ask:'y', abs:true},
+      rotate:    {pt:[2,2], deg:90,  ask:'x', abs:true},
+      translate: {pt:[5,1], v:[2,3], ask:'x', abs:false},
+      dilate:    {pt:[3,1], k:2,     ask:'x', abs:false}
+    }
+  };
+
+  function applyReflect(p, axis){ return axis === 'y' ? [-p[0], p[1]] : [p[0], -p[1]]; }
+  function applyRotate(p, deg){
+    if(deg === 90)  return [-p[1], p[0]];
+    if(deg === 180) return [-p[0], -p[1]];
+    if(deg === 270) return [p[1], -p[0]];
+    return p;
+  }
+  function applyTranslate(p, v){ return [p[0]+v[0], p[1]+v[1]]; }
+  function applyDilate(p, k){ return [p[0]*k, p[1]*k]; }
+
+  function stationData(type, cfg){
+    let img;
+    if(type === 'reflect')   img = applyReflect(cfg.pt, cfg.axis);
+    if(type === 'rotate')    img = applyRotate(cfg.pt, cfg.deg);
+    if(type === 'translate') img = applyTranslate(cfg.pt, cfg.v);
+    if(type === 'dilate')    img = applyDilate(cfg.pt, cfg.k);
+    let val = cfg.ask === 'x' ? img[0] : img[1];
+    if(cfg.abs) val = Math.abs(val);
+    return { img, answer: val };
+  }
+
+  function variantCode(letter){
+    const v = VARIANTS[letter];
+    return ['reflect','rotate','translate','dilate'].map(t => stationData(t, v[t]).answer).join('');
+  }
+
+  function rotText(deg){
+    return deg === 90 ? '90° en sentido antihorario' : deg === 180 ? '180°' : '90° en sentido horario';
+  }
+  function rotShort(deg){
+    return deg === 90 ? '90° antihoraria' : deg === 180 ? '180°' : '90° horaria';
+  }
+
+  const NS = "http://www.w3.org/2000/svg";
+  const W = 600, H = 220, PAD = 30;
+  let currentVariant = null;
+  let escapeSolved = [false, false, false, false];
+
+  function pt(p){ return "(" + p[0] + ", " + p[1] + ")"; }
+
+  function stationText(type, cfg){
+    const ask = (cfg.abs ? "el valor absoluto de la coordenada " : "la coordenada ") + cfg.ask;
+    if(type==='reflect') return "El punto A" + pt(cfg.pt) + " se refleja respecto del eje " + cfg.axis + ". ¿Cuál es " + ask + " del punto reflejado A'?";
+    if(type==='rotate')  return "El punto B" + pt(cfg.pt) + " rota " + rotText(cfg.deg) + " respecto del origen. ¿Cuál es " + ask + " del punto rotado B'?";
+    if(type==='translate') return "El punto C" + pt(cfg.pt) + " se traslada según el vector " + pt(cfg.v) + ". ¿Cuál es " + ask + " del punto trasladado C'?";
+    return "El punto D" + pt(cfg.pt) + " se transforma mediante una homotecia de centro en el origen y razón k = " + cfg.k + ". ¿Cuál es " + ask + " del punto transformado D'?";
+  }
+
+  function labelFor(cfg){
+    return (cfg.abs ? "|" + cfg.ask + "'|" : cfg.ask + "'") + " =";
+  }
+
+  function drawGrid(svg, p, label, range){
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.innerHTML = "";
+    const cx = W / 2, cy = H / 2;
+    const scale = (H / 2 - PAD) / range;
+    const toPix = (x, y) => [cx + x * scale, cy - y * scale];
+    const line = (x1, y1, x2, y2, stroke, w) => {
+      const l = document.createElementNS(NS, "line");
+      l.setAttribute("x1", x1); l.setAttribute("y1", y1);
+      l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+      l.setAttribute("stroke", stroke);
+      if(w) l.setAttribute("stroke-width", w);
+      svg.appendChild(l);
+    };
+
+    for(let i = -range * 2; i <= range * 2; i++){
+      const [a1, b1] = toPix(i, -range), [a2, b2] = toPix(i, range);
+      line(a1, b1, a2, b2, "rgba(234,244,242,0.06)");
+    }
+    for(let i = -range; i <= range; i++){
+      const [a1, b1] = toPix(-range * 2, i), [a2, b2] = toPix(range * 2, i);
+      line(a1, b1, a2, b2, "rgba(234,244,242,0.06)");
+    }
+
+    let [x1, y1] = toPix(-range * 2, 0), [x2, y2] = toPix(range * 2, 0);
+    line(x1, y1, x2, y2, "rgba(234,244,242,0.3)", 1.3);
+    [x1, y1] = toPix(0, -range); [x2, y2] = toPix(0, range);
+    line(x1, y1, x2, y2, "rgba(234,244,242,0.3)", 1.3);
+
+    const [px, py] = toPix(p[0], p[1]);
+    const dot = document.createElementNS(NS, "circle");
+    dot.setAttribute("cx", px); dot.setAttribute("cy", py);
+    dot.setAttribute("r", 6); dot.setAttribute("fill", "#ffb454");
+    svg.appendChild(dot);
+
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", px + 10); t.setAttribute("y", py - 8);
+    t.setAttribute("fill", "#ffb454"); t.setAttribute("font-size", "12.5");
+    t.setAttribute("font-family", "IBM Plex Mono, monospace");
+    t.textContent = label;
+    svg.appendChild(t);
+  }
+
+  window.buildVariantButtons = function(){
+    const box = document.getElementById("variants");
+    if (!box) return;
+    box.innerHTML = "";
+    Object.keys(VARIANTS).forEach(letter => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.innerHTML = letter + "<small>Equipo " + letter + "</small>";
+      b.onclick = () => startVariant(letter);
+      box.appendChild(b);
+    });
+  };
+
+  window.startVariant = function(letter){
+    currentVariant = letter;
+    escapeSolved = [false, false, false, false];
+    document.getElementById("selector").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    document.getElementById("teamLetter").textContent = letter;
+    document.getElementById("final").style.display = "none";
+
+    const track = document.getElementById("track");
+    track.innerHTML = "";
+    for(let i = 0; i < 4; i++){
+      const s = document.createElement("div");
+      s.className = "slot";
+      s.setAttribute("data-slot", i);
+      s.innerHTML = '<span class="lbl">DÍGITO ' + (i+1) + '</span><span class="digit">_</span>';
+      track.appendChild(s);
+    }
+
+    const types = [
+      ['reflect',   'Estación 1 — Reflexión', 'A'],
+      ['rotate',    'Estación 2 — Rotación',  'B'],
+      ['translate', 'Estación 3 — Traslación','C'],
+      ['dilate',    'Estación 4 — Homotecia', 'D']
+    ];
+
+    const box = document.getElementById("stations");
+    box.innerHTML = "";
+    types.forEach(([type, title, name], i) => {
+      const cfg = VARIANTS[letter][type];
+      const data = stationData(type, cfg);
+      const maxC = Math.max(Math.abs(cfg.pt[0]), Math.abs(cfg.pt[1]), Math.abs(data.img[0]), Math.abs(data.img[1]));
+      const range = Math.max(6, maxC + 2);
+
+      const sec = document.createElement("section");
+      sec.className = "station" + (i > 0 ? " locked" : "");
+      sec.id = "station-" + i;
+      sec.innerHTML = 
+        '<div class="station-head"><h3>' + title + '</h3><span class="idx">0' + (i+1) + ' / 04</span></div>' +
+        '<p class="desc">' + stationText(type, cfg) + '</p>' +
+        '<svg class="graph" id="svg-' + i + '" aria-label="Gráfico de la estación ' + (i+1) + '"></svg>' +
+        '<div class="answer-row">' +
+          '<label for="input-' + i + '">' + labelFor(cfg) + '</label>' +
+          '<input type="text" id="input-' + i + '" inputmode="decimal" placeholder="?">' +
+          '<button type="button" class="main-btn" onclick="checkEscapeAnswer(' + i + ')">Verificar señal</button>' +
+        '</div>' +
+        '<div class="feedback" id="feedback-' + i + '"></div>';
+      box.appendChild(sec);
+
+      drawGrid(document.getElementById("svg-" + i), cfg.pt, name + pt(cfg.pt), range);
+      document.getElementById("input-" + i).addEventListener("keydown", e => {
+        if(e.key === "Enter") checkEscapeAnswer(i);
+      });
+    });
+  };
+
+  window.checkEscapeAnswer = function(i){
+    const types = ['reflect', 'rotate', 'translate', 'dilate'];
+    const cfg = VARIANTS[currentVariant][types[i]];
+    const expected = stationData(types[i], cfg).answer;
+    const input = document.getElementById("input-" + i);
+    const feedback = document.getElementById("feedback-" + i);
+    const station = document.getElementById("station-" + i);
+    const given = (input.value || "").trim().replace(",", ".");
+
+    if(given === ""){
+      feedback.textContent = "Ingresá un valor numérico antes de verificar.";
+      feedback.className = "feedback bad";
+      return;
+    }
+    if(parseFloat(given) === expected){
+      escapeSolved[i] = true;
+      feedback.textContent = "✔ ¡Señal confirmada! Dígito " + (i+1) + " recuperado: " + expected;
+      feedback.className = "feedback ok";
+      station.classList.add("done");
+      if (!station.querySelector(".done-mark")) {
+        const mark = document.createElement("span");
+        mark.className = "done-mark";
+        mark.textContent = "RESUELTO";
+        station.appendChild(mark);
+      }
+      const slot = document.querySelector('.slot[data-slot="' + i + '"]');
+      if (slot) {
+        slot.querySelector(".digit").textContent = expected;
+        slot.classList.add("solved");
+      }
+      const next = document.getElementById("station-" + (i + 1));
+      if(next){
+        next.classList.remove("locked");
+        next.scrollIntoView({behavior: "smooth", block: "center"});
+      }
+      if(escapeSolved.every(s => s)) revealFinal();
+    } else {
+      feedback.textContent = "✘ Señal no coincide. Revisá el cálculo o la regla de la transformación.";
+      feedback.className = "feedback bad";
+      station.classList.remove("shake");
+      void station.offsetWidth;
+      station.classList.add("shake");
+    }
+  };
+
+  function revealFinal(){
+    const v = VARIANTS[currentVariant];
+    document.getElementById("masterCode").textContent = variantCode(currentVariant);
+    document.getElementById("masterFormula").textContent = 
+      "Reflexión (eje " + v.reflect.axis + ") → Rotación " + rotShort(v.rotate.deg) + 
+      " → Traslación " + pt(v.translate.v) + " → Homotecia k=" + v.dilate.k;
+    document.getElementById("final").style.display = "block";
+    setTimeout(() => document.getElementById("final").scrollIntoView({behavior: "smooth", block: "center"}), 200);
+  }
+
+  window.backToSelector = function(){
+    document.getElementById("game").style.display = "none";
+    document.getElementById("selector").style.display = "block";
+  };
+
+  /* =========================================================================
+     5. MÓDULO 3: CERTIFICACIÓN NIVEL 1 (QUIZ)
+     ========================================================================= */
+  const QUESTIONS = [
+    {
+      q: "¿Cuál es el valor aproximado de la razón áurea φ?",
+      opts: ["1,414", "1,618", "2,718", "3,141"],
+      correct: 1,
+      why: "φ = (1 + √5) / 2 ≈ 1,618. El 1,414 corresponde a √2, el 2,718 es el número e y el 3,141 es π."
+    },
+    {
+      q: "Un rectángulo áureo tiene el lado menor de 5 unidades. ¿Cuánto mide, aproximadamente, el lado mayor?",
+      opts: ["6,5", "8,09", "10", "3,09"],
+      correct: 1,
+      why: "Lado mayor = lado menor × φ = 5 × 1,618 ≈ 8,09 unidades."
+    },
+    {
+      q: "Un lienzo mide 20 unidades de ancho y se lo divide en dos partes con razón áurea. ¿Cuánto mide, aproximadamente, la parte mayor?",
+      opts: ["10", "15", "12,36", "7,64"],
+      correct: 2,
+      why: "Se plantea x / (20 − x) = 1,618 y se despeja: x ≈ 12,36. La parte menor mide 7,64 (12,36 / 7,64 ≈ 1,618)."
+    },
+    {
+      q: "Un rectángulo mide 12,36 de largo por 10 de alto. ¿Cuál es su área?",
+      opts: ["22,36", "123,6", "44,72", "1236"],
+      correct: 1,
+      why: "Área = base × altura = 12,36 × 10 = 123,6 unidades cuadradas."
+    },
+    {
+      q: "Dos lados contiguos miden 8 y 5. ¿Cuál es la razón entre el mayor y el menor, y cómo se relaciona con φ?",
+      opts: ["0,625 — no se parece a φ", "1,6 — se aproxima mucho a φ", "3 — es la diferencia directa", "13 — es la suma"],
+      correct: 1,
+      why: "8 / 5 = 1,6, muy próximo a 1,618. 5 y 8 son números consecutivos de la sucesión de Fibonacci."
+    }
+  ];
+
+  let quizIdx = 0, quizScore = 0, quizAnswered = false, quizResults = [];
+
+  function renderQuizProgress(){
+    const box = document.getElementById("progress");
+    box.innerHTML = "";
+    QUESTIONS.forEach((_, i) => {
+      const d = document.createElement("div");
+      d.className = "dot" + (quizResults[i] === true ? " done" : quizResults[i] === false ? " wrong" : (i === quizIdx ? " current" : ""));
+      box.appendChild(d);
+    });
+  }
+
+  function showQuestion(){
+    const q = QUESTIONS[quizIdx];
+    quizAnswered = false;
+    document.getElementById("qnum").textContent = "DESAFÍO " + (quizIdx + 1) + " / " + QUESTIONS.length;
+    document.getElementById("qtext").textContent = q.q;
+    document.getElementById("explain").textContent = "";
+    document.getElementById("explain").className = "explain";
+    document.getElementById("nextBtn").style.display = "none";
+    
+    const box = document.getElementById("options");
+    box.innerHTML = "";
+    q.opts.forEach((o, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      b.textContent = o;
+      b.onclick = () => chooseQuizOption(i);
+      box.appendChild(b);
+    });
+    renderQuizProgress();
+  }
+
+  function chooseQuizOption(i){
+    if(quizAnswered) return;
+    quizAnswered = true;
+    const q = QUESTIONS[quizIdx];
+    const buttons = document.querySelectorAll(".opt");
+    buttons.forEach((b, j) => {
+      b.disabled = true;
+      if(j === q.correct) b.classList.add("correct");
+      else if(j === i) b.classList.add("wrong");
+    });
+    const ok = i === q.correct;
+    if(ok) quizScore++;
+    quizResults[quizIdx] = ok;
+    
+    const ex = document.getElementById("explain");
+    ex.className = "explain " + (ok ? "ok" : "bad");
+    ex.innerHTML = "<b>" + (ok ? "✔ ¡Correcto!" : "✘ Revisión matemática:") + "</b> " + q.why;
+    
+    const nextBtn = document.getElementById("nextBtn");
+    nextBtn.style.display = "inline-block";
+    nextBtn.textContent = quizIdx === QUESTIONS.length - 1 ? "Ver acreditación final →" : "Siguiente pregunta →";
+    renderQuizProgress();
+  }
+
+  window.nextQuestion = function(){
+    if(quizIdx < QUESTIONS.length - 1){
+      quizIdx++;
+      showQuestion();
+    } else {
+      finishQuiz();
+    }
+  };
+
+  function finishQuiz(){
+    document.getElementById("quiz-block").style.display = "none";
+    document.getElementById("result-block").style.display = "block";
+    document.getElementById("score").textContent = quizScore + " / " + QUESTIONS.length;
+    const v = document.getElementById("verdict");
+    if(quizScore >= 4){
+      v.innerHTML = 
+        '<div class="pista-card">' +
+          '<strong>✔ ¡Acreditación Nivel 1 certificada con éxito!</strong><br><br>' +
+          '🔑 <strong>PISTA SECRETA PARA LA CLASE 3 (El Cubista):</strong><br>' +
+          'En una reflexión respecto a un eje cartesiano, únicamente cambia de signo UNA de las coordenadas. Si se refleja respecto del eje y, cambia el signo de x: (x, y) → (−x, y). Si se refleja respecto del eje x, cambia el signo de y: (x, y) → (x, −y).' +
+        '</div>';
+    } else {
+      v.innerHTML = 
+        '<div class="nopass-card">' +
+          '<strong>Acreditación en proceso:</strong> Obtuviste ' + quizScore + ' aciertos. Se requieren al menos 4 para certificar el Nivel 1. Repasá las fundamentaciones e intentalo nuevamente.' +
+        '</div>';
+    }
+  }
+
+  window.restartQuiz = function(){
+    quizIdx = 0;
+    quizScore = 0;
+    quizResults = [];
+    document.getElementById("result-block").style.display = "none";
+    document.getElementById("quiz-block").style.display = "block";
+    showQuestion();
+  };
+
+  /* =========================================================================
+     6. INICIALIZACIÓN
+     ========================================================================= */
+  window.addEventListener('load', function(){
+    buildVariantButtons();
+    showQuestion();
+    initGeoGebra();
+  });
+
+})();
+</script>
+</body>
+</html>

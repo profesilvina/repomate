@@ -1,4 +1,4 @@
-# 📐 Repositorio apps de Matemática
+﻿# 📐 Repositorio apps de Matemática
 
 Colección de herramientas, mediadores didácticos y aplicaciones interactivas diseñadas para potenciar la enseñanza y el aprendizaje significativo de la matemática en el nivel secundario y superior.
 
@@ -29,6 +29,8 @@ El repositorio está diseñado como un catálogo dinámico y responsivo, listo p
 | **🕹️ Escape Geométrico: La Cámara del Tiempo** | Geometría y Trigonometría | Secundaria | Escape room retro pixel art contra reloj donde los estudiantes resuelven problemas de geometría plana (perímetros, áreas y figuras) para descifrar el código y detener el tiempo. |
 | **📦 Eco-Diseño 3D: el desafío del envase sostenible** (Alicia Astigarraga) | Geometría y Magnitudes | Secundaria | Simulador interactivo 3D para modelizar y comparar recipientes (cilindros y prismas), analizando la relación entre volumen y área superficial para optimizar material. |
 | **🍰 La merienda cambia: fracciones equivalentes** (Cintia Marcaccio) | Números y Operaciones | Secundaria | Simulador interactivo con accesibilidad DUA y gamificación para explorar repartos equitativos y equivalencias de fracciones mediante misiones. |
+| **🔋 Misión Batería: ¡Que no se apague!** (Marisa Sierra) | Números y Operaciones | Secundaria | Juego de estrategia matemática por equipos con accesibilidad DUA y gamificación para calcular porcentajes, promedios y consumos de batería en misiones dinámicas. |
+| **🔺 Estudio InfinitA: Arte, Geometría y Transformaciones** (Vanina Malatesta) | Geometría y Trigonometría | Secundaria | Entorno integral interactivo con Libro de GeoGebra dinámico (razón áurea y transformaciones), Escape Room cubista de descifrado geométrico y quiz de acreditación diagnóstica con DUA. |
 
 ---
 
@@ -40,6 +42,8 @@ repoapps_mate/
 ├── index.html                   # Catálogo principal con buscador, filtros y renderizado dinámico
 ├── alicia.html                  # Eco-Diseño 3D (Alicia Astigarraga)
 ├── cintia.html                  # La merienda cambia (Cintia Marcaccio)
+├── marisa.html                  # Misión Batería: ¡Que no se apague! (Marisa Sierra)
+├── vanina.html                  # Estudio InfinitA: Arte y Transformaciones (Vanina Malatesta)
 ├── escape_geometrico.html       # Escape Room retro pixel art de geometría y cálculo
 ├── app_ruffini_dua.html         # Mediador socrático interactivo de Ruffini
 ├── ruffini.htm                  # Calculadora algorítmica de Ruffini paso a paso

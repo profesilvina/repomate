@@ -1,0 +1,1329 @@
+﻿<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Misión Batería: ¡Que no se apague!</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Diseño: barra DUA fija arriba, tablero de baterías siempre visible, escenario central grande para proyectar. Identidad: carga de batería (verde) + tinta azul marino + tarjetas pastel. */
+:root{
+  --bg:#F2F8FD; --surface:#FFFFFF; --ink:#1D2B4A; --ink-soft:#44527A; --line:#CFE0F0;
+  --sky:#CFECFC; --sky-d:#176FA6; --violet:#E2DAFB; --violet-d:#5B3FC0;
+  --green:#D2F2DB; --green-d:#1F7A48; --yellow:#FFF0B3; --yellow-d:#8A6500;
+  --orange:#FFDDBD; --orange-d:#B4520F; --pink:#FFD6E4; --pink-d:#B02C63;
+  --pri:#16804A; --pri-h:#10683B; --danger:#B3261E;
+  --good:#2FAE66; --mid:#F2B705; --low:#F28C28; --crit:#E5484D; --off:#B7C0CC;
+  --focus:#1F6FEB; --bw:2px; --shadow:0 6px 18px rgba(29,43,74,.12);
+  --f-display:"Baloo 2","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+body.hc{
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#000000; --ink-soft:#000000; --line:#000000;
+  --sky:#FFFFFF; --sky-d:#000000; --violet:#FFFFFF; --violet-d:#000000; --green:#FFFFFF; --green-d:#000000;
+  --yellow:#FFE600; --yellow-d:#000000; --orange:#FFFFFF; --orange-d:#000000; --pink:#FFFFFF; --pink-d:#000000;
+  --pri:#005A24; --pri-h:#003D18; --danger:#8A0000;
+  --good:#007A33; --mid:#7A5F00; --low:#A63F00; --crit:#B00000; --off:#555555;
+  --focus:#000000; --bw:3px; --shadow:none;
+}
+*{box-sizing:border-box}
+html{font-size:18px;scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font:500 1rem/1.45 var(--f-body);
+  padding-block:0 3rem; min-height:100%;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bg)}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px;border-radius:6px}
+body.hc :focus-visible{box-shadow:0 0 0 8px #FFE600}
+button,input{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+h1,h2,h3,.disp{font-family:var(--f-display);font-weight:800;line-height:1.05;text-wrap:balance}
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.ic{width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* colores de tarjeta */
+.c-sky{--bgc:var(--sky);--dc:var(--sky-d)} .c-violet{--bgc:var(--violet);--dc:var(--violet-d)}
+.c-green{--bgc:var(--green);--dc:var(--green-d)} .c-yellow{--bgc:var(--yellow);--dc:var(--yellow-d)}
+.c-orange{--bgc:var(--orange);--dc:var(--orange-d)} .c-pink{--bgc:var(--pink);--dc:var(--pink-d)}
+.st-good{--c:var(--good)} .st-mid{--c:var(--mid)} .st-low{--c:var(--low)} .st-crit{--c:var(--crit)} .st-off,.st-none{--c:var(--off)}
+
+/* barra DUA */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--surface);border:var(--bw) solid var(--line);border-top:0;
+  border-radius:0 0 1.2rem 1.2rem;padding:.5rem .75rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;box-shadow:var(--shadow)}
+.brandmini{display:flex;align-items:center;gap:.5rem;font-family:var(--f-display);font-weight:800;font-size:1.2rem;margin-right:auto;min-width:0}
+.brandmini .ic{color:var(--pri);width:1.6em;height:1.6em}
+.tools{display:flex;flex-wrap:wrap;gap:.4rem}
+.tb{display:inline-flex;align-items:center;gap:.4rem;min-height:2.6rem;padding:.35rem .85rem;border-radius:999px;background:var(--surface);
+  border:var(--bw) solid var(--ink);font-weight:800;cursor:pointer;font-size:.95rem}
+.tb:hover:not(:disabled){background:var(--yellow)}
+.tb[aria-pressed="true"]{background:var(--yellow)}
+.tb:disabled{opacity:.45;cursor:not-allowed}
+.tb.warn{border-color:var(--danger);color:var(--danger)}
+
+main{max-width:1240px;margin:0 auto;padding-top:.9rem;outline:none}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;min-height:3.1rem;padding:.65rem 1.4rem;border-radius:999px;border:var(--bw) solid var(--ink);
+  background:var(--surface);font-family:var(--f-display);font-weight:800;font-size:1.15rem;cursor:pointer;transition:transform .12s,background .12s}
+.btn:hover:not(:disabled){transform:translateY(-2px);background:var(--yellow)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.pri:hover:not(:disabled){background:var(--pri-h)}
+body.hc .btn.pri{border-color:#000}
+.btn.big{font-size:1.5rem;padding:.9rem 2rem;min-height:4rem}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.danger:hover:not(:disabled){background:#8f1d17}
+.actions{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
+.actions.center{justify-content:center}
+
+/* encabezado / hero */
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.5rem;align-items:center;margin-bottom:1.5rem}
+.hero-art{width:6.5rem;height:auto;flex:none}
+.eyebrow{font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.8rem;color:var(--ink-soft);margin-bottom:.35rem}
+h1{font-size:clamp(2.1rem,5vw,3.6rem)}
+h1 span{display:block;color:var(--pri)}
+.lead{font-size:1.15rem;color:var(--ink-soft);margin-top:.6rem;max-width:48rem}
+h2.st{font-size:clamp(1.8rem,3.6vw,2.6rem);outline:none}
+.panel{background:var(--surface);border:var(--bw) solid var(--line);border-radius:1.5rem;padding:1.25rem 1.5rem;box-shadow:var(--shadow)}
+.panel + .panel{margin-top:1.1rem}
+.panel h3{font-size:1.5rem;margin-bottom:.8rem}
+.note{color:var(--ink-soft);font-size:.95rem}
+
+/* configuración */
+.seg{display:flex;flex-wrap:wrap;gap:.6rem}
+.segb{width:4rem;height:4rem;border-radius:1.1rem;border:var(--bw) solid var(--ink);background:var(--surface);font-family:var(--f-display);font-weight:800;font-size:1.8rem;cursor:pointer}
+.segb.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+body.hc .segb.on{background:var(--yellow);color:#000;border-color:#000;text-decoration:underline}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.9rem}
+.field{display:flex;flex-direction:column;gap:.3rem;background:var(--bgc);border:var(--bw) solid var(--dc);border-radius:1.1rem;padding:.7rem .9rem;min-width:0}
+.field .fl{font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:.45rem}
+.field input{width:100%;min-width:0;border:var(--bw) solid var(--ink);border-radius:.8rem;padding:.55rem .75rem;background:var(--surface);font-weight:700}
+.field .unit{font-size:.85rem;color:var(--ink-soft)}
+.err{background:var(--pink);border:var(--bw) solid var(--pink-d);border-radius:1rem;padding:.8rem 1.1rem;margin-top:1rem;font-weight:700}
+.err ul{margin:.3rem 0 0;padding-left:1.2rem}
+.roundrule{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem}
+.roundrule span{background:var(--yellow);border:var(--bw) solid var(--yellow-d);border-radius:999px;padding:.2rem .8rem;font-weight:800}
+
+/* tabla */
+.tablewrap{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0 .5rem;width:100%}
+th{text-align:left;font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);padding:.2rem .8rem}
+td{padding:.55rem .8rem;background:var(--bgc,var(--surface));border-block:var(--bw) solid var(--dc,var(--line))}
+td:first-child{border-left:var(--bw) solid var(--dc,var(--line));border-radius:1rem 0 0 1rem}
+td:last-child{border-right:var(--bw) solid var(--dc,var(--line));border-radius:0 1rem 1rem 0}
+td.act .actc{font-weight:800;display:flex;align-items:center;gap:.6rem}
+td.num{font-variant-numeric:tabular-nums;font-size:1.2rem}
+td.rnd{font-family:var(--f-display);font-weight:800;font-size:2rem;font-variant-numeric:tabular-nums}
+td.rnd small{font-size:1rem;font-weight:700}
+tr.hl td{box-shadow:inset 0 0 0 100px rgba(255,255,255,.0)}
+tr.sel td{background:var(--yellow);border-color:var(--ink)}
+.small-table td{padding:.35rem .6rem}
+.small-table td.rnd{font-size:1.6rem}
+
+/* sorteo */
+.slots{list-style:none;margin:1.2rem 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1rem}
+.slot{background:var(--bgc);border:var(--bw) solid var(--dc);border-radius:1.4rem;padding:1rem 1.2rem;display:flex;align-items:center;gap:.9rem;box-shadow:var(--shadow);min-height:5.2rem;min-width:0}
+.slot .pos{font-family:var(--f-display);font-weight:800;font-size:2.2rem;min-width:2.8rem}
+.slot .nm{font-family:var(--f-display);font-weight:800;font-size:1.7rem;overflow-wrap:anywhere;line-height:1.05}
+.slot.pop{animation:pop .6s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{transform:scale(.4) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
+.shuffling .slot .nm{animation:blink .18s steps(2) infinite}
+@keyframes blink{50%{opacity:.55}}
+
+/* banner de ronda */
+.banner{display:flex;flex-wrap:wrap;gap:.7rem 1.4rem;align-items:center;margin:0 0 1rem}
+.rchip{background:var(--yellow);border:var(--bw) solid var(--yellow-d);border-radius:999px;padding:.25rem 1.1rem;font-family:var(--f-display);font-weight:800;font-size:1.5rem}
+.rdots{display:flex;gap:.4rem}
+.rdots i{width:1.1rem;height:1.1rem;border-radius:50%;border:var(--bw) solid var(--ink);background:var(--surface)}
+.rdots i.on{background:var(--pri)} .rdots i.cur{background:var(--yellow);transform:scale(1.25)}
+body.hc .rdots i.on{background:#000}
+.who{font-size:1.5rem}
+.who b{font-family:var(--f-display);font-weight:800;font-size:1.9rem;overflow-wrap:anywhere}
+.orderrow{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1rem;padding:0;list-style:none}
+.orderrow li{border:var(--bw) solid var(--line);border-radius:999px;padding:.1rem .8rem;font-weight:800;font-size:.9rem;background:var(--surface);display:flex;gap:.35rem;align-items:center}
+.orderrow li.cur{background:var(--ink);color:#fff;border-color:var(--ink)}
+body.hc .orderrow li.cur{background:#FFE600;color:#000}
+.orderrow li.done{opacity:.6;text-decoration:line-through}
+.orderrow li.out{opacity:.5}
+
+/* tablero */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(11.5rem,1fr));gap:.9rem;margin-bottom:1.4rem}
+.team{background:var(--bgc);border:var(--bw) solid var(--dc);border-radius:1.2rem;padding:.8rem .95rem .9rem;position:relative;box-shadow:var(--shadow);min-width:0;transition:transform .2s}
+.team.cur{outline:5px solid var(--ink);outline-offset:3px;transform:translateY(-4px)}
+body.hc .team.cur{outline-color:#000;background:var(--yellow)}
+.team .th{display:flex;align-items:center;gap:.5rem;margin-bottom:.15rem}
+.team .ord{background:var(--surface);border:var(--bw) solid var(--dc);border-radius:999px;min-width:2rem;height:2rem;display:grid;place-items:center;font-weight:800;font-size:.85rem;flex:none}
+.team h3{font-size:1.15rem;overflow-wrap:anywhere;line-height:1.1}
+.team .turn{position:absolute;top:-.85rem;right:.7rem;background:var(--ink);color:#fff;border-radius:999px;padding:.05rem .8rem;font-weight:800;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase}
+body.hc .team .turn{background:#000;color:#FFE600}
+.pct{font-family:var(--f-display);font-weight:800;font-size:3.1rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.pct small{font-size:1.4rem;margin-left:.1rem}
+.pct.bump{animation:bump .7s ease}
+@keyframes bump{30%{transform:scale(1.18)}}
+.meterwrap{display:flex;align-items:center;margin:.3rem 0 .4rem}
+.meterwrap::after{content:"";width:.4rem;height:.8rem;background:var(--ink);border-radius:0 4px 4px 0}
+.meter{position:relative;flex:1;height:1.6rem;border:var(--bw) solid var(--ink);border-radius:.6rem;background:var(--surface);overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--c);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.meter::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--surface) calc(10% - 2px),var(--surface) 10%)}
+.stl{font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:.4rem}
+.stl .dot{width:.8rem;height:.8rem;border-radius:50%;background:var(--c);border:2px solid var(--ink);flex:none}
+.board.compact{grid-template-columns:repeat(auto-fit,minmax(9.4rem,1fr));gap:.6rem;margin-bottom:.7rem}
+.banner.compact{margin-bottom:.6rem}
+.banner.compact .rchip{font-size:1.15rem;padding:.1rem .8rem}
+.banner.compact .who{font-size:1.15rem}
+.banner.compact .who b{font-size:1.45rem}
+.mgrid .panel{padding:1rem 1.25rem}
+.mgrid .ctl{margin-bottom:.7rem}
+.mgrid .lbl{margin-bottom:.3rem}
+.board.compact .team{padding:.45rem .75rem .55rem}
+.board.compact .pct{font-size:2rem}
+.board.compact .team .ord{min-width:1.6rem;height:1.6rem;font-size:.75rem}
+.board.compact .stl{display:none}
+.board.compact .meter{height:1.05rem}
+.board.compact .meterwrap{margin:.1rem 0 0}
+.board.compact .team h3{font-size:1.05rem}
+.team.st-off{filter:grayscale(1);opacity:.75}
+body.hc .team.st-off{opacity:1;background:#E6E6E6}
+
+/* tarjetas */
+.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1rem;max-width:1040px;margin:1.2rem auto 0}
+.ccard{appearance:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;aspect-ratio:5/6;border-radius:1.3rem;
+  border:var(--bw) solid var(--dc);cursor:pointer;color:var(--ink);padding:.6rem;box-shadow:var(--shadow);transition:transform .15s;
+  background:repeating-linear-gradient(135deg,var(--bgc) 0 14px,color-mix(in srgb,var(--bgc) 80%,#fff) 14px 28px)}
+body.hc .ccard,body.hc .fc-back{background:#fff}
+.ccard:hover:not(:disabled){transform:translateY(-6px) rotate(-1.5deg)}
+.ccard:disabled{cursor:default}
+.ccard.used{opacity:.55;filter:grayscale(.6);background:var(--bgc)}
+.numb{width:3.8rem;height:3.8rem;border-radius:50%;background:var(--surface);border:var(--bw) solid var(--dc);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:2.1rem}
+.ccard .ic,.fc-back .ic{width:2rem;height:2rem;color:var(--dc)}
+.ccard .lab{font-weight:800;letter-spacing:.08em;font-size:.8rem;text-transform:uppercase}
+.ccard .by{font-weight:800;font-size:.85rem;text-align:center;overflow-wrap:anywhere;line-height:1.1}
+
+/* tarjetas con giro (batería inicial) */
+.fc{appearance:none;border:0;background:none;padding:0;cursor:pointer;perspective:1000px;aspect-ratio:5/6;display:block;width:100%;color:var(--ink)}
+.fc-in{display:block;position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .2s}
+.fc:not(:disabled):hover .fc-in{transform:translateY(-6px) rotate(-1.5deg)}
+.fc:disabled{cursor:default}
+.fc.flipped .fc-in{transform:rotateY(180deg)}
+.fc.anim .fc-in{animation:flipTo .95s cubic-bezier(.3,.7,.3,1) both}
+@keyframes flipTo{from{transform:rotateY(0)}to{transform:rotateY(180deg)}}
+.fc-face{position:absolute;inset:0;border-radius:1.3rem;border:var(--bw) solid var(--dc);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:var(--shadow);padding:.5rem}
+.fc-back{background:repeating-linear-gradient(135deg,var(--bgc) 0 14px,color-mix(in srgb,var(--bgc) 80%,#fff) 14px 28px)}
+.fc-front{background:var(--bgc);transform:rotateY(180deg)}
+.fc-front .big{font-family:var(--f-display);font-weight:800;font-size:3rem;line-height:1}
+.fc-front small{font-weight:800;text-align:center;overflow-wrap:anywhere;line-height:1.1;font-size:.9rem}
+
+/* misión en pantalla grande */
+.mgrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.4rem;align-items:start}
+.flipcard{perspective:1500px}
+.fl-in{position:relative;transform-style:preserve-3d}
+.flipcard.anim .fl-in{animation:flipBig 1.05s cubic-bezier(.3,.7,.3,1) both}
+@keyframes flipBig{from{transform:rotateY(180deg)}to{transform:rotateY(0)}}
+.fl-face{backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:1.7rem;border:var(--bw) solid var(--dc);background:var(--bgc);box-shadow:var(--shadow)}
+.fl-front{position:relative;padding:1.4rem 1.7rem 1.6rem}
+.fl-back{position:absolute;inset:0;transform:rotateY(180deg);display:grid;place-items:center;
+  background:repeating-linear-gradient(135deg,var(--bgc) 0 16px,color-mix(in srgb,var(--bgc) 80%,#fff) 16px 32px)}
+body.hc .fl-back{background:#fff}
+.fl-back .numb{width:7rem;height:7rem;font-size:4rem}
+.tags{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:.8rem}
+.tag{background:var(--surface);border:var(--bw) solid var(--dc);border-radius:999px;padding:.1rem .85rem;font-weight:800;font-size:.9rem;letter-spacing:.05em;text-transform:uppercase}
+.acts-ic{display:flex;gap:.4rem;margin-left:auto;color:var(--dc)}
+.acts-ic .ic{width:1.6rem;height:1.6rem}
+.fl-front h2{font-size:clamp(1.9rem,3.4vw,2.6rem);margin-bottom:.7rem}
+.consigna{font-size:clamp(1.3rem,2.2vw,1.7rem);line-height:1.38;font-weight:700}
+.fine{margin-top:.9rem;font-size:.85rem;color:var(--ink-soft)}
+.left-col{display:flex;flex-direction:column;gap:1.1rem;min-width:0}
+.ctl{margin-bottom:1rem}
+.lbl{font-weight:800;margin-bottom:.45rem;font-size:1.05rem}
+.opts{display:flex;flex-wrap:wrap;gap:.6rem}
+.opt{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.05rem;border-radius:999px;border:var(--bw) solid var(--dc);background:var(--bgc);font-weight:800;font-size:1.05rem;cursor:pointer}
+.opt[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+body.hc .opt[aria-pressed="true"]{background:#FFE600;color:#000;border-color:#000;text-decoration:underline}
+.opt:disabled{cursor:default}
+.opt.fixed{cursor:default}
+.who-now{display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem 1rem;margin-bottom:.7rem}
+.who-now .tn{font-family:var(--f-display);font-weight:800;font-size:1.9rem;overflow-wrap:anywhere}
+.who-now .bn{font-weight:800;font-size:1.15rem}
+.who-now .bn b{font-family:var(--f-display);font-size:1.9rem}
+.step{border:var(--bw) solid var(--line);border-radius:1.1rem;padding:.7rem .9rem;margin-bottom:.7rem;background:var(--surface)}
+.step.done{background:var(--green);border-color:var(--green-d);padding:.5rem .9rem}
+.slbl{display:flex;gap:.6rem;align-items:flex-start;font-weight:800;font-size:1.05rem;margin-bottom:.5rem}
+.step.done .slbl{margin-bottom:.25rem;font-size:.95rem}
+.sn{flex:none;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:.9rem}
+body.hc .sn{background:#000}
+.sans{font-weight:700;display:flex;gap:.5rem;align-items:flex-start}
+.sans .ic{color:var(--green-d);margin-top:.15rem}
+.snote{font-size:.85rem;color:var(--ink-soft);margin:-.2rem 0 .5rem}
+.step .actions{margin-top:.6rem;gap:.5rem}
+.step .btn{font-size:1rem;min-height:2.6rem;padding:.4rem 1rem}
+.step .ansrow input{font-size:1.7rem}
+.step .fb{margin-top:.6rem}
+.chipseq{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.6rem;min-height:2rem}
+.chipseq span{background:var(--yellow);border:var(--bw) solid var(--yellow-d);border-radius:999px;padding:.05rem .75rem;font-weight:800}
+.chipseq span.empty{background:transparent;border-style:dashed;color:var(--ink-soft);font-weight:700}
+.ansrow{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.ansrow input{font-family:var(--f-display);font-weight:800;font-size:2rem;width:7.5ch;text-align:center;border:var(--bw) solid var(--ink);border-radius:1rem;padding:.2rem .5rem;background:var(--surface);min-width:0}
+.ansrow .suf{font-family:var(--f-display);font-weight:800;font-size:1.8rem}
+.fb{border-radius:1rem;padding:.8rem 1.1rem;border:var(--bw) solid var(--dc);background:var(--bgc);margin-top:1rem;font-weight:700}
+.fb.good{--bgc:var(--green);--dc:var(--green-d)} .fb.wrong{--bgc:var(--orange);--dc:var(--orange-d)} .fb.info{--bgc:var(--sky);--dc:var(--sky-d)}
+.fb .q{display:block;margin-top:.3rem;font-weight:800}
+.hints{list-style:none;margin:.8rem 0 0;padding:0;display:flex;flex-direction:column;gap:.5rem}
+.hints li{background:var(--yellow);border:var(--bw) solid var(--yellow-d);border-radius:1rem;padding:.6rem 1rem;display:flex;gap:.6rem;align-items:flex-start}
+.hints li b{white-space:nowrap}
+.op{margin-top:1rem;background:var(--surface);border:var(--bw) solid var(--green-d);border-radius:1.2rem;padding:1rem 1.2rem}
+.op .o1{font-weight:700}
+.op .eq{font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,4vw,2.8rem);line-height:1.1;font-variant-numeric:tabular-nums;margin:.3rem 0}
+.op .nw{font-weight:800;font-size:1.2rem}
+.op .nw b{font-family:var(--f-display);font-size:2rem}
+.op .alert{margin-top:.5rem;font-weight:800;color:var(--danger)}
+body.hc .op .alert{color:#000;text-decoration:underline}
+.surprise-eff{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;padding:.3rem 1.1rem;font-weight:800;font-size:1.3rem;background:var(--surface);border:var(--bw) solid var(--dc);margin-top:.9rem}
+.surprise-eff .ic{width:1.3em;height:1.3em}
+
+/* resultados */
+.rank{list-style:none;margin:1rem 0 0;padding:0;display:flex;flex-direction:column;gap:.7rem}
+.rank li{display:grid;grid-template-columns:3.4rem minmax(0,1.2fr) minmax(0,1.4fr) auto;gap:.9rem;align-items:center;background:var(--bgc);border:var(--bw) solid var(--dc);border-radius:1.2rem;padding:.7rem 1rem}
+.rank .medal{width:3.2rem;height:3.2rem;border-radius:50%;background:var(--surface);border:var(--bw) solid var(--dc);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:1.6rem}
+.rank .first .medal{background:var(--yellow)}
+.rank .nm{font-family:var(--f-display);font-weight:800;font-size:1.6rem;overflow-wrap:anywhere;line-height:1.05}
+.rank .nm small{display:block;font-family:var(--f-body);font-size:.85rem;font-weight:700;color:var(--ink-soft)}
+.rank .pc{font-family:var(--f-display);font-weight:800;font-size:2.3rem;font-variant-numeric:tabular-nums}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem;margin-top:1.1rem}
+.award{border:var(--bw) solid var(--dc);background:var(--bgc);border-radius:1.5rem;padding:1.2rem 1.4rem;box-shadow:var(--shadow);min-width:0}
+.award h3{display:flex;gap:.5rem;align-items:center;font-size:1.5rem;margin-bottom:.4rem}
+.award .winner{font-family:var(--f-display);font-weight:800;font-size:2.1rem;line-height:1.1;overflow-wrap:anywhere}
+.pickrow{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem}
+details{margin-top:1.1rem}
+summary{font-weight:800;cursor:pointer;font-size:1.1rem}
+.log td{padding:.35rem .6rem;font-size:.95rem}
+
+/* diálogo */
+.overlay{position:fixed;inset:0;background:rgba(29,43,74,.35);display:grid;place-items:center;z-index:60;padding:1rem}
+.dialog{background:var(--surface);border:var(--bw) solid var(--ink);border-radius:1.6rem;padding:1.6rem;max-width:30rem;width:100%;box-shadow:var(--shadow)}
+.dialog h2{font-size:1.9rem;margin-bottom:.6rem}
+.dialog p{margin-bottom:1.2rem}
+
+@media (max-width:900px){
+  .mgrid{grid-template-columns:minmax(0,1fr)}
+  .rank li{grid-template-columns:3rem minmax(0,1fr) auto}
+  .rank li .meterwrap{grid-column:1 / -1}
+}
+@media (max-width:620px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero-art{width:4.5rem}
+  .tb span.tl{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* Pie de página VCER y enlace al catálogo */
+.vcer-footer {
+  margin-top: 3.5rem;
+  padding: 1.75rem 1rem 1.25rem;
+  border-top: var(--bw) solid var(--line);
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.vcer-container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+.vcer-title {
+  margin-bottom: 0.45rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.vcer-licenses {
+  margin-bottom: 0.45rem;
+  font-size: 0.88rem;
+}
+.vcer-licenses a {
+  color: var(--pri);
+  text-decoration: underline;
+  font-weight: 700;
+}
+.vcer-licenses a:hover {
+  color: var(--pri-h);
+}
+.vcer-sep {
+  margin: 0 0.5rem;
+  opacity: 0.6;
+}
+.vcer-note {
+  font-size: 0.82rem;
+  margin-bottom: 0.35rem;
+}
+.vcer-principles {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+body.hc .vcer-footer {
+  border-color: #000000;
+  color: #000000;
+  background: #FFFFFF;
+}
+body.hc .vcer-title {
+  color: #000000;
+}
+body.hc .vcer-licenses a {
+  color: #000000;
+  text-decoration: underline;
+  font-weight: 800;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar" role="toolbar" aria-label="Accesibilidad y controles del juego">
+  <div class="brandmini" id="brandmini"></div>
+  <div class="tools">`n    <a href="index.html" class="tb" style="text-decoration:none;" aria-label="Volver al catálogo de aplicaciones">← Catálogo</a>
+    <button type="button" class="tb" data-act="fontMinus" aria-label="Disminuir el tamaño del texto">A−</button>
+    <button type="button" class="tb" data-act="fontPlus" aria-label="Aumentar el tamaño del texto">A+</button>
+    <button type="button" class="tb" id="btnContrast" data-act="contrast" aria-pressed="false"></button>
+    <button type="button" class="tb" id="btnSpeak" data-act="speak"></button>
+    <button type="button" class="tb" id="btnUndo" data-act="undo"></button>
+    <button type="button" class="tb warn" id="btnReset" data-act="askReset"></button>
+  </div>
+</div>
+<main id="app" tabindex="-1"></main>
+
+<footer class="vcer-footer" role="contentinfo">
+  <div class="vcer-container">
+    <p class="vcer-title">
+      <strong>Misión Batería: ¡Que no se apague!</strong> · Propuesta didáctica: <strong>Marisa Sierra</strong> · <em>EDI: Matemática y el trabajo por proyectos</em> · ISFDyT N° 24 (Bernal)
+    </p>
+    <p class="vcer-licenses">
+      <span>Código fuente bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU AGPL v3</a></span>
+      <span class="vcer-sep">·</span>
+      <span>Contenidos didácticos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons CC BY-SA 4.0</a></span>
+    </p>
+    <p class="vcer-note">
+      Desarrollado mediante <em>vibe coding</em> con asistencia de Inteligencia Artificial y supervisión didáctica de la autora · Octubre de 2026 · Recursos Educativos Abiertos (REA).
+    </p>
+    <p class="vcer-principles">
+      Privacidad garantizada (sin recolección de datos personales, ejecución 100 % local en el cliente) · Apoyos de accesibilidad DUA (alto contraste, tipografía escalable y síntesis de voz nativa).
+    </p>
+  </div>
+</footer>
+<div id="modal"></div>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- utilidades ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>String(n).replace('.',',');
+const MINUS='−';
+function rnd(){
+  try{ if(window.crypto&&crypto.getRandomValues){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296;} }catch(e){}
+  return Math.random();
+}
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function parseNum(s){
+  if(typeof s!=='string') return NaN;
+  const t=s.trim().replace(/−/g,'-').replace(',','.');
+  if(!/^-?\d+(\.\d+)?$/.test(t)) return NaN;
+  return parseFloat(t);
+}
+function roundInt(x){return Math.round(Number(x.toFixed(9)));}
+
+/* ---------- íconos ---------- */
+const ICON={
+  phone:'<rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/>',
+  battery:'<rect x="2" y="7" width="17" height="10" rx="2"/><path d="M22 10.5v3"/><path d="M6 10.5v3M10 10.5v3"/>',
+  bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  game:'<path d="M6 8h12a4 4 0 014 4v2a3 3 0 01-5.2 2L15 14H9l-1.8 2A3 3 0 012 14v-2a4 4 0 014-4z"/><path d="M7 10.5v3M5.5 12h3"/><circle cx="15.5" cy="11.5" r=".8" fill="currentColor"/><circle cx="18" cy="13" r=".8" fill="currentColor"/>',
+  video:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 9.5l5 2.5-5 2.5z" fill="currentColor"/>',
+  chat:'<path d="M4 5h16a2 2 0 012 2v8a2 2 0 01-2 2h-9l-5 4v-4H4a2 2 0 01-2-2V7a2 2 0 012-2z"/><path d="M7 10h10M7 13h6"/>',
+  social:'<path d="M12 21s-7.5-4.6-9.6-9.4A5.4 5.4 0 0112 6a5.4 5.4 0 019.6 5.6C19.5 16.4 12 21 12 21z"/>',
+  check:'<path d="M5 12.5l5 5 9-10"/>',
+  undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/>',
+  speaker:'<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18.5 5.5a9 9 0 010 13"/>',
+  contrast:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18z" fill="currentColor"/>',
+  reset:'<path d="M20 12a8 8 0 11-2.4-5.7"/><path d="M20 4v5h-5"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  arrow:'<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',
+  star:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.4l-5.4 3.1 1.2-6L3.3 9.3l6.1-.7z"/>',
+  shuffle:'<path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>',
+  trophy:'<path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4v2a3 3 0 003 3M17 6h3v2a3 3 0 01-3 3"/>',
+  bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 3z"/>',
+  eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  minus:'<path d="M5 12h14"/>'
+};
+function ic(n,cls){return '<svg class="ic'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+ICON[n]+'</svg>';}
+
+/* ---------- datos del juego ---------- */
+const ACT_KEYS=['musica','juegos','videos','mensajes','redes'];
+const ACT={
+  musica:{name:'Escuchar música',short:'Música',icon:'music',c:'violet'},
+  juegos:{name:'Jugar',short:'Juegos',icon:'game',c:'green'},
+  videos:{name:'Mirar videos',short:'Videos',icon:'video',c:'pink'},
+  mensajes:{name:'Enviar mensajes',short:'Mensajes',icon:'chat',c:'sky'},
+  redes:{name:'Utilizar redes sociales',short:'Redes sociales',icon:'social',c:'orange'}
+};
+const TC=['sky','violet','green','yellow','orange','pink'];
+const CARD_COLORS=['sky','violet','green','yellow','orange','pink','sky','violet','green','yellow'];
+const INITIAL_VALUES=[20,24,28,32,38,42,48,52,56,58];
+const ALL=ACT_KEYS;
+const AK=ACT_KEYS;
+const ACT_AFTER={musica:'escuchar música',juegos:'jugar',videos:'mirar videos',mensajes:'enviar mensajes',redes:'usar redes sociales'};
+const YNO={fits:['Sí, alcanza','No alcanza'],twenty:['Más del 20%','Menos del 20%','Exactamente 20%'],quarter:['Sí, al menos 25%','No, menos del 25%']};
+const P=min=>({k:'pick',min:!!min});
+const NUM=(f,o)=>Object.assign({k:'num',f:f,act:'chosen'},o||{});
+const CMP=(mode,a,b)=>({k:'cmp',mode:mode,acts:[a,b]});
+const YN=id=>({k:'yn',id:id});
+const JUST=()=>({k:'just'});
+const MI=(t,x,a,steps,o)=>Object.assign({t:t,x:x,a:a,steps:steps,show:null,three:false},o||{});
+const MISSIONS=[
+  MI('Un rato de música','Escuchá música durante 30 minutos. Calculá cuánta batería consumirías y cuánto te quedaría.',['musica'],[NUM('cons'),NUM('rest')]),
+  MI('Maratón de videos','Mirá videos durante 30 minutos. Calculá cuánta batería te quedaría después.',['videos'],[NUM('rest')]),
+  MI('Partida online','Jugá durante 30 minutos. ¿Cuántos puntos de batería perderías? ¿Cuánto te quedaría?',['juegos'],[NUM('cons'),NUM('rest')]),
+  MI('Mensajes importantes','Enviá mensajes durante 30 minutos. Calculá el consumo y la batería restante.',['mensajes'],[NUM('cons'),NUM('rest')]),
+  MI('Redes sociales','Utilizá redes sociales durante 30 minutos. Calculá cuánta batería te quedaría.',['redes'],[NUM('rest')]),
+  MI('Esperando el colectivo','Tenés 30 minutos de espera. Compará escuchar música y mirar videos. Elegí una opción y calculá la batería restante.',['musica','videos'],[P(),NUM('rest')]),
+  MI('Dos opciones','Elegí entre jugar o escuchar música durante 30 minutos. ¿Cuántos puntos porcentuales de diferencia hay entre sus consumos? Justificá tu elección.',['juegos','musica'],[P(),NUM('diff',{a:'juegos',b:'musica'}),JUST()]),
+  MI('Tiempo de espera','Compará mirar videos y enviar mensajes durante 30 minutos. ¿Cuál consume menos batería? Calculá cuánto te quedaría con esa opción.',['videos','mensajes'],[P(true),NUM('rest')]),
+  MI('Necesito comunicarme','Elegí entre enviar mensajes o utilizar redes sociales durante 30 minutos. Compará los consumos y explicá tu decisión.',['mensajes','redes'],[P(),JUST()]),
+  MI('La mejor elección','Compará los cinco promedios. Elegí la actividad que menos batería consume durante 30 minutos y calculá cuánto te quedaría.',AK,[P(true),NUM('rest')]),
+  MI('Música para viajar','Durante un viaje escuchás música durante 30 minutos. Calculá la batería restante y comparala con la que tendrías si jugaras durante ese tiempo.',['musica'],[NUM('rest'),NUM('rest',{act:'juegos'}),CMP('keep','musica','juegos')],{show:['musica','juegos']}),
+  MI('Un video tras otro','Mirás videos durante 30 minutos. ¿Qué porcentaje de batería consumirías? ¿Te alcanzaría la batería que tenés para completar la misión?',['videos'],[NUM('cons'),YN('fits')]),
+  MI('Una partida más','Querés jugar durante 30 minutos. Calculá la batería restante e indicá si terminarías con más o menos del 20%.',['juegos'],[NUM('rest'),YN('twenty')]),
+  MI('Conversación por mensajes','Intercambiás mensajes durante 30 minutos. Calculá cuánto te quedaría y comparalo con el resultado de utilizar redes sociales.',['mensajes'],[NUM('rest'),NUM('rest',{act:'redes'}),CMP('keep','mensajes','redes')],{show:['mensajes','redes']}),
+  MI('Revisando publicaciones','Utilizás redes sociales durante 30 minutos. Calculá cuánto consumirías y qué porcentaje de batería conservarías.',['redes'],[NUM('cons'),NUM('rest')]),
+  MI('Antes de salir','Tenés 30 minutos libres. Elegí una actividad que te permita conservar la mayor cantidad posible de batería. Calculá el resultado y justificá.',AK,[P(true),NUM('rest'),JUST()]),
+  MI('¿Música o videos?','Compará los consumos de música y videos durante 30 minutos. ¿Cuál es la diferencia en puntos porcentuales? Elegí una opción y calculá cuánto te quedaría.',['musica','videos'],[NUM('diff',{a:'musica',b:'videos'}),P(),NUM('rest')]),
+  MI('¿Jugar o enviar mensajes?','Tenés 30 minutos disponibles. Compará jugar y enviar mensajes. ¿Cuál consume más? ¿Cuántos puntos de diferencia hay? Elegí una opción.',['juegos','mensajes'],[CMP('more','juegos','mensajes'),NUM('diff',{a:'juegos',b:'mensajes'}),P()]),
+  MI('Recreo extendido','Elegí una de las cinco actividades para realizar durante 30 minutos. Calculá su consumo y comparalo con el promedio más bajo de la tabla.',AK,[P(),NUM('cons'),NUM('min')]),
+  MI('¿Redes o juegos?','Compará los promedios de redes sociales y juegos. Elegí la actividad que menos consume y calculá cuánta batería te quedaría.',['redes','juegos'],[P(true),NUM('rest')]),
+  MI('Música mientras ordenás','Escuchás música durante 30 minutos. Calculá cuánto te quedaría y determiná si conservarías al menos el 25% de batería.',['musica'],[NUM('rest'),YN('quarter')]),
+  MI('Videos para aprender','Mirás videos educativos durante 30 minutos. Calculá el consumo y la batería restante. ¿Cuántos puntos te separarían del 0%?',['videos'],[NUM('cons'),NUM('rest'),NUM('dist0')]),
+  MI('Torneo de juegos','Jugás durante 30 minutos. Calculá el consumo y determiná si la batería alcanza para completar la misión.',['juegos'],[NUM('cons'),YN('fits')]),
+  MI('Organizando una salida','Intercambiás mensajes durante 30 minutos. Compará su consumo con el de escuchar música. ¿Cuál te permitiría conservar más batería?',['mensajes'],[CMP('keep','mensajes','musica')],{show:['mensajes','musica']}),
+  MI('Un rato en redes','Utilizás redes sociales durante 30 minutos. Calculá la batería restante y comparala con la que tendrías si enviaras mensajes.',['redes'],[NUM('rest'),NUM('rest',{act:'mensajes'}),CMP('keep','redes','mensajes')],{show:['redes','mensajes']}),
+  MI('La opción que menos consume','Compará los cinco consumos promedio y ordenalos de menor a mayor. Elegí la actividad que menos consume y calculá la batería restante.',AK,[{k:'order'},P(true),NUM('rest')]),
+  MI('Dos alternativas','Elegí entre escuchar música y utilizar redes sociales durante 30 minutos. Calculá la batería restante en ambos casos y explicá cuál elegirías.',['musica','redes'],[P(),NUM('rest',{act:'musica'}),NUM('rest',{act:'redes'}),JUST()]),
+  MI('Un descanso digital','Tenés 30 minutos de descanso. Compará mirar videos y enviar mensajes. ¿Cuántos puntos de batería ahorrarías al elegir la opción de menor consumo?',['videos','mensajes'],[P(true),NUM('diff',{a:'videos',b:'mensajes',q:'¿Cuántos puntos de batería ahorrarían al elegir la opción de menor consumo?'})]),
+  MI('¿Qué conviene hacer?','Compará jugar y mirar videos durante 30 minutos. Calculá la batería restante para cada opción y justificá tu decisión utilizando los promedios.',['juegos','videos'],[P(),NUM('rest',{act:'juegos'}),NUM('rest',{act:'videos'}),JUST()]),
+  MI('Tu propia estrategia','Tenés 30 minutos disponibles. Compará tres actividades de la tabla, elegí una y calculá cuánta batería te quedaría. Explicá por qué la elegiste.',AK,[{k:'pick3'},P(),NUM('rest'),JUST()],{three:true})
+];
+const SURPRISES=[
+  {t:'Te perdiste',x:'Necesitaste usar el GPS para encontrar el camino.',d:-8},
+  {t:'Brillo al máximo',x:'Tuviste que aumentar el brillo de la pantalla.',d:-6},
+  {t:'Sin Wi-Fi',x:'Tuviste que usar datos móviles.',d:-5},
+  {t:'Mucho tiempo de llamada',x:'Realizaste una llamada de larga duración.',d:-7},
+  {t:'Demasiadas apps abiertas',x:'Tuviste varias aplicaciones en segundo plano.',d:-6},
+  {t:'Encontraste un enchufe',x:'Pudiste cargar tu celular durante un rato.',d:20},
+  {t:'Modo ahorro',x:'Activaste el modo ahorro de batería.',d:10},
+  {t:'Wi-Fi disponible',x:'Conectaste tu celular a una red Wi-Fi.',d:8},
+  {t:'Cargador portátil',x:'Usaste una batería externa.',d:12},
+  {t:'Uso liviano',x:'Durante un rato solo recibiste notificaciones.',d:6}
+];
+
+/* ---------- estado ---------- */
+let S=freshState(null);
+const ui={scale:1,hc:false,ans:'',ansCons:'',inputs:[],anim:null,busy:false,confirm:false,shown:{},undo:[],timer:null};
+const SCALES=[0.85,1,1.15,1.3,1.5];
+let scaleIdx=1;
+
+function freshState(prev){
+  return {
+    phase:'setup', n:prev?prev.n:4,
+    names:prev?prev.names.slice():['','','','','',''],
+    avgs:prev?prev.avgs.slice():['','','','',''],
+    err:[], teams:[], rounded:null, orig:null, order:null,
+    initial:null, round:0, turnPos:0, turn:null,
+    usedMissions:[], roundCards:[], roundTaken:{}, surpriseCards:[], surpriseTaken:{},
+    log:[], award:null
+  };
+}
+function snap(){ui.undo.push(JSON.stringify(S)); if(ui.undo.length>200) ui.undo.shift();}
+function curTi(){return S.phase==='initial'?S.order[S.initial.pos]:S.order[S.turnPos];}
+function curTeam(){return S.teams[curTi()];}
+function anyAlive(){return S.teams.some(t=>t.alive);}
+function actsOf(m){return m.a;}
+function clearAns(){ui.ans='';ui.ansCons='';ui.inputs=[];}
+function newTurn(){return {stage:'pick',cardIdx:null,missionId:null,activity:null,three:[],steps:null,before:null,result:null,sur:null};}
+
+/* ---------- vistas ---------- */
+function heroArt(){
+  return '<svg class="hero-art" viewBox="0 0 120 200" aria-hidden="true"><rect x="8" y="6" width="104" height="188" rx="22" fill="#fff" stroke="#1D2B4A" stroke-width="5"/>'+
+  '<rect x="22" y="26" width="76" height="140" rx="10" fill="#CFECFC"/><rect x="44" y="64" width="32" height="8" rx="2" fill="#1D2B4A"/>'+
+  '<rect x="38" y="70" width="44" height="70" rx="8" fill="#fff" stroke="#1D2B4A" stroke-width="4"/>'+
+  '<rect x="44" y="76" width="32" height="14" rx="3" fill="#E5484D"/><rect x="44" y="94" width="32" height="14" rx="3" fill="#F2B705"/><rect x="44" y="112" width="32" height="22" rx="3" fill="#2FAE66"/>'+
+  '<path d="M64 84l-10 16h8l-3 14 12-18h-8z" fill="#fff" stroke="#1D2B4A" stroke-width="2.5" stroke-linejoin="round"/>'+
+  '<rect x="48" y="178" width="24" height="5" rx="2.5" fill="#1D2B4A"/></svg>';
+}
+
+function setupView(){
+  const names=[...Array(S.n)].map((_,i)=>
+    '<label class="field c-'+TC[i]+'" for="name'+i+'"><span class="fl">Equipo '+(i+1)+'</span>'+
+    '<input id="name'+i+'" type="text" maxlength="28" autocomplete="off" data-bind="name" data-i="'+i+'" value="'+esc(S.names[i])+'" placeholder="Nombre que eligió el equipo"></label>').join('');
+  const avgs=ACT_KEYS.map((k,i)=>
+    '<label class="field c-'+ACT[k].c+'" for="avg'+i+'"><span class="fl">'+ic(ACT[k].icon)+ACT[k].name+'</span>'+
+    '<input id="avg'+i+'" type="text" inputmode="decimal" autocomplete="off" data-bind="avg" data-i="'+i+'" value="'+esc(S.avgs[i])+'" placeholder="Promedio de la clase">'+
+    '<span class="unit">puntos porcentuales (pp) en 30 minutos</span></label>').join('');
+  const err=S.err.length?'<div class="err" role="alert"><b>Revisá estos datos antes de seguir:</b><ul>'+S.err.map(e=>'<li>'+esc(e)+'</li>').join('')+'</ul></div>':'';
+  return '<header class="hero">'+heroArt()+'<div><p class="eyebrow">Proyecto «¿Por qué nunca me alcanza la batería?»</p>'+
+    '<h1>Misión Batería <span>¡Que no se apague!</span></h1>'+
+    '<p class="lead">Cada equipo arranca con una carga distinta y tiene cinco rondas para cuidarla. Calculen en papel, discutan y decidan con los datos de la clase.</p></div></header>'+
+    '<section class="panel" aria-labelledby="sT1"><h2 class="st" id="stageTitle" tabindex="-1" style="font-size:1.9rem;margin-bottom:1rem">Configuración inicial</h2>'+
+    '<h3 id="sT1">¿Cuántos equipos juegan?</h3><div class="seg" role="radiogroup" aria-label="Cantidad de equipos">'+
+    [2,3,4,5,6].map(k=>'<button type="button" role="radio" class="segb'+(S.n===k?' on':'')+'" aria-checked="'+(S.n===k)+'" data-act="setN" data-n="'+k+'">'+k+'</button>').join('')+'</div></section>'+
+    '<section class="panel"><h3>Nombres de los equipos</h3><div class="fields">'+names+'</div></section>'+
+    '<section class="panel"><h3>Promedios de consumo de la clase</h3>'+
+    '<p class="note" style="margin-bottom:.8rem">Ingresá los cinco promedios que obtuvieron. Podés usar decimales con coma o con punto. Representan los puntos porcentuales de batería que se consumen en 30 minutos.</p>'+
+    '<div class="fields">'+avgs+'</div>'+
+    '<div class="roundrule" aria-label="Ejemplos de redondeo"><span>4,2 → 4</span><span>5,7 → 6</span><span>8,5 → 9</span></div>'+
+    '<p class="note" style="margin-top:.4rem">Los promedios se redondean al entero más cercano antes de jugar.</p>'+err+
+    '<div class="actions" style="margin-top:1.2rem"><button type="button" class="btn pri big" data-act="toRound">Ver tabla de redondeo '+ic('arrow')+'</button></div></section>';
+}
+
+function consTable(opts){
+  opts=opts||{};
+  const rows=ACT_KEYS.map(k=>{
+    const a=ACT[k]; const hl=opts.hl&&opts.hl.indexOf(k)>=0; const sel=opts.sel===k;
+    return '<tr class="c-'+a.c+(hl?' hl':'')+(sel?' sel':'')+'"><td class="act"><span class="actc">'+ic(a.icon)+a.name+'</span></td><td class="num">'+fmt(S.orig[k])+'</td><td class="rnd">'+S.rounded[k]+' <small>pp</small></td></tr>';
+  }).join('');
+  return '<div class="tablewrap"><table class="'+(opts.small?'small-table':'')+'"><caption class="sr">Consumo promedio de batería cada 30 minutos</caption><thead><tr><th scope="col">Actividad</th><th scope="col">Promedio de la clase</th><th scope="col">Redondeado (30 min)</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function tableView(){
+  return '<h2 class="st" id="stageTitle" tabindex="-1">Redondeo de los promedios</h2>'+
+  '<p class="lead" style="margin:.4rem 0 1rem">Redondeamos cada promedio al entero más cercano. En todas las misiones se usan los valores redondeados.</p>'+
+  '<section class="panel">'+consTable()+'<p class="note">pp = puntos porcentuales de batería. Los originales quedan a la vista para compararlos.</p></section>'+
+  '<div class="actions" style="margin-top:1.2rem"><button type="button" class="btn" data-act="undo">'+ic('back')+'Volver</button>'+
+  '<button type="button" class="btn pri big" data-act="toDraw">Ir al sorteo '+ic('arrow')+'</button></div>';
+}
+
+function drawView(){
+  const done=!!S.order, n=S.teams.length;
+  const slots=done?S.order.map((ti,k)=>'<li class="slot c-'+TC[ti]+(ui.anim==='draw'?' pop':'')+'" style="animation-delay:'+(k*140)+'ms"><span class="pos">'+(k+1)+'º</span><span class="nm">'+esc(S.teams[ti].name)+'</span></li>').join('')
+   :[...Array(n)].map((_,k)=>'<li class="slot c-'+TC[k]+'"><span class="pos">'+(k+1)+'º</span><span class="nm">?</span></li>').join('');
+  const btns=done?'<button type="button" class="btn pri big" data-act="startInitial">¡Comenzar el juego! '+ic('arrow')+'</button>'
+   :'<button type="button" class="btn" data-act="undo">'+ic('back')+'Volver</button><button type="button" class="btn pri big" data-act="doDraw" id="btnDraw">'+ic('shuffle')+'¡Sortear equipos!</button>';
+  return '<header class="hero">'+heroArt()+'<div><p class="eyebrow">Orden de participación</p><h2 class="st" id="stageTitle" tabindex="-1">¿Quién comienza la misión?</h2>'+
+   '<p class="lead">'+(done?'Este orden se mantiene durante las cinco rondas.':'Se sortea el orden en que van a jugar los equipos en todas las rondas.')+'</p></div></header>'+
+   '<ol class="slots" id="slots" aria-label="Orden de los equipos">'+slots+'</ol><div class="actions center">'+btns+'</div>';
+}
+
+function stateOf(t){
+  if(t.battery===null) return {k:'none',l:'Sin elegir'};
+  if(!t.alive) return {k:'off',l:'Eliminado'};
+  const b=t.battery;
+  if(b>=50) return {k:'good',l:'Carga alta'};
+  if(b>=30) return {k:'mid',l:'Carga media'};
+  if(b>=15) return {k:'low',l:'Carga baja'};
+  return {k:'crit',l:'¡Crítica!'};
+}
+function boardHTML(compact){
+  const cur=(S.phase==='initial'||S.phase==='round')?curTi():-1;
+  return '<section class="board'+(compact?' compact':'')+'" aria-label="Tablero de baterías">'+S.order.map((ti,k)=>{
+    const t=S.teams[ti], st=stateOf(t), to=t.battery===null?0:t.battery;
+    const prev=ui.shown[ti]; const changed=prev!==undefined&&prev!==to;
+    const w=changed?prev:to; ui.shown[ti]=to;
+    return '<article class="team c-'+TC[ti]+' st-'+st.k+(ti===cur?' cur':'')+'" aria-label="'+esc(t.name)+': '+(t.battery===null?'todavía sin batería asignada':t.battery+' por ciento')+'">'+
+      (ti===cur?'<span class="turn">Turno</span>':'')+
+      '<div class="th"><span class="ord">'+(k+1)+'º</span><h3>'+esc(t.name)+'</h3></div>'+
+      '<div class="pct'+(changed?' bump':'')+'">'+(t.battery===null?'—':t.battery)+'<small>%</small></div>'+
+      '<div class="meterwrap"><div class="meter"><i style="width:'+w+'%" data-to="'+to+'"></i></div></div>'+
+      '<div class="stl"><span class="dot"></span>'+st.l+'</div></article>';
+  }).join('')+'</section>';
+}
+
+function initialView(){
+  const I=S.initial, ti=S.order[I.pos], t=S.teams[ti];
+  const waiting=I.rev!==null, last=I.pos===S.order.length-1;
+  const cards=I.values.map((v,i)=>{
+    const by=I.taken[i]; const flipped=by!==undefined;
+    const anim=ui.anim==='initial:'+i;
+    return '<button type="button" class="fc c-'+CARD_COLORS[i]+(flipped?' flipped':'')+(anim?' anim':'')+'" data-act="pickInitial" data-i="'+i+'" '+((flipped||waiting)?'disabled':'')+' aria-label="Tarjeta de batería '+(i+1)+(flipped?': '+v+' por ciento, equipo '+esc(S.teams[by].name):'')+'">'+
+      '<span class="fc-in"><span class="fc-face fc-back"><span class="numb">'+(i+1)+'</span>'+ic('battery')+'</span>'+
+      '<span class="fc-face fc-front"><span class="big">'+v+'%</span><small>'+esc(S.teams[by===undefined?0:by].name)+'</small></span></span></button>';
+  }).join('');
+  const msg=waiting?'<div class="fb good" role="status"><b>'+esc(t.name)+'</b> comienza con <b>'+t.battery+'%</b> de batería.</div>':'';
+  const next=waiting?'<div class="actions center" style="margin-top:1.2rem"><button type="button" class="btn pri big" data-act="nextInitial">'+(last?'¡Comenzar la ronda 1!':'Siguiente turno')+' '+ic('arrow')+'</button></div>':'';
+  return '<h2 class="st" id="stageTitle" tabindex="-1">Elegí tu batería inicial</h2>'+
+   '<div class="banner" style="margin-top:.6rem"><div class="who">Le toca a <b>'+esc(t.name)+'</b>: <span>elegí una tarjeta.</span></div></div>'+
+   boardHTML()+'<div class="cards" role="group" aria-label="Tarjetas de batería inicial">'+cards+'</div>'+msg+next;
+}
+
+function bannerHTML(compact){
+  const t=curTeam();
+  const dots=[1,2,3,4,5].map(r=>'<i class="'+(r<S.round?'on':r===S.round?'cur':'')+'"></i>').join('');
+  const order='<ol class="orderrow" aria-label="Orden de turnos de la ronda">'+S.order.map((ti,k)=>{
+    const tm=S.teams[ti]; const cls=k===S.turnPos?'cur':(k<S.turnPos?'done':'')+(!tm.alive?' out':'');
+    return '<li class="'+cls+'"><span>'+(k+1)+'º</span>'+esc(tm.name)+(!tm.alive?' (eliminado)':'')+'</li>';
+  }).join('')+'</ol>';
+  return '<div class="banner'+(compact?' compact':'')+'"><div class="rchip">Ronda '+S.round+' de 5</div><div class="rdots" aria-hidden="true">'+dots+'</div>'+
+    '<div class="who">Le toca a <b>'+esc(t.name)+'</b></div></div>'+(compact?'':order);
+}
+
+function gridHTML(kind){
+  const cards=kind==='m'?S.roundCards:S.surpriseCards;
+  const taken=kind==='m'?S.roundTaken:S.surpriseTaken;
+  const active=kind==='m'?S.turn.stage==='pick':S.turn.stage==='surprisePick';
+  const act=kind==='m'?'pickMission':'pickSurprise';
+  return '<div class="cards" role="group" aria-label="'+(kind==='m'?'Tarjetas de misión':'Tarjetas sorpresa')+'">'+cards.map((_,i)=>{
+    const by=taken[i]; const used=by!==undefined;
+    return '<button type="button" class="ccard c-'+CARD_COLORS[i]+(used?' used':'')+'" data-act="'+act+'" data-i="'+i+'" '+((used||!active)?'disabled':'')+
+      ' aria-label="'+(kind==='m'?'Misión':'Sorpresa')+' número '+(i+1)+(used?', elegida por '+esc(S.teams[by].name):'')+'">'+
+      '<span class="numb">'+(used?ic('check'):(i+1))+'</span>'+ic(kind==='m'?'phone':'star')+
+      (used?'<span class="by">'+esc(S.teams[by].name)+'</span>':'<span class="lab">'+(kind==='m'?'Misión':'Sorpresa')+'</span>')+'</button>';
+  }).join('')+'</div>';
+}
+
+function hintsHTML(list,n){
+  if(!n) return '';
+  return '<ul class="hints" aria-label="Pistas">'+list.slice(0,n).map((h,i)=>'<li>'+ic('bulb')+'<span><b>Pista '+(i+1)+':</b> '+esc(h)+'</span></li>').join('')+'</ul>';
+}
+/* ---- misiones: información de cada paso (la respuesta correcta solo se usa para comprobar) ---- */
+function resolveAct(st,t){return st.act==='chosen'?t.activity:st.act;}
+function allowedFor(t,m,i){
+  if(m.steps[i].k==='pick3') return AK.slice();
+  const p3=m.steps.findIndex(x=>x.k==='pick3');
+  if(p3>=0&&p3<i) return t.three.slice();
+  return m.a.slice();
+}
+function stepVisible(t,m,i){
+  for(let j=0;j<i;j++){const k=m.steps[j].k; if((k==='pick'||k==='pick3')&&!t.steps[j].done) return false;}
+  return true;
+}
+function orderOk(seq){
+  if(seq.length!==5||new Set(seq).size!==5) return false;
+  for(let j=1;j<5;j++) if(S.rounded[seq[j]]<S.rounded[seq[j-1]]) return false;
+  return true;
+}
+function stepInfo(st,t,m){
+  const r=S.rounded,b=t.before,nm=k=>ACT[k].short;
+  if(st.k==='num'){
+    if(st.f==='min'){
+      const v=Math.min.apply(null,AK.map(k=>r[k]));
+      return {acc:[v],txt:'El promedio más bajo es '+v+' pp ('+AK.filter(k=>r[k]===v).map(nm).join(' y ')+').'};
+    }
+    if(st.f==='diff'){
+      const x=r[st.a],y=r[st.b],v=Math.abs(x-y);
+      return {acc:[v],txt:Math.max(x,y)+' '+MINUS+' '+Math.min(x,y)+' = '+v+' pp ('+nm(st.a)+' '+x+' pp, '+nm(st.b)+' '+y+' pp).'};
+    }
+    const A=resolveAct(st,t);
+    if(st.f==='cons') return {acc:[r[A]],txt:'«'+nm(A)+'»: promedio '+fmt(S.orig[A])+' → redondeado '+r[A]+' pp.'};
+    const raw=b-r[A],v=Math.max(0,raw);
+    if(st.f==='dist0') return {acc:[v],txt:'Con '+v+'% de batería, faltan '+v+' pp para llegar al 0%.'};
+    return {acc:raw<0?[raw,0]:[raw],txt:'«'+nm(A)+'»: '+b+' '+MINUS+' '+r[A]+' = '+(raw<0?MINUS+Math.abs(raw)+' → la batería se agota: 0%':raw+'%')+'.'};
+  }
+  if(st.k==='cmp'){
+    const [a,c]=st.acts,x=r[a],y=r[c];
+    const best=st.mode==='more'?Math.max(x,y):Math.min(x,y);
+    const acc=st.acts.filter(k=>r[k]===best);
+    const word=st.mode==='more'?'Consume más':(st.mode==='less'?'Consume menos':'Conserva más batería');
+    const txt=x===y?'Empatan: «'+nm(a)+'» y «'+nm(c)+'» consumen '+x+' pp.':word+': «'+nm(acc[0])+'» ('+r[acc[0]]+' pp) frente a «'+nm(st.acts.filter(k=>k!==acc[0])[0])+'» ('+(r[st.acts.filter(k=>k!==acc[0])[0]])+' pp).';
+    return {acc:acc,txt:txt};
+  }
+  if(st.k==='yn'){
+    const A=t.activity,c=r[A],raw=b-c;
+    if(st.id==='fits') return {acc:[b>c?0:1],txt:'Consumo '+c+' pp; '+b+' '+MINUS+' '+c+' = '+(raw<0?MINUS+Math.abs(raw):raw)+'. '+(b>c?'Queda más de 0%: alcanza.':'No queda batería: no alcanza.')};
+    if(st.id==='twenty') return {acc:[raw>20?0:(raw<20?1:2)],txt:'Quedan '+Math.max(0,raw)+'%: '+(raw>20?'más del 20%.':raw<20?'menos del 20%.':'exactamente 20%.')};
+    return {acc:[raw>=25?0:1],txt:'Quedan '+Math.max(0,raw)+'%: '+(raw>=25?'se conserva al menos el 25%.':'menos del 25%.')};
+  }
+  if(st.k==='order'){
+    const seq=AK.slice().sort((x,y)=>r[x]-r[y]);
+    return {acc:null,txt:'De menor a mayor: '+seq.map(k=>nm(k)+' ('+r[k]+' pp)').join(' → ')+'.'};
+  }
+  return {acc:null,txt:''};
+}
+function stepLabel(st,t){
+  if(st.q) return st.q;
+  const nm=k=>'«'+ACT[k].short+'»';
+  switch(st.k){
+    case 'pick': return '¿Qué actividad eligió el equipo?';
+    case 'pick3': return '¿Qué tres actividades compara el equipo? Elegí exactamente tres.';
+    case 'order': return 'Ordená las cinco actividades de menor a mayor consumo.';
+    case 'just': return '¿Pueden justificar la decisión usando los promedios de la clase?';
+    case 'cmp': return st.mode==='more'?'¿Cuál consume más batería: '+nm(st.acts[0])+' o '+nm(st.acts[1])+'?':
+      (st.mode==='less'?'¿Cuál consume menos batería: ':'¿Con cuál se conservaría más batería: ')+nm(st.acts[0])+' o '+nm(st.acts[1])+'?';
+    case 'yn': return st.id==='fits'?'¿Les alcanza la batería para completar la misión?':st.id==='twenty'?'¿Terminarían con más, con menos o con exactamente 20% de batería?':'¿Conservarían al menos el 25% de batería?';
+    case 'num':
+      if(st.f==='min') return '¿Cuál es el promedio redondeado más bajo de la tabla?';
+      if(st.f==='diff') return '¿Cuántos puntos porcentuales de diferencia hay entre '+nm(st.a)+' y '+nm(st.b)+'?';
+      if(st.f==='dist0') return '¿Cuántos puntos separan a la batería final del 0%?';
+      if(st.f==='cons') return '¿Cuántos puntos porcentuales consume '+nm(resolveAct(st,t))+' en 30 minutos?';
+      return '¿Cuánta batería le queda al equipo después de '+ACT_AFTER[resolveAct(st,t)]+'?';
+  }
+  return '';
+}
+function stepHints(st,t){
+  const A=st.k==='num'&&st.f!=='min'&&st.f!=='diff'?resolveAct(st,t):null;
+  const nm=A?ACT[A].short:'la actividad';
+  switch(st.k){
+    case 'pick': return st.min?['Compará en la tabla los promedios redondeados de las opciones.','Menos consumo significa que la batería baja menos puntos.','Elegí la opción con el número más chico. Si empatan, sirve cualquiera de las dos.']:
+      ['Mirá las opciones y los promedios redondeados de la tabla.','Pensá qué les conviene según los datos de la clase.','Elijan una opción y después vamos a justificarla.'];
+    case 'order': return ['Mirá la columna «Redondeado» de las cinco actividades.','Empezá por el número más chico y seguí hacia el más grande.','Si dos actividades empatan, pueden ir en cualquier orden.'];
+    case 'cmp': return ['Buscá en la tabla el promedio redondeado de cada actividad.','Compará los números: menos consumo significa que se conserva más batería.','Elegí según cuál número es mayor o menor, como pide la pregunta.'];
+    case 'yn': return ['Primero calculá el consumo o la batería restante que necesitás.','Compará ese resultado con el valor que menciona la consigna.','Fijate si el resultado es mayor, menor o igual que ese valor.'];
+    case 'num':
+      if(st.f==='min') return ['Mirá la columna «Redondeado» de las cinco actividades.','Buscá el número más chico.','Ese valor es el promedio más bajo de la tabla.'];
+      if(st.f==='diff') return ['Buscá en la tabla el promedio redondeado de cada actividad.','Identificá cuál es el mayor y cuál es el menor.','Restá el menor al mayor para hallar la diferencia.'];
+      if(st.f==='dist0') return ['¿Cuánta batería le queda al equipo al terminar la misión?','Ese porcentaje indica cuántos puntos faltan para llegar al 0%.','Primero calculen la batería restante.'];
+      if(st.f==='cons') return ['Buscá «'+nm+'» en la tabla de datos.','Usá el promedio redondeado, no el original.','El consumo en 30 minutos es el número de la columna «Redondeado».'];
+      return ['¿Cuánta batería tenía tu equipo antes de comenzar esta misión?','Buscá en la tabla el consumo promedio redondeado de «'+nm+'».','Para conocer la batería restante, restá el consumo a la batería que tenías al comenzar.'];
+  }
+  return [];
+}
+function optBtn(act,attrs,on,inner,cls){
+  return '<button type="button" class="opt '+(cls||'')+'" aria-pressed="'+on+'" data-act="'+act+'" '+attrs+'>'+inner+'</button>';
+}
+function doneText(st,t){
+  if(st.k==='pick') return 'Actividad: '+ACT[t.activity].name+'.';
+  if(st.k==='pick3') return 'Actividades: '+t.three.map(k=>ACT[k].short).join(', ')+'.';
+  if(st.k==='just') return 'Justificación registrada.';
+  return stepInfo(st,S.turn,MISSIONS[S.turn.missionId]).txt;
+}
+function stepHTML(st,i,t,m){
+  const lab=stepLabel(st,t);
+  const head='<div class="slbl"><span class="sn">'+(i+1)+'</span><span>'+esc(lab)+'</span></div>';
+  if(st.done) return '<div class="step done" data-kind="'+st.k+'">'+head+'<div class="sans">'+ic('check')+'<span>'+esc(doneText(st,t))+(st.how==='revealed'?' (revelado)':'')+'</span></div></div>';
+  const check='<button type="button" class="btn pri" data-act="checkStep" data-s="'+i+'">'+ic('check')+'Comprobar resultado</button>';
+  let ctl='',btns='';
+  switch(st.k){
+    case 'num': {
+      const unit=(st.f==='rest')?'%':'pp';
+      ctl='<div class="ansrow"><input id="stepAns'+i+'" type="text" inputmode="numeric" autocomplete="off" data-bind="stepAns" data-s="'+i+'" data-enter="checkStep" aria-label="'+esc(lab)+'" value="'+esc(ui.inputs[i]||'')+'"><span class="suf">'+unit+'</span></div>';
+      btns=check; break;}
+    case 'cmp':
+      ctl='<div class="opts" role="group" aria-label="Opciones">'+st.acts.map(k=>optBtn('selOpt','data-s="'+i+'" data-v="'+k+'"',st.sel===k,ic(ACT[k].icon)+'<span>'+ACT[k].short+'</span>','c-'+ACT[k].c)).join('')+'</div>';
+      btns=check; break;
+    case 'yn':
+      ctl=(st.id==='fits'?'<p class="snote">Se considera que alcanza si el equipo termina con más de 0%.</p>':'')+'<div class="opts" role="group" aria-label="Opciones">'+YNO[st.id].map((o,n)=>optBtn('selOpt','data-s="'+i+'" data-n="'+n+'"',st.sel===n,'<span>'+o+'</span>','c-sky')).join('')+'</div>';
+      btns=check; break;
+    case 'order':
+      ctl='<p class="snote">Tocá las actividades en orden. Si hay empates, cualquier orden sirve.</p><div class="chipseq" aria-live="polite">'+(st.seq.length?st.seq.map((k,n)=>'<span>'+(n+1)+'º '+ACT[k].short+'</span>').join(''):'<span class="empty">Todavía no eligieron ninguna</span>')+'</div>'+
+        '<div class="opts">'+AK.filter(k=>st.seq.indexOf(k)<0).map(k=>optBtn('orderAdd','data-s="'+i+'" data-k="'+k+'"',false,ic(ACT[k].icon)+'<span>'+ACT[k].short+'</span>','c-'+ACT[k].c)).join('')+
+        (st.seq.length?'<button type="button" class="opt" data-act="orderUndo" data-s="'+i+'">'+ic('undo')+'<span>Borrar la última</span></button>':'')+'</div>';
+      btns=check; break;
+    case 'pick': {
+      const al=allowedFor(t,m,i);
+      ctl='<div class="opts" role="group" aria-label="Actividades">'+al.map(k=>optBtn('selOpt','data-s="'+i+'" data-v="'+k+'"',st.sel===k,ic(ACT[k].icon)+'<span>'+ACT[k].short+'</span>','c-'+ACT[k].c)).join('')+'</div>';
+      btns='<button type="button" class="btn pri" data-act="confirmPick" data-s="'+i+'">'+ic('check')+(st.min?'Comprobar elección':'Confirmar actividad')+'</button>'; break;}
+    case 'pick3':
+      ctl='<div class="opts" role="group" aria-label="Actividades">'+AK.map(k=>optBtn('toggleThree','data-s="'+i+'" data-k="'+k+'"',t.three.indexOf(k)>=0,ic(ACT[k].icon)+'<span>'+ACT[k].short+'</span>','c-'+ACT[k].c)).join('')+'</div>';
+      btns='<button type="button" class="btn pri" data-act="confirmPick" data-s="'+i+'">'+ic('check')+'Confirmar las tres ('+t.three.length+'/3)</button>'; break;
+    case 'just':
+      ctl='<p class="snote">Que expliquen la decisión en voz alta, apoyándose en los promedios de la tabla.</p>';
+      btns='<button type="button" class="btn pri" data-act="doneJust" data-s="'+i+'">'+ic('check')+'Justificaron su decisión</button>'; break;
+  }
+  const canHelp=st.attempts>=1&&st.k!=='just'&&st.k!=='pick3'&&(st.k!=='pick'||st.min);
+  if(canHelp){
+    if(st.hint<3) btns+='<button type="button" class="btn" data-act="hintStep" data-s="'+i+'">'+ic('bulb')+'Otra pista</button>';
+    btns+='<button type="button" class="btn" data-act="revealStep" data-s="'+i+'">'+ic('eye')+'Revelar cálculo</button>';
+  }
+  let fb='';
+  if(st.fb){
+    if(st.fb.kind==='info') fb='<div class="fb info" role="status">'+esc(st.fb.text)+'</div>';
+    else fb='<div class="fb wrong" role="status">'+(st.k==='pick'?'Revisemos la elección: comparen los promedios de la tabla.':'Revisemos juntos el cálculo.')+'</div>'+hintsHTML(stepHints(st,t),st.hint);
+  }
+  return '<div class="step" data-kind="'+st.k+'">'+head+ctl+fb+'<div class="actions">'+btns+'</div></div>';
+}
+
+function missionView(){
+  const t=S.turn, m=MISSIONS[t.missionId], team=curTeam();
+  const done=t.stage==='missionDone';
+  const single=m.a.length===1;
+  const col=single?ACT[m.a[0]].c:'yellow';
+  const shown=m.show||m.a;
+  const front='<div class="fl-face fl-front c-'+col+'"><div class="tags"><span class="tag">Misión '+(t.missionId+1)+'</span><span class="tag">30 minutos</span>'+
+    '<span class="acts-ic" aria-hidden="true">'+shown.map(k=>ic(ACT[k].icon)).join('')+'</span></div>'+
+    '<h2 id="mTitle">'+esc(m.t)+'</h2><p class="consigna">«'+esc(m.x)+'»</p></div>';
+  const back='<div class="fl-face fl-back c-'+CARD_COLORS[t.cardIdx]+'" aria-hidden="true"><span class="numb">'+(t.cardIdx+1)+'</span></div>';
+  const flip='<div class="flipcard'+(ui.anim==='mission'?' anim':'')+'"><div class="fl-in">'+front+back+'</div></div>';
+  const hl=m.three&&t.three.length?t.three:(shown.length>1?shown:null);
+  const tbl='<section class="panel"><h3 style="font-size:1.25rem;margin-bottom:.2rem">Datos de la clase</h3>'+consTable({small:true,hl:hl,sel:t.activity})+'</section>';
+  let stepsH='',hidden=false;
+  t.steps.forEach((st,i)=>{ if(!stepVisible(t,m,i)){hidden=true;return;} stepsH+=stepHTML(st,i,t,m); });
+  if(hidden) stepsH+='<p class="note">Cuando registren la actividad aparecen los demás cálculos.</p>';
+  let op='';
+  if(done){
+    const r=t.result, a=ACT[t.activity];
+    const head=r.how==='ok'?(r.attempts===0?'¡Buen razonamiento! Todo correcto a la primera.':'¡Muy bien! Lo lograron con ayuda de las pistas.'):'Revisemos juntos las operaciones y anotalas en la hoja.';
+    op='<div class="fb good" role="status">'+head+(m.a.length>1?'<span class="q">¿Podés explicar por qué elegiste esa actividad?</span>':'')+'</div>'+
+      '<div class="op"><div class="o1">Se descuenta solo la actividad elegida, '+a.name+': promedio '+fmt(S.orig[t.activity])+' → redondeado <b>'+r.cons+' pp</b></div>'+
+      '<div class="eq">'+r.before+' '+MINUS+' '+r.cons+' = '+(r.raw<0?MINUS+Math.abs(r.raw):r.raw)+'</div>'+
+      '<div class="nw">Batería nueva: <b>'+r.after+'%</b></div>'+
+      (r.raw<0?'<p class="alert">El resultado es negativo: la batería se agotó. En el tablero se registra 0% y el equipo queda eliminado.</p>':(r.raw===0?'<p class="alert">La batería llegó a 0%: el equipo queda eliminado.</p>':''))+'</div>';
+  }
+  let btns='';
+  if(!done) btns='<button type="button" class="btn" data-act="undo">'+ic('back')+'Volver</button>';
+  else if(team.alive) btns=S.round>=4?'<button type="button" class="btn pri big" data-act="goSurprise">'+ic('star')+'Elegir tarjeta sorpresa</button>':'<button type="button" class="btn pri big" data-act="nextTurn">Siguiente turno '+ic('arrow')+'</button>';
+  else btns='<button type="button" class="btn pri big" data-act="nextTurn">Siguiente turno '+ic('arrow')+'</button>';
+  const panel='<section class="panel" id="missionPanel"><div class="who-now"><span class="tn">'+esc(team.name)+'</span><span class="bn">Batería antes de la misión: <b>'+t.before+'%</b></span></div>'+
+    stepsH+op+'<div class="actions" style="margin-top:.8rem">'+btns+'</div></section>';
+  return '<h2 class="sr" id="stageTitle" tabindex="-1">Misión '+(t.missionId+1)+': '+esc(m.t)+'</h2>'+
+    '<div class="mgrid"><div class="left-col">'+flip+tbl+'</div>'+panel+'</div>';
+}
+
+function surpriseView(){
+  const t=S.turn, s=t.sur, sp=SURPRISES[s.id], team=curTeam();
+  const done=t.stage==='surpriseDone';
+  const fav=sp.d>0, col=fav?'green':'orange';
+  const eff=(fav?'Sumar ':'Restar ')+Math.abs(sp.d)+' puntos porcentuales';
+  const front='<div class="fl-face fl-front c-'+col+'"><div class="tags"><span class="tag">Sorpresa '+(fav?'favorable':'desfavorable')+'</span><span class="acts-ic" aria-hidden="true">'+ic('star')+'</span></div>'+
+    '<h2 id="mTitle">'+esc(sp.t)+'</h2><p class="consigna">«'+esc(sp.x)+'»</p>'+
+    '<div class="surprise-eff">'+ic(fav?'plus':'minus')+eff+'</div>'+
+    '<p class="fine">Regla ficticia del juego, no es una medición real. No representa una recarga verdadera.</p></div>';
+  const back='<div class="fl-face fl-back c-'+CARD_COLORS[s.cardIdx]+'" aria-hidden="true"><span class="numb">'+(s.cardIdx+1)+'</span></div>';
+  const flip='<div class="flipcard'+(ui.anim==='surprise'?' anim':'')+'"><div class="fl-in">'+front+back+'</div></div>';
+  let ctl='',fb='',op='',btns='';
+  if(!done){
+    ctl='<div class="ctl"><label class="lbl" for="ans">¿Cuál es el nuevo porcentaje de batería del equipo?</label><div class="ansrow"><input id="ans" type="text" inputmode="numeric" autocomplete="off" data-bind="ans" data-enter="checkSurprise" value="'+esc(ui.ans)+'"><span class="suf">%</span></div></div>';
+    if(s.fb){
+      if(s.fb.kind==='info') fb='<div class="fb info" role="status">'+esc(s.fb.text)+'</div>';
+      else fb='<div class="fb wrong" role="status">Revisemos juntos el cálculo.</div>'+hintsHTML(surpriseHints(),s.hint);
+    }
+    btns='<button type="button" class="btn" data-act="undo">'+ic('back')+'Volver</button><button type="button" class="btn pri big" data-act="checkSurprise">'+ic('check')+'Comprobar resultado</button>';
+    if(s.attempts>=1){
+      if(s.hint<3) btns+='<button type="button" class="btn" data-act="hintMore">'+ic('bulb')+'Otra pista</button>';
+      btns+='<button type="button" class="btn" data-act="revealSurprise">'+ic('eye')+'Revelar cálculo</button>';
+    }
+  } else {
+    const r=s.result;
+    const head=r.how==='ok'?(s.attempts===0?'¡Buen razonamiento! Respuesta correcta a la primera.':'¡Muy bien! Lo lograron con ayuda de las pistas.'):'Revisemos juntos la operación y anotala en la hoja.';
+    const rawTxt=r.raw<0?MINUS+Math.abs(r.raw):r.raw;
+    op='<div class="fb good" role="status">'+head+'</div><div class="op"><div class="o1">Antes de la sorpresa: '+r.before+'%</div>'+
+      '<div class="eq">'+r.before+' '+(sp.d>0?'+':MINUS)+' '+Math.abs(sp.d)+' = '+rawTxt+'</div>'+
+      '<div class="nw">Batería nueva: <b>'+r.after+'%</b></div>'+
+      (r.raw>100?'<p class="alert">La batería no puede superar el 100%: en el tablero se registra 100%.</p>':'')+
+      (r.raw<=0?'<p class="alert">La batería se agotó: se registra 0% y el equipo queda eliminado.</p>':'')+'</div>';
+    btns='<button type="button" class="btn pri big" data-act="nextTurn">Siguiente turno '+ic('arrow')+'</button>';
+  }
+  const panel='<section class="panel"><div class="who-now"><span class="tn">'+esc(team.name)+'</span><span class="bn">Batería después de la misión: <b>'+s.before+'%</b></span></div>'+
+    ctl+fb+op+'<div class="actions" style="margin-top:1.1rem">'+btns+'</div></section>';
+  return '<h2 class="sr" id="stageTitle" tabindex="-1">Sorpresa: '+esc(sp.t)+'</h2><div class="mgrid"><div class="left-col">'+flip+'</div>'+panel+'</div>';
+}
+function surpriseHints(){
+  return ['¿Esta sorpresa suma o resta batería? ¿Cuántos puntos porcentuales?',
+    'Partí de la batería con la que quedaste después de la misión.',
+    'Hacé la suma o la resta con ese número. Recordá que la batería va de 0% a 100%.'];
+}
+
+function roundView(){
+  const t=S.turn;
+  let stage='';
+  if(t.stage==='pick'){
+    stage='<h2 class="st" id="stageTitle" tabindex="-1">Elegí una tarjeta de misión</h2><p class="lead" style="margin:.3rem 0 0">Hay diez tarjetas boca abajo. Se da vuelta la que elija el equipo.</p>'+gridHTML('m');
+  } else if(t.stage==='surprisePick'){
+    stage='<h2 class="st" id="stageTitle" tabindex="-1">Elegí una tarjeta sorpresa</h2><p class="lead" style="margin:.3rem 0 0">Cada equipo elige una sorpresa en las rondas 4 y 5.</p>'+gridHTML('s');
+  } else if(t.stage==='mission'||t.stage==='missionDone'){
+    stage=missionView();
+  } else {
+    stage=surpriseView();
+  }
+  const compact=!(t.stage==='pick'||t.stage==='surprisePick');
+  return bannerHTML(compact)+boardHTML(compact)+stage;
+}
+
+function finalView(){
+  const ranked=S.teams.map((t,i)=>({t:t,i:i})).sort((a,b)=>b.t.battery-a.t.battery);
+  let rank=0,prev=null; ranked.forEach((r,k)=>{if(r.t.battery!==prev){rank=k+1;prev=r.t.battery;} r.rank=rank;});
+  const max=ranked[0].t.battery;
+  const guard=max>0?ranked.filter(r=>r.t.battery===max):[];
+  const list=ranked.map(r=>{
+    const st=stateOf(r.t);
+    return '<li class="c-'+TC[r.i]+' st-'+st.k+(r.rank===1&&max>0?' first':'')+'"><span class="medal">'+r.rank+'º</span>'+
+      '<span class="nm">'+esc(r.t.name)+'<small>'+(r.t.alive?st.l:'Eliminado en la ronda '+r.t.outRound)+' · empezó con '+r.t.initial+'%</small></span>'+
+      '<div class="meterwrap"><div class="meter"><i style="width:'+r.t.battery+'%"></i></div></div><span class="pc">'+r.t.battery+'%</span></li>';
+  }).join('');
+  const aw=S.award;
+  const pick=S.teams.map((t,i)=>'<button type="button" class="opt c-'+TC[i]+'" aria-pressed="'+(aw===i)+'" data-act="award" data-i="'+i+'">'+esc(t.name)+'</button>').join('');
+  const logRows=S.log.map(l=>'<tr><td>'+l.round+'</td><td>'+esc(l.team)+'</td><td>'+esc(l.what)+'</td><td>'+esc(l.op)+'</td><td>'+(l.how==='ok'?(l.attempts===0?'A la primera':'Con '+l.attempts+' intento'+(l.attempts>1?'s':'')+' fallido'+(l.attempts>1?'s':'')):'Revelado')+'</td></tr>').join('');
+  return '<header class="hero">'+heroArt()+'<div><p class="eyebrow">Fin de las cinco rondas</p><h2 class="st" id="stageTitle" tabindex="-1">Resultados de la misión</h2>'+
+    '<p class="lead">Así terminó la carga de cada equipo.</p></div></header>'+
+    '<ol class="rank" aria-label="Clasificación final">'+list+'</ol>'+
+    '<div class="awards"><section class="award c-yellow"><h3>'+ic('battery')+'Guardianes de la batería</h3>'+
+      (guard.length?'<div class="winner">'+guard.map(g=>esc(g.t.name)).join(' · ')+'</div><p class="note">'+(guard.length>1?'Empataron con ':'Terminó con ')+max+'% de batería.</p>':'<p class="winner">Ningún equipo conservó batería.</p>')+'</section>'+
+    '<section class="award c-violet"><h3>'+ic('bulb')+'Mejor estrategia matemática</h3>'+
+      (aw!==null?'<div class="winner">'+esc(S.teams[aw].name)+'</div>':'<p class="note">Lo decide la docente según los cálculos, las comparaciones y las justificaciones.</p>')+
+      '<div class="pickrow" role="group" aria-label="Asignar reconocimiento">'+pick+'</div></section></div>'+
+    '<details><summary>Resumen de la partida</summary><div class="tablewrap"><table class="log"><thead><tr><th>Ronda</th><th>Equipo</th><th>Tarjeta</th><th>Operación</th><th>Resolución</th></tr></thead><tbody>'+logRows+'</tbody></table></div></details>'+
+    '<div class="actions center" style="margin-top:1.5rem"><button type="button" class="btn pri big" data-act="newGame">'+ic('reset')+'Comenzar una nueva partida</button></div>';
+}
+
+function view(){
+  switch(S.phase){
+    case 'setup': return setupView();
+    case 'table': return tableView();
+    case 'draw': return boardLessDraw();
+    case 'initial': return initialView();
+    case 'round': return roundView();
+    case 'final': return finalView();
+  }
+  return '';
+}
+function boardLessDraw(){return drawView();}
+
+/* ---------- render ---------- */
+function render(focus){
+  $('#app').innerHTML=view();
+  ui.anim=null;
+  document.querySelectorAll('.meter i[data-to]').forEach(el=>{
+    const to=el.getAttribute('data-to')+'%';
+    if(el.style.width!==to){requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.width=to;}));}
+  });
+  updateBar(); renderModal();
+  if(focus){
+    window.scrollTo(0,0);
+    const el=$(focus); if(el){try{el.focus({preventScroll:true});}catch(e){el.focus();}}
+  }
+}
+function updateBar(){
+  $('#brandmini').innerHTML=ic('battery')+'<span>Misión Batería</span>';
+  const c=$('#btnContrast'); c.setAttribute('aria-pressed',String(ui.hc)); c.innerHTML=ic('contrast')+'<span class="tl">Alto contraste</span>';
+  const sp=$('#btnSpeak'); sp.innerHTML=ic('speaker')+'<span class="tl">Escuchar consigna</span>';
+  sp.disabled=!('speechSynthesis' in window);
+  if(sp.disabled) sp.title='Tu navegador no permite la lectura en voz alta';
+  const u=$('#btnUndo'); u.innerHTML=ic('undo')+'<span class="tl">Deshacer</span>'; u.disabled=ui.undo.length===0||ui.busy;
+  $('#btnReset').innerHTML=ic('reset')+'<span class="tl">Reiniciar partida</span>';
+}
+function renderModal(){
+  const m=$('#modal');
+  if(!ui.confirm){m.innerHTML='';return;}
+  m.innerHTML='<div class="overlay"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="cfT"><h2 id="cfT">¿Reiniciar la partida?</h2>'+
+    '<p>Se pierde el avance de esta partida. Los nombres y los promedios que cargaste se conservan para que los puedas revisar.</p>'+
+    '<div class="actions"><button type="button" class="btn" id="cfCancel" data-act="cancelReset">Cancelar</button><button type="button" class="btn danger" data-act="doReset">Sí, reiniciar partida</button></div></div></div>';
+  const b=$('#cfCancel'); if(b) b.focus();
+}
+function announce(t){const l=$('#live'); l.textContent=''; setTimeout(()=>{l.textContent=t;},30);}
+
+/* ---------- lógica ---------- */
+function validateSetup(){
+  const errs=[]; const names=S.names.slice(0,S.n).map(s=>s.trim());
+  names.forEach((n,i)=>{if(!n) errs.push('Falta el nombre del equipo '+(i+1)+'.');});
+  const seen={}; names.forEach((n,i)=>{if(n){const k=n.toLowerCase(); if(seen[k]!==undefined) errs.push('Los equipos '+(seen[k]+1)+' y '+(i+1)+' tienen el mismo nombre.'); else seen[k]=i;}});
+  const vals=[];
+  ACT_KEYS.forEach((k,i)=>{
+    const v=parseNum(S.avgs[i]);
+    if(isNaN(v)) errs.push('El promedio de «'+ACT[k].name+'» tiene que ser un número (por ejemplo con coma o punto decimal).');
+    else if(v<0||v>100) errs.push('El promedio de «'+ACT[k].name+'» tiene que estar entre 0 y 100.');
+    vals.push(v);
+  });
+  return {errs:errs,vals:vals,names:names};
+}
+function act(a,d){
+  if(ui.busy&&a!=='contrast'&&a!=='fontPlus'&&a!=='fontMinus') return;
+  switch(a){
+    case 'fontPlus': setScale(1); break;
+    case 'fontMinus': setScale(-1); break;
+    case 'contrast': ui.hc=!ui.hc; document.body.classList.toggle('hc',ui.hc); updateBar(); break;
+    case 'speak': speak(speakText()); break;
+    case 'undo': undo(); break;
+    case 'askReset': ui.confirm=true; renderModal(); break;
+    case 'cancelReset': ui.confirm=false; renderModal(); $('#btnReset').focus(); break;
+    case 'doReset': ui.confirm=false; resetGame(); break;
+    case 'newGame': resetGame(); break;
+    case 'setN': S.n=+d.n; S.err=[]; render('#name0'); break;
+    case 'toRound': toRound(); break;
+    case 'toDraw': toDraw(); break;
+    case 'doDraw': doDraw(); break;
+    case 'startInitial': startInitial(); break;
+    case 'pickInitial': pickInitial(+d.i); break;
+    case 'nextInitial': nextInitial(); break;
+    case 'pickMission': pickMission(+d.i); break;
+    case 'selOpt': {const st=S.turn.steps[+d.s]; if(st&&!st.done){st.sel=(d.n!==undefined)?+d.n:d.v; st.fb=null; render();} break;}
+    case 'toggleThree': {const t=S.turn,st=t.steps[+d.s]; if(st&&!st.done){const k=d.k,ix=t.three.indexOf(k); if(ix>=0) t.three.splice(ix,1); else if(t.three.length<3) t.three.push(k); st.fb=null; render();} break;}
+    case 'orderAdd': {const st=S.turn.steps[+d.s]; if(st&&!st.done&&st.seq.indexOf(d.k)<0){st.seq.push(d.k); st.fb=null; render();} break;}
+    case 'orderUndo': {const st=S.turn.steps[+d.s]; if(st&&!st.done){st.seq.pop(); st.fb=null; render();} break;}
+    case 'confirmPick': confirmPick(+d.s); break;
+    case 'checkStep': checkStep(+d.s); break;
+    case 'hintStep': hintStep(+d.s); break;
+    case 'revealStep': revealStep(+d.s); break;
+    case 'doneJust': {const t=S.turn; if(t.steps[+d.s]&&!t.steps[+d.s].done){snap();resolveStep(+d.s,'ok');} break;}
+    case 'hintMore': hintMore(); break;
+    case 'goSurprise': snap(); S.turn.stage='surprisePick'; render('#stageTitle'); break;
+    case 'pickSurprise': pickSurprise(+d.i); break;
+    case 'checkSurprise': checkSurprise(); break;
+    case 'revealSurprise': applySurprise('revealed'); break;
+    case 'nextTurn': nextTurn(); break;
+    case 'award': snap(); S.award=(S.award===+d.i)?null:+d.i; render(); break;
+  }
+}
+
+function toRound(){
+  const v=validateSetup();
+  S.err=v.errs;
+  if(v.errs.length){render('.err');return;}
+  snap();
+  S.names=S.names.map((n,i)=>i<S.n?n.trim():n);
+  S.orig={}; S.rounded={};
+  ACT_KEYS.forEach((k,i)=>{S.orig[k]=v.vals[i]; S.rounded[k]=roundInt(v.vals[i]);});
+  S.phase='table'; render('#stageTitle');
+}
+function toDraw(){
+  snap();
+  S.teams=S.names.slice(0,S.n).map(n=>({name:n,battery:null,initial:null,alive:true,outRound:null}));
+  S.order=null; S.phase='draw'; ui.shown={}; render('#stageTitle');
+}
+function doDraw(){
+  if(S.order) return;
+  snap();
+  S.order=shuffle(S.teams.map((_,i)=>i));
+  ui.busy=true; updateBar();
+  const slots=document.querySelectorAll('#slots .nm'); const list=$('#slots');
+  list.classList.add('shuffling');
+  const dur=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?500:2000;
+  const t0=Date.now();
+  document.querySelectorAll('[data-act="doDraw"],[data-act="undo"]').forEach(b=>b.disabled=true);
+  ui.timer=setInterval(()=>{
+    slots.forEach(el=>{el.textContent=S.teams[Math.floor(rnd()*S.teams.length)].name;});
+    if(Date.now()-t0>=dur){
+      clearInterval(ui.timer); ui.timer=null; ui.busy=false; ui.anim='draw';
+      render('#btnStart');
+      const b=$('[data-act="startInitial"]'); if(b) b.focus();
+      announce('Orden sorteado: '+S.order.map((ti,k)=>(k+1)+', '+S.teams[ti].name).join('. '));
+    }
+  },90);
+}
+function startInitial(){
+  snap();
+  S.initial={values:shuffle(INITIAL_VALUES),taken:{},pos:0,rev:null};
+  S.phase='initial'; render('#stageTitle');
+}
+function pickInitial(i){
+  const I=S.initial; if(I.rev!==null||I.taken[i]!==undefined) return;
+  snap();
+  const ti=S.order[I.pos]; I.taken[i]=ti; I.rev=i;
+  S.teams[ti].battery=I.values[i]; S.teams[ti].initial=I.values[i];
+  ui.anim='initial:'+i; render();
+  announce(S.teams[ti].name+' comienza con '+I.values[i]+' por ciento.');
+  const b=$('[data-act="nextInitial"]'); if(b) b.focus({preventScroll:false});
+}
+function nextInitial(){
+  snap();
+  const I=S.initial;
+  if(I.pos<S.order.length-1){I.pos++;I.rev=null;render('#stageTitle');}
+  else {startRound(1); render('#stageTitle');}
+}
+function buildRoundCards(){
+  const all=[...Array(MISSIONS.length).keys()];
+  if(all.every(id=>S.usedMissions.indexOf(id)>=0)) S.usedMissions=[];
+  const pool=all.filter(id=>S.usedMissions.indexOf(id)<0);
+  let pick=shuffle(pool).slice(0,10);
+  if(pick.length<10){
+    const extra=shuffle(all.filter(id=>pick.indexOf(id)<0)).slice(0,10-pick.length);
+    pick=pick.concat(extra);
+  }
+  S.roundCards=shuffle(pick); S.roundTaken={};
+}
+function startRound(r){
+  S.phase='round'; S.round=r; S.turnPos=0;
+  buildRoundCards();
+  S.surpriseCards=r>=4?shuffle([0,1,2,3,4,5,6,7,8,9]):[]; S.surpriseTaken={};
+  while(S.turnPos<S.order.length&&!S.teams[S.order[S.turnPos]].alive) S.turnPos++;
+  if(S.turnPos>=S.order.length){S.phase='final';return;}
+  S.turn=newTurn(); clearAns();
+}
+function pickMission(i){
+  const t=S.turn; if(t.stage!=='pick'||S.roundTaken[i]!==undefined) return;
+  snap();
+  const ti=curTi(); S.roundTaken[i]=ti;
+  t.cardIdx=i; t.missionId=S.roundCards[i]; t.stage='mission'; t.before=S.teams[ti].battery; t.three=[];
+  const m=MISSIONS[t.missionId];
+  t.steps=m.steps.map(()=>({done:false,how:null,attempts:0,hint:0,fb:null,sel:null,seq:[]}));
+  m.steps.forEach((x,k)=>{Object.keys(x).forEach(key=>{t.steps[k][key]=x[key];});});
+  t.activity=m.a.length===1?m.a[0]:null;
+  if(S.usedMissions.indexOf(t.missionId)<0) S.usedMissions.push(t.missionId);
+  clearAns(); ui.anim='mission'; render('#stageTitle');
+}
+function stepWrong(i,focus){
+  const st=S.turn.steps[i];
+  st.attempts++; st.hint=Math.max(st.hint,Math.min(3,st.attempts)); st.fb={kind:'wrong'};
+  render(focus); announce('Revisemos juntos.');
+}
+function stepInfoMsg(i,text,focus){S.turn.steps[i].fb={kind:'info',text:text};render(focus);}
+function checkStep(i){
+  const t=S.turn; if(!t||t.stage!=='mission') return;
+  const m=MISSIONS[t.missionId], st=t.steps[i]; if(!st||st.done) return;
+  if(st.k==='num'){
+    const a=parseNum(ui.inputs[i]||'');
+    if(isNaN(a)){stepInfoMsg(i,'Escribí la respuesta del equipo usando números.','#stepAns'+i);return;}
+    if(stepInfo(st,t,m).acc.indexOf(a)>=0){snap();resolveStep(i,'ok');} else stepWrong(i,'#stepAns'+i);
+  } else if(st.k==='cmp'||st.k==='yn'){
+    if(st.sel===null||st.sel===undefined){stepInfoMsg(i,'Elegí una opción antes de comprobar.',null);return;}
+    if(stepInfo(st,t,m).acc.indexOf(st.sel)>=0){snap();resolveStep(i,'ok');} else stepWrong(i,null);
+  } else if(st.k==='order'){
+    if(st.seq.length<5){stepInfoMsg(i,'Faltan actividades: ordenen las cinco.',null);return;}
+    if(orderOk(st.seq)){snap();resolveStep(i,'ok');} else stepWrong(i,null);
+  }
+}
+function confirmPick(i){
+  const t=S.turn; if(!t||t.stage!=='mission') return;
+  const m=MISSIONS[t.missionId], st=t.steps[i]; if(!st||st.done) return;
+  if(st.k==='pick3'){
+    if(t.three.length!==3){stepInfoMsg(i,'Elegí exactamente tres actividades.',null);return;}
+    snap(); resolveStep(i,'ok'); return;
+  }
+  if(!st.sel){stepInfoMsg(i,'Elegí una actividad.',null);return;}
+  if(st.min){
+    const al=allowedFor(t,m,i), mn=Math.min.apply(null,al.map(k=>S.rounded[k]));
+    if(S.rounded[st.sel]>mn){stepWrong(i,null);return;}
+  }
+  snap(); t.activity=st.sel; resolveStep(i,'ok');
+}
+function revealStep(i){
+  const t=S.turn; if(!t||t.stage!=='mission') return;
+  const m=MISSIONS[t.missionId], st=t.steps[i]; if(!st||st.done) return;
+  snap();
+  if(st.k==='pick'){
+    const al=allowedFor(t,m,i), mn=Math.min.apply(null,al.map(k=>S.rounded[k]));
+    t.activity=al.filter(k=>S.rounded[k]===mn)[0]; st.sel=t.activity;
+  } else if(st.k==='order'){
+    st.seq=AK.slice().sort((x,y)=>S.rounded[x]-S.rounded[y]);
+  }
+  resolveStep(i,'revealed');
+}
+function hintStep(i){const st=S.turn.steps[i]; if(st&&st.hint<3){st.hint++;} render();}
+function resolveStep(i,how){
+  const t=S.turn, st=t.steps[i];
+  st.done=true; st.how=how; st.fb=null;
+  if(t.steps.every(x=>x.done)) finishMission(); else {render(); announce(how==='ok'?'¡Buen razonamiento!':'Cálculo revelado.');}
+}
+function finishMission(){
+  const t=S.turn, m=MISSIONS[t.missionId], team=curTeam();
+  const ch=t.activity, cons=S.rounded[ch], raw=t.before-cons, after=Math.max(0,raw);
+  team.battery=after; if(after===0) eliminate(team);
+  const revealed=t.steps.some(x=>x.how==='revealed');
+  const att=t.steps.reduce((n,x)=>n+x.attempts,0);
+  t.result={cons:cons,raw:raw,after:after,before:t.before,how:revealed?'revealed':'ok',attempts:att};
+  t.stage='missionDone';
+  S.log.push({round:S.round,team:team.name,what:'Misión '+(t.missionId+1)+' · '+m.t+' ('+ACT[ch].short+')',
+    op:t.before+' '+MINUS+' '+cons+' = '+(raw<0?MINUS+Math.abs(raw):raw)+(raw<0?' → 0%':''),how:revealed?'revealed':'ok',attempts:att});
+  clearAns(); render('#stageTitle');
+  announce('La batería ahora es '+after+' por ciento.');
+}
+function hintMore(){
+  const t=S.turn;
+  if(t.stage==='surprise'){if(t.sur.hint<3)t.sur.hint++;render('#ans');}
+}
+function eliminate(team){team.alive=false;team.outRound=S.round;}
+function pickSurprise(i){
+  const t=S.turn; if(t.stage!=='surprisePick'||S.surpriseTaken[i]!==undefined) return;
+  snap();
+  const ti=curTi(); S.surpriseTaken[i]=ti;
+  t.sur={cardIdx:i,id:S.surpriseCards[i],attempts:0,hint:0,before:S.teams[ti].battery,fb:null,result:null};
+  t.stage='surprise'; clearAns(); ui.anim='surprise'; render('#stageTitle');
+}
+function checkSurprise(){
+  const t=S.turn; if(t.stage!=='surprise') return;
+  const s=t.sur, sp=SURPRISES[s.id];
+  const a=parseNum(ui.ans);
+  if(isNaN(a)){s.fb={kind:'info',text:'Escribí la respuesta del equipo usando números.'};render('#ans');return;}
+  const raw=s.before+sp.d, after=Math.min(100,Math.max(0,raw));
+  if(a===raw||a===after){snap();applySurprise('ok');}
+  else{s.attempts++;s.hint=Math.max(s.hint,Math.min(3,s.attempts));s.fb={kind:'wrong'};render('#ans');announce('Revisemos juntos el cálculo.');}
+}
+function applySurprise(how){
+  const t=S.turn, s=t.sur, sp=SURPRISES[s.id], team=curTeam();
+  if(how==='revealed') snap();
+  const raw=s.before+sp.d, after=Math.min(100,Math.max(0,raw));
+  team.battery=after; if(after===0) eliminate(team);
+  s.result={raw:raw,after:after,before:s.before,how:how}; t.stage='surpriseDone'; s.fb=null;
+  S.log.push({round:S.round,team:team.name,what:'Sorpresa · '+sp.t,op:s.before+' '+(sp.d>0?'+':MINUS)+' '+Math.abs(sp.d)+' = '+(raw<0?MINUS+Math.abs(raw):raw)+(raw>100?' → 100%':'')+(raw<0?' → 0%':''),how:how,attempts:s.attempts});
+  clearAns(); render('#stageTitle');
+  announce('La batería ahora es '+after+' por ciento.');
+}
+function nextTurn(){
+  snap();
+  let p=S.turnPos+1;
+  while(p<S.order.length&&!S.teams[S.order[p]].alive) p++;
+  if(p<S.order.length){S.turnPos=p;S.turn=newTurn();clearAns();}
+  else if(S.round<5&&anyAlive()){startRound(S.round+1);}
+  else{S.phase='final';S.turn=null;}
+  render('#stageTitle');
+}
+function undo(){
+  if(ui.busy||!ui.undo.length) return;
+  S=JSON.parse(ui.undo.pop()); clearAns(); ui.shown={};
+  S.teams.forEach((t,i)=>{ui.shown[i]=t.battery===null?0:t.battery;});
+  render('#stageTitle'); announce('Se deshizo la última acción.');
+}
+function resetGame(){
+  if(ui.timer){clearInterval(ui.timer);ui.timer=null;}
+  ui.busy=false;
+  S=freshState({n:S.n,names:S.names,avgs:S.avgs});
+  ui.undo=[]; ui.shown={}; clearAns(); render('#stageTitle');
+  announce('Partida reiniciada.');
+}
+
+/* ---------- accesibilidad ---------- */
+function setScale(d){
+  scaleIdx=Math.max(0,Math.min(SCALES.length-1,scaleIdx+d));
+  document.documentElement.style.fontSize=(18*SCALES[scaleIdx])+'px';
+  announce('Tamaño del texto: '+Math.round(SCALES[scaleIdx]*100)+' por ciento.');
+}
+function speakText(){
+  if(S.phase==='setup') return 'Configuración inicial. Elegí la cantidad de equipos, escribí sus nombres e ingresá los cinco promedios de consumo.';
+  if(S.phase==='table') return 'Redondeo de los promedios. Todos los cálculos usan los valores redondeados.';
+  if(S.phase==='draw') return '¿Quién comienza la misión? Presioná sortear equipos.';
+  if(S.phase==='initial') return 'Equipo '+curTeam().name+', elegí una tarjeta de batería inicial.';
+  if(S.phase==='final') return 'Resultados de la misión.';
+  const t=S.turn, team=curTeam().name;
+  if(t.stage==='pick') return 'Ronda '+S.round+'. Turno del equipo '+team+'. Elegí una tarjeta de misión.';
+  if(t.stage==='surprisePick') return 'Equipo '+team+', elegí una tarjeta sorpresa.';
+  if(t.stage==='mission'||t.stage==='missionDone'){const m=MISSIONS[t.missionId]; return 'Equipo '+team+'. Misión '+(t.missionId+1)+'. '+m.t+'. '+m.x;}
+  const sp=SURPRISES[t.sur.id]; return 'Equipo '+team+'. Sorpresa. '+sp.t+'. '+sp.x+' '+(sp.d>0?'Sumar ':'Restar ')+Math.abs(sp.d)+' puntos porcentuales.';
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    const vs=speechSynthesis.getVoices();
+    const v=vs.find(x=>/^es[-_]AR/i.test(x.lang))||vs.find(x=>/^es[-_](419|MX|US|CO|CL|UY)/i.test(x.lang))||vs.find(x=>/^es/i.test(x.lang));
+    if(v){u.voice=v;u.lang=v.lang;} else u.lang='es-AR';
+    u.rate=.95; speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click',function(e){
+  const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
+  act(b.getAttribute('data-act'),Object.assign({},b.dataset));
+});
+document.addEventListener('input',function(e){
+  const el=e.target, bind=el.getAttribute&&el.getAttribute('data-bind'); if(!bind) return;
+  if(bind==='name') S.names[+el.dataset.i]=el.value;
+  else if(bind==='avg') S.avgs[+el.dataset.i]=el.value;
+  else if(bind==='stepAns') ui.inputs[+el.dataset.s]=el.value;
+  else if(bind==='ans') ui.ans=el.value;
+  else if(bind==='ansCons') ui.ansCons=el.value;
+});
+document.addEventListener('keydown',function(e){
+  const el=e.target;
+  if(e.key==='Enter'&&el.matches&&el.matches('input[data-enter]')){e.preventDefault();act(el.getAttribute('data-enter'),Object.assign({},el.dataset));return;}
+  if(e.key==='Escape'&&ui.confirm){ui.confirm=false;renderModal();$('#btnReset').focus();return;}
+  if(e.key==='Tab'&&ui.confirm){
+    const f=[...document.querySelectorAll('#modal button')]; if(!f.length) return;
+    const i=f.indexOf(document.activeElement);
+    if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus();}
+    else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus();}
+  }
+});
+window.addEventListener('beforeunload',function(ev){ if(S.phase!=='setup'&&S.phase!=='final'){ev.preventDefault();ev.returnValue='';} });
+
+if(window.__MB_TEST) window.__mb={state:function(){return S;},ui:ui,missions:MISSIONS,render:function(){render();}};
+render();
+})();
+</script>
+
+</body>
+</html>

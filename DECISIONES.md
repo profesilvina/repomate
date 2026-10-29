@@ -1,4 +1,4 @@
-# Nota de decisiones de diseño y arquitectura (ADR)
+﻿# Nota de decisiones de diseño y arquitectura (ADR)
 > **Proyecto:** Repositorio de aplicaciones de matemática (`repoapps_mate`)  
 > **Fecha de redacción:** Octubre de 2026 *(Redactada con posterioridad a la creación inicial para documentar formalmente las decisiones técnicas, pedagógicas y éticas adoptadas)*.  
 > **Coordinación y desarrollo:** Prof. Silvina Elena Busto (EDI: Matemática y el trabajo por proyectos - ISFDyT N° 24)  
@@ -8,7 +8,7 @@
 
 ## 1. Contexto y propósito pedagógico
 
-El repositorio `repoapps_mate` tiene como propósito compilar, catalogar y poner a disposición abierta de la comunidad educativa una colección de herramientas interactivas, mediadores didácticos y aplicaciones creadas mediante *vibe coding* (programación asistida por lenguaje natural e inteligencia artificial). Las aplicaciones abordan contenidos curriculares clave de matemática para la educación secundaria y superior (álgebra, polinomios, lógica proposicional, geometría plana, magnitudes en cuerpos tridimensionales, modelado STEAM en SVG y fracciones equivalentes), articuladas bajo el enfoque del Aprendizaje Basado en Proyectos (ABP) y los principios del Diseño Universal para el Aprendizaje (DUA).
+El repositorio `repoapps_mate` tiene como propósito compilar, catalogar y poner a disposición abierta de la comunidad educativa una colección de herramientas interactivas, mediadores didácticos y aplicaciones creadas mediante *vibe coding* (programación asistida por lenguaje natural e inteligencia artificial). Las aplicaciones abordan contenidos curriculares clave de matemática para la educación secundaria y superior (álgebra, polinomios, lógica proposicional, geometría plana, magnitudes en cuerpos tridimensionales, modelado STEAM en SVG fracciones equivalentes, resolución de problemas con porcentajes, promedios y consumo de batería en smartphones, y transformaciones geométricas en el plano articuladas con el arte abstracto y la proporción áurea), articuladas bajo el enfoque del Aprendizaje Basado en Proyectos (ABP) y los principios del Diseño Universal para el Aprendizaje (DUA).
 
 ---
 
@@ -25,9 +25,10 @@ El repositorio `repoapps_mate` tiene como propósito compilar, catalogar y poner
 ### Decisión 2: Inventario de dependencias externas y comportamiento sin conexión (offline)
 - **Contexto:** Para optimizar el tiempo de desarrollo y asegurar interfaces claras, modernas e intuitivas, se recurrió a recursos de diseño consolidados.
 - **Dependencias externas seleccionadas:**
-  - **Google Fonts (CDN):** Tipografías web de libre distribución (*Outfit*, *Space Grotesk*, *Inter*, *VT323*, *Press Start 2P*, *Fira Code*), licenciadas bajo SIL Open Font License.
+  - **Google Fonts (CDN):** Tipografías web de libre distribución (*Outfit*, *Space Grotesk*, *Inter*, *VT323*, *Press Start 2P*, *Fira Code*, *Baloo 2*, *Nunito*, *IBM Plex Mono*), licenciadas bajo SIL Open Font License.
   - **FontAwesome Free (cdnjs CDN):** Iconografía vectorial semántica para accesibilidad visual, licenciada bajo CC BY 4.0 / SIL OFL.
   - **Tailwind CSS (CDN en tiempo de ejecución):** Utilizado en [alicia.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/alicia.html) y [escape_geometrico.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/escape_geometrico.html) para estilos utilitarios responsivos, bajo licencia MIT.
+  - **GeoGebra deployggb (CDN):** Script oficial https://www.geogebra.org/apps/deployggb.js empleado en [vanina.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/vanina.html) para inyectar applets dinámicos de modelización matemática. Cuenta con aviso de detección y fallback offline para asegurar el funcionamiento autónomo del Escape Room y la Certificación.
 - **Comportamiento sin internet:**
   - Si un usuario abre los recursos descargados en un entorno sin conexión a internet, la lógica matemática, los cálculos y los textos continúan funcionando normalmente.
   - Las tipografías se sustituyen automáticamente por las predeterminadas del sistema operativo (*system-ui*, *monospace*).
@@ -41,6 +42,7 @@ El repositorio `repoapps_mate` tiene como propósito compilar, catalogar y poner
 - **Decisión adoptada:**
   - Ninguna aplicación solicita nombres, apellidos ni identificadores personales para su uso en el aula.
   - La única persistencia utilizada es el almacenamiento local del navegador (`localStorage`) en [cintia.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/cintia.html), reservado únicamente a guardar contadores numéricos de misiones y estrellas lúdicas en el dispositivo del estudiante.
+  - En [marisa.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/marisa.html) (*Misión Batería*) y [vanina.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/vanina.html) (*Estudio InfinitA*), la asignación de variantes de equipos, estados del Escape Room y respuestas del quiz opera de manera puramente anónima y transitoria en memoria de sesión, sin solicitar nombres propios, correos ni datos identificatorios.
   - Cero analítica de terceros: el código está 100 % libre de Google Analytics, Microsoft Clarity, Meta Pixel o herramientas de rastreo.
   - Cero comunicaciones de red salientes (`fetch`, `XMLHttpRequest`).
 
@@ -49,7 +51,7 @@ El repositorio `repoapps_mate` tiene como propósito compilar, catalogar y poner
 ### Decisión 4: Accesibilidad e inclusión educativa (DUA)
 - **Contexto:** Asegurar el acceso equitativo al conocimiento matemático según las Pautas WCAG 2.1 y el Diseño Universal para el Aprendizaje.
 - **Decisión adoptada:**
-  - El catálogo principal y las aplicaciones interactivas incorporan conmutador de **alto contraste** y modificador dinámico de tamaño de tipografía (A-, A, A+).
+  - El catálogo principal y las aplicaciones interactivas (incluyendo la barra DUA superior de [marisa.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/marisa.html) y [cintia.html](file:///C:/Users/User/Documents/MiWebDocente/EDI2026/repoapps_mate/cintia.html)) incorporan conmutador de **alto contraste** y modificador dinámico de tamaño de tipografía (A-, A, A+).
   - Se incorporan apoyos de síntesis de voz en el navegador mediante la Web Speech API nativa.
   - Navegación completa por teclado con indicadores de foco (`:focus-visible`) y atributos ARIA explícitos (`aria-label`, `aria-live`, `aria-pressed`, `role`) en botones y controles.
   - No dependencia exclusiva del color: los estados de validación matemática (correcto/incorrecto) se acompañan siempre de texto, símbolos e iconos.
