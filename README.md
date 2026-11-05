@@ -31,6 +31,8 @@ El repositorio está diseñado como un catálogo dinámico y responsivo, listo p
 | **🍰 La merienda cambia: fracciones equivalentes** (Cintia Marcaccio) | Números y Operaciones | Secundaria | Simulador interactivo con accesibilidad DUA y gamificación para explorar repartos equitativos y equivalencias de fracciones mediante misiones. |
 | **🔋 Misión Batería: ¡Que no se apague!** (Marisa Sierra) | Números y Operaciones | Secundaria | Juego de estrategia matemática por equipos con accesibilidad DUA y gamificación para calcular porcentajes, promedios y consumos de batería en misiones dinámicas. |
 | **🔺 Estudio InfinitA: Arte, Geometría y Transformaciones** (Vanina Malatesta) | Geometría y Trigonometría | Secundaria | Entorno integral interactivo con Libro de GeoGebra dinámico (razón áurea y transformaciones), Escape Room cubista de descifrado geométrico y quiz de acreditación diagnóstica con DUA. |
+| **🐔 El Gallinero Matemático: Área, Perímetro y Ecuaciones** (Verónica Oliva) | Geometría y Magnitudes | Secundaria | Simulador interactivo y laboratorio de optimización geométrica para modelizar el cerramiento de un gallinero escolar variando lados y cercas con desafíos interactivos y accesibilidad DUA. |
+| **⚡ Misión Energía: Código Verde — Simulador de Consumo Eléctrico** (Karen Salinas) | Funciones y Análisis | Secundaria | Simulador interactivo con accesibilidad DUA, síntesis de voz (TTS) y representaciones múltiples (numérica, tabular, gráfica en Chart.js y simbólica) para modelizar consumo eléctrico y calcular escenarios de ahorro. |
 
 ---
 
@@ -44,6 +46,8 @@ repoapps_mate/
 ├── cintia.html                  # La merienda cambia (Cintia Marcaccio)
 ├── marisa.html                  # Misión Batería: ¡Que no se apague! (Marisa Sierra)
 ├── vanina.html                  # Estudio InfinitA: Arte y Transformaciones (Vanina Malatesta)
+├── veronica.html                # El Gallinero Matemático (Verónica Oliva)
+├── karen.html                   # Misión Energía: Código Verde (Karen Salinas)
 ├── escape_geometrico.html       # Escape Room retro pixel art de geometría y cálculo
 ├── app_ruffini_dua.html         # Mediador socrático interactivo de Ruffini
 ├── ruffini.htm                  # Calculadora algorítmica de Ruffini paso a paso

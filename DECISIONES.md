@@ -63,3 +63,11 @@ El repositorio `repoapps_mate` tiene como propósito compilar, catalogar y poner
 - **Decisión adoptada:**
   - **Código fuente (software):** Licenciado bajo **GNU AGPL v3 (Affero General Public License)**, garantizando que toda derivación o publicación mantenga el código abierto.
   - **Contenido didáctico y actividades:** Licenciado bajo **Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)**, permitiendo adaptar, traducir y enriquecer las secuencias citando la autoría original.
+---
+
+### Decisión 6: Integración y armonización de las aplicaciones de Verónica Oliva y Karen Salinas
+- **Contexto:** Incorporación al catálogo de dos nuevas aplicaciones desarrolladas por cursantes bajo metodología de *Vibe Coding*: «El Gallinero Matemático» (Verónica Oliva) y «Misión Energía: Código Verde — Simulador de Consumo Eléctrico» (Karen Salinas). La app de Karen requirió extracción completa desde la sesión de Gemini y reconstrucción íntegra de su estructura HTML truncada.
+- **Decisiones adoptadas:**
+  - **Karen Salinas (`karen.html`):** Restauración completa de la estructura HTML semántica a partir del log de Gemini. Integración del motor de síntesis de voz nativo (Web Speech API con voz en español neutro/argentino `es-AR`), gráficos interactivos dinámicos mediante Chart.js, representaciones simultáneas (simbólica, numérica, tabular y gráfica) y barra de accesibilidad DUA con conmutador de alto contraste y escalado tipográfico.
+  - **Verónica Oliva (`veronica.html`):** Estandarización de nombre de archivo a minúsculas, incorporación de enlace de retorno al catálogo principal en la barra superior (`topbar`) y pie de página institucional con mención de autoría, accesibilidad DUA y licencia abierta CC BY-SA 4.0.
+  - Ambas aplicaciones operan 100 % en el navegador del cliente sin recopilar datos personales, sin analítica invasiva y en total concordancia con las pautas VCER.

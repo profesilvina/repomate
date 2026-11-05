@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión Energía: Código Verde — Simulador de Consumo Eléctrico (Karen Salinas)</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for graphical representation -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3b82f6', // blue-500
+                        secondary: '#10b981', // emerald-500
+                        dark: '#1e293b', // slate-800
+                        light: '#f8fafc', // slate-50
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for accessibility and range inputs */
+        body {
+            transition: background-color 0.3s, color 0.3s, font-size 0.3s;
+        }
+        
+        .high-contrast {
+            background-color: #000 !important;
+            color: #fff !important;
+        }
+        .high-contrast .bg-white { background-color: #111 !important; border: 1px solid #fff; }
+        .high-contrast .text-gray-800 { color: #fff !important; }
+        .high-contrast .text-gray-600 { color: #ddd !important; }
+        .high-contrast .text-gray-500 { color: #ccc !important; }
+        .high-contrast .bg-gray-50 { background-color: #222 !important; }
+        .high-contrast .bg-gray-100 { background-color: #333 !important; }
+        .high-contrast .bg-primary { background-color: #0055ff !important; color: #fff !important; }
+        .high-contrast .bg-secondary { background-color: #00aa00 !important; color: #fff !important; }
+        .high-contrast input[type="range"] { filter: contrast(200%); }
+        
+        .text-large { font-size: 110%; }
+        .text-xlarge { font-size: 125%; }
+        
+        /* Styled Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .high-contrast input[type=range]::-webkit-slider-thumb {
+            background: #fff;
+            border: 2px solid #000;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 3px;
+        }
+        .high-contrast input[type=range]::-webkit-slider-runnable-track {
+            background: #555;
+        }
+        
+        /* Utility classes */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .high-contrast .glass-panel {
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid #fff;
+        }
+        
+        /* Explanatory tooltip icon */
+        .info-btn {
+            cursor: help;
+            transition: color 0.2s;
+        }
+        .info-btn:hover {
+            color: #3b82f6;
+        }
+        .high-contrast .info-btn:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen transition-all duration-300">
+
+    <!-- Accessibility Toolbar -->
+    <div class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 p-2 shadow-sm high-contrast-border">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2 px-4">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="px-3 py-1.5 bg-primary text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-1.5 focus:ring-2 focus:ring-offset-2 focus:ring-primary" title="Volver al catálogo principal">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Catálogo</span>
+                </a>
+                <div class="h-5 w-px bg-gray-300 hidden sm:block"></div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-universal-access text-primary text-lg"></i>
+                    <span class="font-semibold text-xs sm:text-sm hidden md:inline">Accesibilidad DUA</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="changeTextSize('normal')" class="p-2 bg-gray-200 rounded hover:bg-gray-300 focus:ring-2 focus:ring-primary text-sm font-medium transition-colors" aria-label="Texto tamaño normal">A</button>
+                <button onclick="changeTextSize('large')" class="p-2 bg-gray-200 rounded hover:bg-gray-300 focus:ring-2 focus:ring-primary text-lg font-medium transition-colors" aria-label="Texto tamaño grande">A</button>
+                <button onclick="changeTextSize('xlarge')" class="p-2 bg-gray-200 rounded hover:bg-gray-300 focus:ring-2 focus:ring-primary text-xl font-medium transition-colors" aria-label="Texto tamaño extra grande">A</button>
+                <div class="w-px h-6 bg-gray-300 mx-2"></div>
+                <button onclick="toggleHighContrast()" class="px-3 py-2 bg-dark text-white rounded hover:bg-black focus:ring-2 focus:ring-primary text-sm font-medium transition-colors flex items-center gap-2" aria-label="Alternar Alto Contraste">
+                    <i class="fas fa-adjust"></i> <span class="hidden sm:inline">Alto Contraste</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-primary text-xs font-semibold uppercase tracking-wider">
+                <span>🌱 Proyecto EDI: Matemática y el Trabajo por Proyectos</span>
+                <span>•</span>
+                <span>3.º Año Secundaria</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-primary flex items-center justify-center gap-3">
+                <i class="fas fa-bolt text-yellow-500 animate-pulse"></i> Misión Energía: Código Verde
+            </h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-700">Simulador de Consumo Eléctrico y Eficiencia Energética</h2>
+            <p class="text-base md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Explorá cómo las variables de potencia, cantidad y horas de uso modifican el consumo eléctrico en la escuela y el hogar. Compará escenarios, analizá fórmulas y calculá el ahorro energético.
+            </p>
+            <p class="text-xs text-gray-500 font-medium">
+                Autora: <strong class="text-gray-700">Karen Salinas</strong> · ISFDyT N° 24 · Coordinación: Prof. Silvina Elena Busto
+            </p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap justify-center gap-2 border-b border-gray-200 pb-2">
+            <button onclick="switchTab('simulator')" id="btn-simulator" class="px-6 py-2 rounded-t-lg bg-primary text-white font-semibold shadow-md transition-colors">
+                <i class="fas fa-sliders-h mr-2"></i> Simulador
+            </button>
+            <button onclick="switchTab('theory')" id="btn-theory" class="px-6 py-2 rounded-t-lg bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold transition-colors">
+                <i class="fas fa-book-open mr-2"></i> Teoría y Ejemplos
+            </button>
+        </div>
+
+        <!-- Theory Section (Hidden by default) -->
+        <div id="section-theory" class="hidden space-y-6">
+            <div class="glass-panel p-6 md:p-8 space-y-6">
+                <div class="flex justify-between items-start">
+                    <h2 class="text-3xl font-bold text-gray-800 border-b-2 border-primary pb-2 inline-block">Conceptos Básicos de Energía</h2>
+                    <button onclick="readText('theory-text')" class="text-primary hover:text-blue-700 bg-blue-50 p-2 rounded-full transition-colors" aria-label="Leer teoría en voz alta" title="Leer en voz alta">
+                        <i class="fas fa-volume-up text-xl"></i>
+                    </button>
+                </div>
+                
+                <div id="theory-text" class="space-y-4 text-lg leading-relaxed">
+                    <p>La energía eléctrica que consumimos en nuestros hogares depende de varios factores. Para entenderlo mejor, definamos algunos conceptos:</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-primary">
+                            <h3 class="font-bold text-xl text-primary flex items-center gap-2">
+                                <i class="fas fa-tachometer-alt"></i> Potencia (W o kW)
+                            </h3>
+                            <p class="mt-2">Es la cantidad de energía que un artefacto necesita para funcionar en un momento dado. Se mide en Watts (W) o Kilowatts (kW). <em>1 kW = 1000 W.</em> Un horno eléctrico tiene mucha potencia, una bombilla LED tiene poca.</p>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-secondary">
+                            <h3 class="font-bold text-xl text-secondary flex items-center gap-2">
+                                <i class="fas fa-clock"></i> Tiempo (h)
+                            </h3>
+                            <p class="mt-2">Es la cantidad de horas que el artefacto está encendido. La potencia por sí sola no nos dice cuánto consumimos, necesitamos saber cuánto tiempo se usa.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 rounded-lg mt-6 border border-gray-200">
+                        <h3 class="font-bold text-2xl text-gray-800 mb-4">¿Cómo se calcula el consumo?</h3>
+                        <p>El consumo de energía eléctrica se mide en <strong>Kilovatios-hora (kWh)</strong>. Esta es la unidad que aparece en las facturas de luz.</p>
+                        
+                        <!-- Symbolic Representation in Theory -->
+                        <div class="bg-white p-4 rounded text-center my-4 shadow-sm font-mono text-lg lg:text-xl border-2 border-dashed border-gray-300">
+                            Energía (kWh) = <span class="text-primary font-bold">Potencia (kW)</span> × <span class="text-secondary font-bold">Tiempo (horas)</span>
+                        </div>
+                        
+                        <p class="text-sm text-gray-600 mt-2"><em>*Si la potencia está en Watts, se debe dividir por 1000 para pasarla a kW.</em></p>
+                    </div>
+
+                    <h3 class="font-bold text-2xl text-gray-800 mt-8">Ejemplo Práctico</h3>
+                    <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                        <p>Imaginá que tenés una pava eléctrica con una potencia de <strong>2000 W (2 kW)</strong> y la usás <strong>media hora (0.5 h)</strong> al día durante <strong>30 días</strong>.</p>
+                        <ul class="list-disc list-inside mt-3 space-y-2 font-medium">
+                            <li>Potencia: 2 kW</li>
+                            <li>Horas por día: 0.5 h</li>
+                            <li>Días: 30</li>
+                            <li>Horas totales = 0.5 h × 30 = 15 horas</li>
+                        </ul>
+                        <div class="mt-4 p-3 bg-white rounded shadow-sm text-center font-bold text-lg">
+                            Consumo = 2 kW × 15 h = <span class="text-red-500 text-2xl">30 kWh</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulator Section -->
+        <div id="section-simulator" class="grid lg:grid-cols-12 gap-6">
+            
+            <!-- Controls Panel -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-panel p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <i class="fas fa-keyboard text-primary"></i> Variables
+                    </h2>
+                    
+                    <form id="calculator-form" class="space-y-6">
+                        
+                        <!-- Variable: Cantidad -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary transition-colors group relative">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="quantity" class="font-semibold text-gray-700 flex items-center gap-2">
+                                    <i class="fas fa-layer-group text-blue-500"></i> Cantidad de Artefactos
+                                </label>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="showExplanation('quantity')" class="info-btn text-gray-400" aria-label="Información sobre Cantidad" title="¿Qué es esto?">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                    <button type="button" onclick="readExplanation('quantity')" class="info-btn text-gray-400" aria-label="Escuchar explicación" title="Escuchar">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="quantity" min="1" max="50" value="1" oninput="syncInput('quantity', this.value); calculate()">
+                                <input type="number" id="quantity-num" min="1" max="50" value="1" class="w-20 p-2 border border-gray-300 rounded text-center font-bold focus:ring-2 focus:ring-primary focus:outline-none" oninput="syncRange('quantity', this.value); calculate()">
+                            </div>
+                        </div>
+
+                        <!-- Variable: Potencia -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary transition-colors">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="power" class="font-semibold text-gray-700 flex items-center gap-2">
+                                    <i class="fas fa-plug text-red-500"></i> Potencia (Watts)
+                                </label>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="showExplanation('power')" class="info-btn text-gray-400" aria-label="Información sobre Potencia">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                    <button type="button" onclick="readExplanation('power')" class="info-btn text-gray-400" aria-label="Escuchar explicación">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Preset artifacts dropdown for ease of use -->
+                            <select id="preset-artifacts" class="w-full mb-3 p-2 border border-gray-300 rounded bg-white text-sm focus:ring-2 focus:ring-primary focus:outline-none" onchange="setPresetPower(this.value); calculate()">
+                                <option value="">-- Seleccionar un artefacto común (Opcional) --</option>
+                                <option value="10">Bombilla LED (10W)</option>
+                                <option value="60">Televisor LED (60W)</option>
+                                <option value="150">Heladera (150W promedio)</option>
+                                <option value="400">Computadora de escritorio (400W)</option>
+                                <option value="1000">Microondas (1000W)</option>
+                                <option value="1500">Aire Acondicionado (1500W)</option>
+                                <option value="2000">Pava Eléctrica / Estufa (2000W)</option>
+                            </select>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="power" min="1" max="3000" value="1000" step="10" oninput="syncInput('power', this.value); calculate(); document.getElementById('preset-artifacts').value='';">
+                                <input type="number" id="power-num" min="1" max="5000" value="1000" class="w-24 p-2 border border-gray-300 rounded text-center font-bold focus:ring-2 focus:ring-primary focus:outline-none" oninput="syncRange('power', this.value); calculate(); document.getElementById('preset-artifacts').value='';">
+                                <span class="text-sm font-medium">W</span>
+                            </div>
+                        </div>
+
+                        <!-- Variable: Horas -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary transition-colors">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="hours" class="font-semibold text-gray-700 flex items-center gap-2">
+                                    <i class="fas fa-clock text-green-500"></i> Horas de uso diario
+                                </label>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="showExplanation('hours')" class="info-btn text-gray-400" aria-label="Información sobre Horas">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                    <button type="button" onclick="readExplanation('hours')" class="info-btn text-gray-400" aria-label="Escuchar explicación">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="hours" min="0.1" max="24" value="4" step="0.1" oninput="syncInput('hours', this.value); calculate()">
+                                <input type="number" id="hours-num" min="0.1" max="24" step="0.1" value="4" class="w-20 p-2 border border-gray-300 rounded text-center font-bold focus:ring-2 focus:ring-primary focus:outline-none" oninput="syncRange('hours', this.value); calculate()">
+                                <span class="text-sm font-medium">h</span>
+                            </div>
+                        </div>
+
+                        <!-- Variable: Días -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary transition-colors">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="days" class="font-semibold text-gray-700 flex items-center gap-2">
+                                    <i class="fas fa-calendar-alt text-purple-500"></i> Cantidad de días
+                                </label>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="showExplanation('days')" class="info-btn text-gray-400" aria-label="Información sobre Días">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                    <button type="button" onclick="readExplanation('days')" class="info-btn text-gray-400" aria-label="Escuchar explicación">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="days" min="1" max="365" value="30" oninput="syncInput('days', this.value); calculate()">
+                                <input type="number" id="days-num" min="1" max="365" value="30" class="w-20 p-2 border border-gray-300 rounded text-center font-bold focus:ring-2 focus:ring-primary focus:outline-none" oninput="syncRange('days', this.value); calculate()">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <button type="button" onclick="saveCurrentScenario()" class="flex-1 bg-secondary text-white py-3 px-4 rounded-lg font-bold shadow-md hover:bg-emerald-600 focus:ring-4 focus:ring-emerald-300 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-save"></i> Guardar para comparar
+                            </button>
+                            <button type="button" onclick="resetSimulator()" class="px-4 bg-gray-200 text-gray-700 rounded-lg font-bold shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 transition-all" aria-label="Reiniciar valores">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Numerical and Symbolic Representation -->
+                <div class="glass-panel p-6 flex flex-col items-center justify-center text-center h-48 border-t-4 border-primary relative">
+                    <button onclick="readResult()" class="absolute top-4 right-4 text-primary hover:text-blue-700 bg-blue-50 p-2 rounded-full transition-colors" aria-label="Leer resultado en voz alta" title="Escuchar resultado">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    
+                    <h3 class="text-lg text-gray-500 font-semibold mb-2 uppercase tracking-wider">Consumo Total Estimado</h3>
+                    <div class="text-5xl md:text-6xl font-black text-gray-800 drop-shadow-sm mb-2 flex items-baseline justify-center gap-2" id="result-display">
+                        0.00 <span class="text-2xl text-primary font-bold">kWh</span>
+                    </div>
+                    
+                    <!-- Symbolic Representation -->
+                    <div class="mt-4 w-full flex justify-center">
+                        <div class="bg-gray-100 rounded px-4 py-2 text-sm font-mono flex flex-wrap justify-center items-center gap-2 border border-gray-200" id="formula-display">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphical Representation -->
+                <div class="glass-panel p-6 relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-chart-bar text-primary"></i> Gráfico de Variación</h3>
+                        <div class="text-sm text-gray-500 italic">Comparación de escenarios</div>
+                    </div>
+                    <div class="h-64 w-full">
+                        <canvas id="consumptionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tabular Representation -->
+                <div class="glass-panel p-6 overflow-hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800"><i class="fas fa-table text-secondary"></i> Tabla de Comparación</h3>
+                        <button onclick="clearTable()" class="text-sm text-red-500 hover:text-red-700 font-medium">Limpiar</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700">
+                                    <th class="p-3 border-b-2 border-gray-200 font-semibold">#</th>
+                                    <th class="p-3 border-b-2 border-gray-200 font-semibold">Cant.</th>
+                                    <th class="p-3 border-b-2 border-gray-200 font-semibold">Potencia</th>
+                                    <th class="p-3 border-b-2 border-gray-200 font-semibold">Horas/día</th>
+                                    <th class="p-3 border-b-2 border-gray-200 font-semibold">Días</th>
+                                    <th class="p-3 border-b-2 border-gray-200 font-bold text-primary">Total (kWh)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparison-table-body" class="text-gray-600">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <div id="empty-table-msg" class="text-center p-4 text-gray-400 italic">
+                            Guardá un escenario para compararlo acá.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content-box">
+            <div class="bg-primary p-4 flex justify-between items-center text-white">
+                <h3 class="text-xl font-bold flex items-center gap-2" id="modal-title">
+                    <i class="fas fa-info-circle"></i> Título
+                </h3>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white focus:outline-none p-1" aria-label="Cerrar modal">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <p id="modal-text" class="text-gray-700 text-lg leading-relaxed"></p>
+                <div class="mt-6 flex justify-end">
+                    <button onclick="readModalText()" class="mr-3 px-4 py-2 bg-blue-100 text-primary rounded font-medium hover:bg-blue-200 transition-colors flex items-center gap-2">
+                        <i class="fas fa-volume-up"></i> Escuchar
+                    </button>
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded font-medium hover:bg-gray-300 transition-colors">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure for variables explanations
+        const explanations = {
+            'quantity': {
+                title: 'Cantidad de Artefactos',
+                text: 'Indica cuántos aparatos iguales están funcionando al mismo tiempo. Por ejemplo, si tenés 3 focos LED iguales encendidos, poné 3 en cantidad. El consumo de uno se multiplicará por esta cantidad.'
+            },
+            'power': {
+                title: 'Potencia Eléctrica',
+                text: 'Es la "fuerza" o cantidad de energía que el aparato necesita para funcionar en un instante. Se mide en Watts (W). Cuanto mayor es la potencia, más energía consume por cada hora que está prendido. Por ejemplo, una estufa (2000W) consume mucho más rápido que un LED (10W).'
+            },
+            'hours': {
+                title: 'Horas de uso diario',
+                text: 'Representa cuánto tiempo, en horas, mantenés encendido el aparato cada día. Un aparato de mucha potencia usado pocos minutos puede consumir menos que uno de poca potencia encendido todo el día.'
+            },
+            'days': {
+                title: 'Cantidad de días',
+                text: 'Es el período de tiempo que querés calcular. Usualmente las facturas de luz se cobran por mes (30 o 60 días). Esto multiplicará el consumo diario por la cantidad de días.'
+            }
+        };
+
+        // Accessibility State
+        let currentTextSize = 'normal';
+        let isHighContrast = false;
+        let speechSynthesis = window.speechSynthesis;
+
+        function changeTextSize(size) {
+            document.body.classList.remove('text-large', 'text-xlarge');
+            if (size !== 'normal') {
+                document.body.classList.add(`text-${size}`);
+            }
+            currentTextSize = size;
+            
+            // Visual feedback on buttons
+            document.querySelectorAll('[onclick^="changeTextSize"]').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'ring-2', 'ring-primary');
+                btn.classList.add('bg-gray-200', 'text-gray-800');
+            });
+            event.currentTarget.classList.remove('bg-gray-200', 'text-gray-800');
+            event.currentTarget.classList.add('bg-primary', 'text-white', 'ring-2', 'ring-primary');
+        }
+
+        function toggleHighContrast() {
+            isHighContrast = !isHighContrast;
+            if (isHighContrast) {
+                document.body.classList.add('high-contrast');
+            } else {
+                document.body.classList.remove('high-contrast');
+            }
+            
+            // Update chart colors if chart exists
+            if (consumptionChart) {
+                updateChartColors();
+            }
+        }
+
+        function switchTab(tabId) {
+            // Hide all sections
+            document.getElementById('section-simulator').classList.add('hidden');
+            document.getElementById('section-theory').classList.add('hidden');
+            
+            // Show selected section
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            
+            // Update button styles
+            document.getElementById('btn-simulator').classList.replace('bg-primary', 'bg-gray-200');
+            document.getElementById('btn-simulator').classList.replace('text-white', 'text-gray-700');
+            document.getElementById('btn-theory').classList.replace('bg-primary', 'bg-gray-200');
+            document.getElementById('btn-theory').classList.replace('text-white', 'text-gray-700');
+            
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.replace('bg-gray-200', 'bg-primary');
+            activeBtn.classList.replace('text-gray-700', 'text-white');
+        }
+
+        // TTS (Text-to-Speech) Functions
+        function speak(text) {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel(); // Stop current speech
+            }
+            if (text !== '') {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-AR'; // Spanish (Argentina)
+                utterance.rate = 0.9; // Slightly slower for clarity
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function readExplanation(variable) {
+            const data = explanations[variable];
+            speak(data.title + ". " + data.text);
+        }
+
+        function readModalText() {
+            const title = document.getElementById('modal-title').innerText;
+            const text = document.getElementById('modal-text').innerText;
+            speak(title + ". " + text);
+        }
+
+        function readResult() {
+            const resultText = document.getElementById('result-display').innerText;
+            speak("El consumo total estimado es de " + resultText);
+        }
+
+        function readText(elementId) {
+            const element = document.getElementById(elementId);
+            // Simple text extraction, could be improved to handle structure better
+            const text = element.innerText;
+            speak("Teoría y Ejemplos. " + text);
+        }
+
+        // Modal Functions
+        function showExplanation(variable) {
+            const modal = document.getElementById('explanation-modal');
+            const contentBox = document.getElementById('modal-content-box');
+            
+            document.getElementById('modal-title').innerHTML = `<i class="fas fa-info-circle"></i> ${explanations[variable].title}`;
+            document.getElementById('modal-text').innerText = explanations[variable].text;
+            
+            modal.classList.remove('hidden');
+            // Small delay to allow display:block to apply before animating opacity
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                contentBox.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('explanation-modal');
+            const contentBox = document.getElementById('modal-content-box');
+            
+            modal.classList.add('opacity-0');
+            contentBox.classList.add('scale-95');
+            
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        
+        // Input synchronization
+        function syncInput(id, value) {
+            document.getElementById(`${id}-num`).value = value;
+        }
+        function syncRange(id, value) {
+            // Handle empty or invalid input gracefully
+            let val = parseFloat(value);
+            const range = document.getElementById(id);
+            if (!isNaN(val)) {
+                // Constrain to min/max
+                val = Math.max(range.min, Math.min(range.max, val));
+                range.value = val;
+            }
+        }
+
+        function setPresetPower(value) {
+            if (value) {
+                document.getElementById('power').value = value;
+                document.getElementById('power-num').value = value;
+            }
+        }
+
+        // Simulator State
+        let currentResult = 0;
+        let scenarios = [];
+        let consumptionChart = null;
+
+        // Core Calculation Function
+        function calculate() {
+            const qty = parseFloat(document.getElementById('quantity-num').value) || 0;
+            const powerW = parseFloat(document.getElementById('power-num').value) || 0;
+            const hours = parseFloat(document.getElementById('hours-num').value) || 0;
+            const days = parseFloat(document.getElementById('days-num').value) || 0;
+
+            // Fórmula: E = P(kW) * t(h) * cant
+            const powerKW = powerW / 1000;
+            const totalHours = hours * days;
+            currentResult = (powerKW * totalHours * qty);
+
+            // Update UI - Numerical
+            // Animation effect for numbers
+            animateValue("result-display", currentResult, 300);
+
+            // Update UI - Symbolic
+            const formulaHTML = `
+                <span title="Cantidad" class="text-blue-600 font-bold">${qty}</span> × 
+                <span class="text-gray-500">(</span><span title="Potencia en kW (Watts / 1000)" class="text-red-500 font-bold">${powerW}</span><span class="text-xs text-gray-400">/1000</span><span class="text-gray-500">)</span> × 
+                <span title="Horas por día" class="text-green-600 font-bold">${hours}h</span> × 
+                <span title="Días" class="text-purple-600 font-bold">${days}d</span> 
+                = <span class="text-primary font-black">${currentResult.toFixed(2)} kWh</span>
+            `;
+            document.getElementById('formula-display').innerHTML = formulaHTML;
+        }
+
+        // Number animation function
+        function animateValue(id, end, duration) {
+            const obj = document.getElementById(id);
+            // Keep the HTML structure (the span for kWh)
+            const currentHTML = obj.innerHTML;
+            const spanHTML = currentHTML.substring(currentHTML.indexOf('<span'));
+            
+            // Extract current numeric value or start from 0
+            const textValue = obj.innerText.replace(' kWh', '').trim();
+            const start = parseFloat(textValue) || 0;
+            
+            if (start === end) return;
+            
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                // Ease out quad
+                const easeOutProgress = progress * (2 - progress);
+                const currentVal = start + (end - start) * easeOutProgress;
+                
+                obj.innerHTML = currentVal.toFixed(2) + ' ' + spanHTML;
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end.toFixed(2) + ' ' + spanHTML;
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function resetSimulator() {
+            document.getElementById('quantity').value = 1; document.getElementById('quantity-num').value = 1;
+            document.getElementById('power').value = 1000; document.getElementById('power-num').value = 1000;
+            document.getElementById('hours').value = 4; document.getElementById('hours-num').value = 4;
+            document.getElementById('days').value = 30; document.getElementById('days-num').value = 30;
+            document.getElementById('preset-artifacts').value = "";
+            calculate();
+        }
+
+        // Tabular and Graphical Logic
+        function saveCurrentScenario() {
+            const qty = document.getElementById('quantity-num').value;
+            const power = document.getElementById('power-num').value;
+            const hours = document.getElementById('hours-num').value;
+            const days = document.getElementById('days-num').value;
+            
+            // Try to find preset name
+            let presetName = "";
+            const presetSelect = document.getElementById('preset-artifacts');
+            if (presetSelect.value == power) {
+                presetName = presetSelect.options[presetSelect.selectedIndex].text.split('(')[0].trim();
+            }
+            
+            const name = presetName ? `${qty}x ${presetName}` : `Escenario ${scenarios.length + 1}`;
+
+            const scenario = {
+                id: scenarios.length + 1,
+                name: name,
+                qty: qty,
+                power: power,
+                hours: hours,
+                days: days,
+                total: currentResult.toFixed(2)
+            };
+
+            scenarios.push(scenario);
+            updateTable();
+            updateChart();
+            
+            // Visual feedback on save button
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Guardado';
+            btn.classList.add('bg-green-500');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-500');
+            }, 1000);
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('comparison-table-body');
+            const emptyMsg = document.getElementById('empty-table-msg');
+            
+            if (scenarios.length > 0) {
+                emptyMsg.style.display = 'none';
+                tbody.innerHTML = '';
+                
+                scenarios.forEach(s => {
+                    const row = document.createElement('tr');
+                    row.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors";
+                    if (isHighContrast) row.className = "border-b border-gray-600 hover:bg-gray-800 transition-colors";
+                    
+                    row.innerHTML = `
+                        <td class="p-3 font-medium" title="${s.name}">${s.id}</td>
+                        <td class="p-3">${s.qty}</td>
+                        <td class="p-3">${s.power}W</td>
+                        <td class="p-3">${s.hours}h</td>
+                        <td class="p-3">${s.days}</td>
+                        <td class="p-3 font-bold text-primary">${s.total}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                emptyMsg.style.display = 'block';
+                tbody.innerHTML = '';
+            }
+        }
+
+        function clearTable() {
+            scenarios = [];
+            updateTable();
+            updateChart();
+        }
+
+        // Chart.js Setup
+        function initChart() {
+            const ctx = document.getElementById('consumptionChart').getContext('2d');
+            Chart.defaults.font.family = 'Inter, sans-serif';
+            
+            consumptionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Actual'],
+                    datasets: [{
+                        label: 'Consumo (kWh)',
+                        data: [0],
+                        backgroundColor: '#3b82f6', // primary
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 14, weight: 'bold' },
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' kWh';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Energía (kWh)'
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    animation: {
+                        duration: 500
+                    }
+                }
+            });
+            updateChartColors();
+        }
+
+        function updateChart() {
+            if (!consumptionChart) return;
+            
+            const labels = ['Actual'];
+            const data = [currentResult];
+            const bgColors = ['#3b82f6']; // primary for current
+            
+            scenarios.forEach(s => {
+                // Shorten labels for chart if needed
+                let label = `Esc. ${s.id}`;
+                if(s.name.includes('x ')) {
+                     // Try to extract a short descriptive name
+                     const parts = s.name.split(' ');
+                     if(parts.length > 1) label = `${s.id}: ${parts[1]}`;
+                }
+                
+                labels.push(label);
+                data.push(parseFloat(s.total));
+                bgColors.push('#10b981'); // secondary (emerald) for saved scenarios
+            });
+
+            consumptionChart.data.labels = labels;
+            consumptionChart.data.datasets[0].data = data;
+            consumptionChart.data.datasets[0].backgroundColor = bgColors;
+            consumptionChart.update();
+        }
+
+        function updateChartColors() {
+            if(!consumptionChart) return;
+            const textColor = isHighContrast ? '#ffffff' : '#4b5563';
+            const gridColor = isHighContrast ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)';
+            
+            consumptionChart.options.scales.x.ticks.color = textColor;
+            consumptionChart.options.scales.y.ticks.color = textColor;
+            consumptionChart.options.scales.y.title.color = textColor;
+            consumptionChart.options.scales.y.grid.color = gridColor;
+            consumptionChart.update();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // Add listener to update current calculation when inputs change
+            document.getElementById('calculator-form').addEventListener('input', updateChart);
+            
+            // Set initial state for text size buttons
+            document.querySelector('[onclick="changeTextSize(\'normal\')"]').classList.add('bg-primary', 'text-white', 'ring-2', 'ring-primary');
+            document.querySelector('[onclick="changeTextSize(\'normal\')"]').classList.remove('bg-gray-200', 'text-gray-800');
+
+            calculate();
+            initChart();
+            updateChart();
+        };
+
+        // Close modal if clicking outside
+        document.getElementById('explanation-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+
+    <!-- Pie de página pedagógico y de autoría -->
+    <footer class="mt-16 py-8 border-t border-gray-200 bg-white/60 backdrop-blur-sm high-contrast:bg-black">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left text-xs text-gray-500">
+            <div class="space-y-1">
+                <p class="font-bold text-gray-700 text-sm">⚡ Misión Energía: Código Verde — Simulador Didáctico</p>
+                <p>Propuesta pedagógica desarrollada por <strong>Karen Salinas</strong> (4.º Año B - Profesorado de Matemática, ISFDyT N° 24).</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="font-semibold text-primary hover:underline flex items-center gap-1">
+                    <i class="fas fa-th-large"></i> Volver al Catálogo
+                </a>
+                <span>•</span>
+                <span>Licencia Abierta CC BY-SA 4.0</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
