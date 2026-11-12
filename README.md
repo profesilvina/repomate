@@ -33,6 +33,10 @@ El repositorio está diseñado como un catálogo dinámico y responsivo, listo p
 | **🔺 Estudio InfinitA: Arte, Geometría y Transformaciones** (Vanina Malatesta) | Geometría y Trigonometría | Secundaria | Entorno integral interactivo con Libro de GeoGebra dinámico (razón áurea y transformaciones), Escape Room cubista de descifrado geométrico y quiz de acreditación diagnóstica con DUA. |
 | **🐔 El Gallinero Matemático: Área, Perímetro y Ecuaciones** (Verónica Oliva) | Geometría y Magnitudes | Secundaria | Simulador interactivo y laboratorio de optimización geométrica para modelizar el cerramiento de un gallinero escolar variando lados y cercas con desafíos interactivos y accesibilidad DUA. |
 | **⚡ Misión Energía: Código Verde — Simulador de Consumo Eléctrico** (Karen Salinas) | Funciones y Análisis | Secundaria | Simulador interactivo con accesibilidad DUA, síntesis de voz (TTS) y representaciones múltiples (numérica, tabular, gráfica en Chart.js y simbólica) para modelizar consumo eléctrico y calcular escenarios de ahorro. |
+| **🐝 Pioneras de la Geometría y el Enigma del Panal** (Ángel Viegas) | Geometría y Magnitudes | Secundaria | Escape room gamificado con diseño DUA, lector por voz y candados interactivos para resolver 6 estaciones sobre polígonos, áreas, economía de cera y escalas junto a destacadas científicas. |
+| **📐 Misión Triángulos: Desigualdad Triangular** (Enzo y Alberto - 2.° año Enseñar con Tecnología) | Geometría y Trigonometría | Secundaria | Laboratorio interactivo y simulador geométrico con accesibilidad DUA para verificar en tiempo real las tres desigualdades triangulares y explorar la determinación de figuras con dos lados fijos. |
+| **🧊 Escape Room: Muestra Virtual de Cuerpos Geométricos** (Gabriel D'Amelia y Ana Lía Solores - 2.° año Enseñar con Tecnología) | Geometría y Magnitudes | Secundaria | Escape room 3D interactivo para 1.° año de secundaria (DGCyE) con 4 salas temáticas: elementos, fórmula de Euler ($C + V = A + 2$), sólidos platónicos y escáner clasificador. |
+| **🏀 El Tiro Perfecto: Laboratorio de Lanzamiento** (Fabricio Rebolledo) | Funciones y Análisis | Secundaria | Simulador físico-matemático en tiempo real con accesibilidad DUA para modelizar tiros al aro de básquet mediante funciones cuadráticas, analizando la parábola y su vértice. |
 
 ---
 
@@ -45,12 +49,19 @@ repoapps_mate/
 ├── alicia.html                  # Eco-Diseño 3D (Alicia Astigarraga)
 ├── cintia.html                  # La merienda cambia (Cintia Marcaccio)
 ├── marisa.html                  # Misión Batería: ¡Que no se apague! (Marisa Sierra)
+├── marisa_afiche.html           # Creador de Afiches – Misión Batería (Marisa Sierra - 2da app)
 ├── vanina.html                  # Estudio InfinitA: Arte y Transformaciones (Vanina Malatesta)
 ├── veronica.html                # El Gallinero Matemático (Verónica Oliva)
 ├── karen.html                   # Misión Energía: Código Verde (Karen Salinas)
+├── viegas.html                  # Pioneras de la Geometría y el Enigma del Panal (Ángel Viegas)
+├── mision_triangulos.html       # Misión Triángulos – Desigualdad Triangular (Enzo y Alberto - 2.° Enseñar con Tecnología)
+├── escape_cuerpos_geometricos.html # Escape Room 3D Cuerpos Geométricos (Gabriel D'Amelia y Ana Lía Solores - 2.° Enseñar con Tecnología)
+├── escape_cuerpos_geometricos/  # Versión empaquetada alternativa
+│   ├── index.html               # Aplicación web compilada y optimizada
+│   └── assets/                  # Hojas de estilo y paquetes bundle JS
+├── fabricio.html                # El Tiro Perfecto PRO: Laboratorio de Lanzamiento (Fabricio Rebolledo)
 ├── escape_geometrico.html       # Escape Room retro pixel art de geometría y cálculo
-├── app_ruffini_dua.html         # Mediador socrático interactivo de Ruffini
-├── ruffini.htm                  # Calculadora algorítmica de Ruffini paso a paso
+├── app_ruffini_dua.html         # Mediador socrático interactivo de Ruffini con apoyos DUA
 ├── actividad_tablas_verdad.html # Laboratorio interactivo de Tablas de Verdad
 ├── arte_matematica.html         # Galería interactiva STEAM Arte y Geometría en SVG
 │

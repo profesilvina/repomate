@@ -557,6 +557,12 @@
     body.high-contrast .repo-footer-note {
       color: #ffffff;
     }
+
+    body.high-contrast .btn-launch {
+      border: 2px solid #ffffff !important;
+      color: #ffffff !important;
+      background: #000000 !important;
+    }
   </style>
 </head>
 <body>
@@ -731,15 +737,15 @@
       {
         id: "mate-2",
         emoji: "🧮",
-        titulo: "Calculadora y Algoritmo de Ruffini",
+        titulo: "Calculadora y Algoritmo de Ruffini (DUA)",
         autor: "Silvina Busto",
-        descripcion: "Herramienta de cálculo paso a paso para resolver divisiones polinómicas por el método tradicional de Ruffini con reconstrucción del cociente y resto.",
+        descripcion: "Herramienta interactiva y accesible con apoyos DUA para resolver divisiones polinómicas paso a paso por el método de Ruffini con reconstrucción del cociente y resto.",
         nivel: "Secundaria",
         materia: "Matemática",
         eje: "Álgebra y Polinomios",
         color: "#059669", // Esmeralda
-        url: "ruffini.htm",
-        tags: ["Algoritmo", "Matemática", "Paso a Paso", "Polinomios", "Cálculo"]
+        url: "app_ruffini_dua.html",
+        tags: ["Algoritmo", "Matemática", "Paso a Paso", "Polinomios", "Cálculo", "DUA"]
       },
       {
         id: "mate-3",
@@ -809,15 +815,19 @@
       {
         id: "mate-8",
         emoji: "🔋",
-        titulo: "Misión Batería: ¡Que no se apague!",
+        titulo: "Misión Batería: ¡Que no se apague! + Creador de Afiches",
         autor: "Marisa Sierra",
-        descripcion: "Juego de estrategia matemática por equipos con accesibilidad DUA y dinámicas de gamificación. Los estudiantes gestionan el consumo de batería de sus dispositivos calculando porcentajes, promedios, redondeos y operaciones contextualizadas mediante misiones y tarjetas sorpresa.",
+        descripcion: "Proyecto integral que articula dos herramientas didácticas con accesibilidad DUA: 1) Simulador y juego de estrategia por equipos para optimizar el consumo de batería calculando porcentajes y promedios; y 2) Creador dinámico de afiches escolares con gráficos estadísticos y exportación lista para imprimir en A3/A4.",
         nivel: "Secundaria",
         materia: "Matemática",
         eje: "Números y Operaciones",
         color: "#16804a", // Verde batería
         url: "marisa.html",
-        tags: ["Porcentajes", "Promedios", "Números racionales", "Gamificación", "DUA", "Batería", "Estrategia", "Trabajo en equipo"]
+        acciones: [
+          { texto: "Abrir Juego y Simulador", url: "marisa.html", icono: "fa-solid fa-gamepad" },
+          { texto: "Abrir Creador de Afiches (2da app)", url: "marisa_afiche.html", icono: "fa-solid fa-chart-column" }
+        ],
+        tags: ["Porcentajes", "Promedios", "Números racionales", "Gamificación", "DUA", "Batería", "Afiche", "Estadística"]
       },
       {
         id: "mate-9",
@@ -857,6 +867,58 @@
         color: "#2563eb",
         url: "karen.html",
         tags: ["Consumo Eléctrico", "Funciones", "Proporcionalidad", "Estadística", "DUA", "TTS", "Chart.js", "Secundaria", "Eficiencia Energética", "ABP"]
+      },
+      {
+        id: "mate-12",
+        emoji: "🐝",
+        titulo: "Pioneras de la Geometría y el Enigma del Panal",
+        autor: "Ángel Viegas",
+        descripcion: "Escape room gamificado con accesibilidad DUA, lector por voz y candados interactivos. Los estudiantes resuelven 6 estaciones sobre polígonos, ángulos interiores, economía de cera, áreas compuestas y escalas técnicas junto a destacadas científicas de la historia para obtener la Licencia de Diseñador Geométrico.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Geometría y Magnitudes",
+        color: "#b45309", // Ámbar / miel apícola
+        url: "viegas.html",
+        tags: ["Escape Room", "Geometría", "Polígonos", "Áreas", "DUA", "Pioneras", "Huerta", "Ángulos", "ABP"]
+      },
+      {
+        id: "mate-13",
+        emoji: "📐",
+        titulo: "Misión Triángulos: Desigualdad Triangular y Determinación",
+        autor: "Enzo y Alberto (2.° año Enseñar con Tecnología)",
+        descripcion: "Laboratorio interactivo y simulador geométrico con accesibilidad DUA. Permite explorar con deslizadores cuándo es posible construir un triángulo verificando las tres desigualdades en tiempo real, contrastar con arcos de compás y analizar la suficiencia de datos con dos lados fijos y ángulo variable.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Geometría y Trigonometría",
+        color: "#1d4ed8", // Azul real geométrico
+        url: "mision_triangulos.html",
+        tags: ["Triángulos", "Desigualdad Triangular", "Geometría", "GeoGebra", "DUA", "Construcción", "Enseñar con Tecnología", "ABP"]
+      },
+      {
+        id: "mate-14",
+        emoji: "🧊",
+        titulo: "Escape Room: Muestra Virtual de Cuerpos Geométricos",
+        autor: "Gabriel D'Amelia y Ana Lía Solores (2.° año Enseñar con Tecnología)",
+        descripcion: "Escape room interactivo 3D diseñado para 1.° año de secundaria (DGCyE). Propone 4 salas con visualizador táctil 3D, adivinanzas de elementos (caras, aristas, vértices), verificación de la relación de Euler (C + V = A + 2), sólidos platónicos, cuerpos redondos y escáner clasificador.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Geometría y Magnitudes",
+        color: "#0891b2", // Cian brillante 3D
+        url: "escape_cuerpos_geometricos.html",
+        tags: ["Cuerpos 3D", "Poliedros", "Fórmula de Euler", "Sólidos Platónicos", "Escape Room", "Gamificación", "Enseñar con Tecnología"]
+      },
+      {
+        id: "mate-15",
+        emoji: "🏀",
+        titulo: "El Tiro Perfecto PRO: Laboratorio de Lanzamiento Parabólico",
+        autor: "Fabricio Rebolledo",
+        descripcion: "Versión PRO del simulador físico-matemático con accesibilidad DUA. Permite modelizar en tiempo real el tiro al aro mediante funciones cuadráticas, analizando la parábola ideal frente a la trayectoria física con rebotes, cálculo del vértice, 4 misiones con obstáculo defensor y preguntas de indagación ABP.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Funciones y Análisis",
+        color: "#ea580c", // Naranja básquet
+        url: "fabricio.html",
+        tags: ["Versión PRO", "Función Cuadrática", "Parábola", "Vértice", "Básquet", "Física", "DUA", "Simulador", "ABP"]
       }
     ];
 
@@ -920,23 +982,43 @@
         const tagsHTML = app.tags.map(t => `<span class="tag">#${t}</span>`).join('');
         const autorHTML = app.autor ? `<div class="card-author"><i class="fa-solid fa-user-pen"></i> por: ${app.autor}</div>` : '';
 
-        card.innerHTML = `
-          <div>
-            <div class="card-badges">
-              <span class="badge-level">${app.nivel}</span>
-              <span class="badge-subject">${app.eje}</span>
+        // Botones de acción (uno o múltiples según la aplicación)
+        let actionsHTML = '';
+        if (app.acciones && Array.isArray(app.acciones) && app.acciones.length > 0) {
+          actionsHTML = `
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+              ${app.acciones.map((ac, idx) => `
+                <a href="${ac.url}" class="btn-launch" style="background: ${idx === 0 ? accentColor : 'transparent'}; ${idx > 0 ? 'border: 2px solid ' + accentColor + '; color: ' + accentColor + ';' : ''}" target="_blank" aria-label="${ac.texto}">
+                  <i class="${ac.icono || 'fa-solid fa-arrow-up-right-from-square'}"></i> ${ac.texto}
+                </a>
+              `).join('')}
             </div>
-            <h2 class="card-title">
-              <span class="card-emoji" aria-hidden="true">${app.emoji}</span>
-              <span>${app.titulo}</span>
-            </h2>
-            ${autorHTML}
-            <p class="card-desc">${app.descripcion}</p>
-            <div class="card-tags">${tagsHTML}</div>
+          `;
+        } else {
+          actionsHTML = `
+            <a href="${app.url}" class="btn-launch" style="background: ${accentColor}; margin-top: auto;" target="_blank" aria-label="Abrir aplicación ${app.titulo}">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Aplicación
+            </a>
+          `;
+        }
+
+        card.innerHTML = `
+          <div style="display: flex; flex-direction: column; height: 100%;">
+            <div>
+              <div class="card-badges">
+                <span class="badge-level">${app.nivel}</span>
+                <span class="badge-subject">${app.eje}</span>
+              </div>
+              <h2 class="card-title">
+                <span class="card-emoji" aria-hidden="true">${app.emoji}</span>
+                <span>${app.titulo}</span>
+              </h2>
+              ${autorHTML}
+              <p class="card-desc">${app.descripcion}</p>
+              <div class="card-tags">${tagsHTML}</div>
+            </div>
+            ${actionsHTML}
           </div>
-          <a href="${app.url}" class="btn-launch" style="background: ${accentColor};" target="_blank" aria-label="Abrir aplicación ${app.titulo}">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Aplicación
-          </a>
         `;
 
         appsGrid.appendChild(card);

@@ -1,0 +1,1329 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>El tiro perfecto PRO — Laboratorio de lanzamiento | Fabricio Rebolledo</title>
+  <meta name="description" content="Laboratorio interactivo profesional y simulador físico-matemático de tiro parabólico y funciones cuadráticas. Desarrollado por Fabricio Rebolledo para EDI 2026.">
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #091321;
+      --bg-grad: radial-gradient(ellipse at 12% 0%, #203956 0%, #091321 52%);
+      --panel: #122239;
+      --panel2: #172b45;
+      --line: #2b4361;
+      --txt: #f2f6fb;
+      --muted: #a8bad0;
+      --orange: #ff9d36;
+      --orange-hover: #ff8510;
+      --cyan: #64d9ec;
+      --green: #51d6a0;
+      --red: #ff7777;
+      --base-font-size: 16px;
+    }
+
+    body.high-contrast {
+      --bg: #000000;
+      --bg-grad: #000000;
+      --panel: #111111;
+      --panel2: #1a1a1a;
+      --line: #ffffff;
+      --txt: #ffffff;
+      --muted: #e2e8f0;
+      --orange: #ffff00;
+      --orange-hover: #ffff55;
+      --cyan: #00ffff;
+      --green: #86efac;
+      --red: #fca5a5;
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: var(--base-font-size);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg-grad);
+      background-attachment: fixed;
+      color: var(--txt);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--orange);
+      outline-offset: 2px;
+    }
+
+    /* Barra DUA Superior */
+    .app-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 19, 33, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    body.high-contrast .app-toolbar {
+      background: #000000;
+      border-color: #ffffff;
+    }
+
+    .toolbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.98rem;
+    }
+
+    .toolbar-brand a {
+      color: #ffffff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .toolbar-brand a:hover {
+      color: var(--orange);
+    }
+
+    .badge-pro {
+      background: rgba(255, 157, 54, 0.18);
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    body.high-contrast .badge-pro {
+      background: #000000;
+      border-color: #ffff00;
+      color: #ffff00;
+    }
+
+    .toolbar-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-tool:hover {
+      background: var(--orange);
+      color: #091321;
+      border-color: var(--orange);
+    }
+
+    body.high-contrast .btn-tool {
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    body.high-contrast .btn-tool:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    /* Contenedor Principal */
+    .wrap {
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+      flex: 1;
+    }
+
+    /* Encabezado */
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ffb04f, #ed7020);
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      box-shadow: 0 10px 28px rgba(255, 138, 43, 0.25);
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--orange);
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .chip {
+      border: 1px solid #405a79;
+      border-radius: 30px;
+      padding: 8px 14px;
+      color: #cfdeef;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      background: rgba(18, 34, 57, 0.6);
+    }
+
+    body.high-contrast .chip {
+      border-color: #ffffff;
+      color: #ffffff;
+      background: #000000;
+    }
+
+    /* Rejilla Principal */
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(310px, 0.85fr);
+      gap: 16px;
+    }
+
+    .panel {
+      background: linear-gradient(155deg, #172b44, #101d30);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    body.high-contrast .panel {
+      background: #111111;
+      border-color: #ffffff;
+    }
+
+    .panelhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .panelhead h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .muted {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Escenario Canvas */
+    .stage {
+      background: #081523;
+      border: 1px solid #304762;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body.high-contrast .stage {
+      background: #000000;
+      border-color: #ffffff;
+    }
+
+    .stage canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .stage-label {
+      position: absolute;
+      left: 12px;
+      top: 11px;
+      background: rgba(7, 19, 33, 0.85);
+      border: 1px solid #38516e;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: #d9e6f5;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 10px 2px 0;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    /* Botonera y resultados */
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 15px;
+      background: var(--orange);
+      color: #241506;
+      font-weight: 900;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--orange-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn.alt {
+      background: #263d5a;
+      color: #edf4fb;
+      border: 1px solid #3c5879;
+    }
+
+    .btn.alt:hover {
+      background: #314d72;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    body.high-contrast .btn {
+      background: #ffff00;
+      color: #000000;
+    }
+
+    body.high-contrast .btn.alt {
+      background: #222222;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    .result {
+      padding: 12px 14px;
+      border-radius: 11px;
+      background: #23364d;
+      border: 1px solid #3d5675;
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .result.good {
+      background: #12392f;
+      border-color: #287d60;
+      color: #bbf7d0;
+    }
+
+    .result.bad {
+      background: #3b242b;
+      border-color: #874c53;
+      color: #fecaca;
+    }
+
+    .result.warn {
+      background: #3a3020;
+      border-color: #80643a;
+      color: #fef08a;
+    }
+
+    body.high-contrast .result {
+      background: #111111;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      background: #0b192a;
+      border: 1px solid #2a405b;
+      border-radius: 11px;
+      padding: 10px;
+    }
+
+    body.high-contrast .metric {
+      background: #000000;
+      border-color: #ffffff;
+    }
+
+    .metric small {
+      display: block;
+      color: var(--muted);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 17px;
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+      color: var(--txt);
+    }
+
+    /* Controles de Parámetros */
+    .controls {
+      display: grid;
+      gap: 15px;
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .val {
+      color: var(--orange);
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+    }
+
+    body.high-contrast .val {
+      color: #ffff00;
+    }
+
+    .range {
+      width: 100%;
+      accent-color: var(--orange);
+      cursor: pointer;
+    }
+
+    .limits {
+      display: flex;
+      justify-content: space-between;
+      color: #8297b1;
+      font-size: 9px;
+      margin-top: 2px;
+    }
+
+    .minihead {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      margin: 16px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .equation {
+      background: #091727;
+      border: 1px solid #2a405b;
+      border-radius: 11px;
+      padding: 11px;
+      color: #dceafa;
+      font: 12px/1.7 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+      overflow-wrap: anywhere;
+      margin-top: 8px;
+    }
+
+    body.high-contrast .equation {
+      background: #000000;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .tip {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 10px 0 0;
+    }
+
+    /* Sección Inferior: Misiones y Preguntas */
+    .bottom {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .mission {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 11px;
+      margin-top: 8px;
+      background: #0c1a2b;
+      border: 1px solid #2a405b;
+      border-radius: 11px;
+      transition: border-color 0.2s;
+    }
+
+    .mission:hover {
+      border-color: var(--orange);
+    }
+
+    body.high-contrast .mission {
+      background: #000000;
+      border-color: #ffffff;
+    }
+
+    .mission-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 900;
+      font-size: 12px;
+      color: var(--orange);
+    }
+
+    .mission b {
+      font-size: 12px;
+      display: block;
+    }
+
+    .mission p {
+      font-size: 10.5px;
+      color: var(--muted);
+      margin: 3px 0 0;
+      line-height: 1.4;
+    }
+
+    .mission button {
+      border: 1px solid #425c7b;
+      border-radius: 8px;
+      background: #243b58;
+      color: white;
+      padding: 7px 11px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mission button:hover {
+      background: var(--orange);
+      color: #091321;
+      border-color: var(--orange);
+    }
+
+    body.high-contrast .mission button {
+      background: #222222;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    body.high-contrast .mission button:hover {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .question {
+      font-size: 12px;
+      color: #d9e5f2;
+      line-height: 1.55;
+      margin: 8px 0;
+      padding: 6px 8px;
+      background: rgba(11, 25, 42, 0.4);
+      border-radius: 6px;
+    }
+
+    body.high-contrast .question {
+      background: #111111;
+      color: #ffffff;
+    }
+
+    .question span {
+      color: var(--orange);
+      font-weight: 900;
+      margin-right: 6px;
+    }
+
+    /* Pie de página VCER */
+    .app-footer {
+      background: rgba(9, 19, 33, 0.98);
+      border-top: 1px solid var(--line);
+      padding: 24px 20px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 36px;
+    }
+
+    body.high-contrast .app-footer {
+      background: #000000;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .footer-content {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .footer-content strong {
+      color: var(--txt);
+    }
+
+    .license-tags {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 10.5px;
+    }
+
+    .license-tags a {
+      color: var(--orange);
+      text-decoration: underline;
+    }
+
+    body.high-contrast .license-tags a {
+      color: #ffff00;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .bottom { grid-template-columns: 1fr; }
+      .chip { display: none; }
+    }
+
+    @media (max-width: 540px) {
+      .wrap { padding: 15px 10px 30px; }
+      .panel { padding: 14px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .title { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra Superior DUA -->
+  <header class="app-toolbar" role="region" aria-label="Barra de accesibilidad y navegación institucional">
+    <div class="toolbar-brand">
+      <a href="index.html" title="Volver al repositorio de apps de matemática">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        <span>Repositorio mate</span>
+      </a>
+      <span class="badge-pro">VERSIÓN PRO</span>
+    </div>
+    <div class="toolbar-controls" role="group" aria-label="Controles de accesibilidad">
+      <button type="button" class="btn-tool" id="btn-font-sub" title="Disminuir tamaño de letra" aria-label="Disminuir tamaño tipográfico">A-</button>
+      <button type="button" class="btn-tool" id="btn-font-reset" title="Restablecer tamaño de letra" aria-label="Restablecer tamaño tipográfico">A</button>
+      <button type="button" class="btn-tool" id="btn-font-add" title="Aumentar tamaño de letra" aria-label="Aumentar tamaño tipográfico">A+</button>
+      <button type="button" class="btn-tool" id="btn-contrast" title="Alternar modo de alto contraste" aria-label="Alternar alto contraste">
+        <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+        <span>Contraste</span>
+      </button>
+      <button type="button" class="btn-tool" id="btn-tts" title="Escuchar consignas y lecturas mediante síntesis de voz" aria-label="Lectura por voz">
+        <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+        <span>Leer</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- Encabezado del proyecto -->
+    <header class="head">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🏀</div>
+        <div>
+          <div class="eyebrow">EDI 2026 · Matemática + Tecnología · ISFDyT N° 24</div>
+          <h1 class="title">EL TIRO PERFECTO PRO</h1>
+          <div class="subtitle">Cuando la matemática entra a la cancha · Modelización con funciones cuadráticas</div>
+        </div>
+      </div>
+      <div class="chip">LABORATORIO INTERACTIVO PRO · 3.º AÑO</div>
+    </header>
+
+    <!-- Rejilla Principal -->
+    <main class="grid">
+      <!-- Cancha 2D y simulación -->
+      <section class="panel">
+        <div class="panelhead">
+          <h2><i class="fa-solid fa-basketball" style="color: var(--orange);" aria-hidden="true"></i> Cancha 2D · Vista lateral</h2>
+          <span class="muted">Simulación física simplificada en tiempo real</span>
+        </div>
+        <div class="stage">
+          <canvas id="scene" width="1000" height="560" aria-label="Representación gráfica interactiva de la trayectoria parabólica en la cancha de básquet"></canvas>
+          <div class="stage-label">TRAYECTORIA EN TIEMPO REAL</div>
+        </div>
+        <div class="legend">
+          <span><i class="dot" style="background:#ff9d36"></i>Recorrido real</span>
+          <span><i class="dot" style="background:#64d9ec"></i>Pelota</span>
+          <span><i class="dot" style="background:#51d6a0"></i>Aro (3,05 m)</span>
+          <span><i class="dot" style="background:#ffcf7a"></i>V = Vértice analítico</span>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="launch"><i class="fa-solid fa-play" aria-hidden="true"></i> Lanzar pelota</button>
+          <button class="btn alt" id="pause"><i class="fa-solid fa-pause" aria-hidden="true"></i> Pausar</button>
+          <button class="btn alt" id="reset"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reiniciar</button>
+          <button class="btn alt" id="slow">🐢 Cámara lenta: OFF</button>
+        </div>
+        <div class="result" id="result" role="status" aria-live="polite">Prepará el lanzamiento. Cambiá los parámetros y observá qué sucede.</div>
+        <div class="metrics">
+          <div class="metric">
+            <small>Altura máxima</small>
+            <strong id="mmax">—</strong>
+          </div>
+          <div class="metric">
+            <small>Tiempo de vuelo</small>
+            <strong id="mtime">—</strong>
+          </div>
+          <div class="metric">
+            <small>Velocidad inicial</small>
+            <strong id="mvel">—</strong>
+          </div>
+          <div class="metric">
+            <small>Rebotes</small>
+            <strong id="mbounce">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel de Controles y Ecuaciones -->
+      <aside class="panel">
+        <div class="panelhead">
+          <h2><i class="fa-solid fa-sliders" style="color: var(--cyan);" aria-hidden="true"></i> Configurá el tiro</h2>
+          <span class="muted">Variá los parámetros</span>
+        </div>
+        <div class="controls">
+          <div class="control">
+            <label for="distance">Distancia al aro <span class="val" id="distanceV">5,0 m</span></label>
+            <input class="range" id="distance" type="range" min="3" max="8" step="0.1" value="5">
+            <div class="limits"><span>3 m</span><span>8 m</span></div>
+          </div>
+          <div class="control">
+            <label for="height">Altura de salida <span class="val" id="heightV">2,0 m</span></label>
+            <input class="range" id="height" type="range" min="1.4" max="2.4" step="0.05" value="2">
+            <div class="limits"><span>1,4 m</span><span>2,4 m</span></div>
+          </div>
+          <div class="control">
+            <label for="angle">Ángulo de lanzamiento <span class="val" id="angleV">52°</span></label>
+            <input class="range" id="angle" type="range" min="25" max="75" step="1" value="52">
+            <div class="limits"><span>25°</span><span>75°</span></div>
+          </div>
+          <div class="control">
+            <label for="speed">Velocidad inicial <span class="val" id="speedV">9,0 m/s</span></label>
+            <input class="range" id="speed" type="range" min="5" max="13" step="0.1" value="9">
+            <div class="limits"><span>5 m/s</span><span>13 m/s</span></div>
+          </div>
+        </div>
+
+        <div class="minihead"><i class="fa-solid fa-square-root-variable" style="color: var(--orange);" aria-hidden="true"></i> El modelo matemático</div>
+        <div class="equation" id="equation">y(x) = ax² + bx + c</div>
+        <div class="equation" id="vertex">Vértice: (xᵥ ; yᵥ)</div>
+        <p class="tip"><b>¿Qué representa?</b> x es el desplazamiento horizontal (m) e y es la altura (m). La trayectoria ideal se modela con una función cuadrática cóncava hacia abajo. El vértice representa la altura máxima alcanzada.</p>
+        <p class="tip"><b>Modelo físico:</b> gravedad g = 9,81 m/s². La animación calcula pasos numéricos continuos e incluye colisiones con aro, tablero y suelo.</p>
+      </aside>
+    </main>
+
+    <!-- Misiones de Cancha y Preguntas ABP -->
+    <section class="bottom">
+      <div class="panel">
+        <div class="panelhead">
+          <h2><i class="fa-solid fa-bullseye" style="color: var(--orange);" aria-hidden="true"></i> Misiones de la cancha</h2>
+          <span class="muted">Probá, ajustá y justificá</span>
+        </div>
+        <div class="mission">
+          <div class="mission-num">01</div>
+          <div>
+            <b>Primer tiro de prueba</b>
+            <p>Encontrá una combinación de velocidad y ángulo que haga pasar la pelota limpia por el aro.</p>
+          </div>
+          <button data-m="1">Cargar</button>
+        </div>
+        <div class="mission">
+          <div class="mission-num">02</div>
+          <div>
+            <b>Desde más lejos (Tiro triple)</b>
+            <p>Intentá embocar alejándote a 7 metros del aro.</p>
+          </div>
+          <button data-m="2">Cargar</button>
+        </div>
+        <div class="mission">
+          <div class="mission-num">03</div>
+          <div>
+            <b>Superá al defensor</b>
+            <p>Superá el obstáculo bloqueador ubicado a 2,5 m de distancia y 2,7 m de altura sin que toque la pelota.</p>
+          </div>
+          <button data-m="3">Cargar</button>
+        </div>
+        <div class="mission">
+          <div class="mission-num">04</div>
+          <div>
+            <b>Sin tiro bombeado exagerado</b>
+            <p>Lográ encestar sin superar los 4,5 metros de altura máxima en el vértice.</p>
+          </div>
+          <button data-m="4">Cargar</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelhead">
+          <h2><i class="fa-solid fa-lightbulb" style="color: var(--cyan);" aria-hidden="true"></i> Preguntas para investigar (ABP)</h2>
+        </div>
+        <p class="question"><span>1.</span>¿Qué cambia en la gráfica de la parábola cuando aumentás el ángulo de tiro manteniendo constante la velocidad?</p>
+        <p class="question"><span>2.</span>¿Cómo influye la velocidad inicial en la coordenada y del vértice (altura máxima) y en el alcance horizontal?</p>
+        <p class="question"><span>3.</span>¿Qué significado físico y geométrico tiene el vértice (xᵥ ; yᵥ) en el tiro al aro?</p>
+        <p class="question"><span>4.</span>¿Es posible embocar desde la misma distancia con dos trayectorias parabólicas diferentes? Justificá con los parámetros.</p>
+        <p class="question"><span>5.</span>¿Por qué el modelo parabólico ideal difiere levemente de un lanzamiento real en una cancha deportiva?</p>
+        <div class="equation" id="feedback">Elegí una misión y registrá qué valores probaste, qué observaste y qué conclusión obtenés.</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Pie de página institucional VCER -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="footer-content">
+      <p><strong>El tiro perfecto PRO — Laboratorio de lanzamiento parabólico</strong></p>
+      <p>Desarrollado por <strong>Fabricio Rebolledo</strong> · 4.° Año B · EDI: Matemática y el trabajo por proyectos</p>
+      <p>Prof. Silvina Elena Busto · ISFDyT N° 24 «Bernardo Houssay» (Bernal) · Ciclo lectivo 2026</p>
+      <div class="license-tags">
+        <span><i class="fa-solid fa-code"></i> Software: <a href="LICENSE" target="_blank" rel="noopener">GNU AGPL v3</a></span>
+        <span><i class="fa-brands fa-creative-commons"></i> Contenidos didácticos: <a href="LICENSE-CONTENT" target="_blank" rel="noopener">CC BY-SA 4.0</a></span>
+        <span><i class="fa-solid fa-robot"></i> Desarrollado mediante <em>vibe coding</em> con asistencia de IA y supervisión didáctica humana</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const g = 9.81;
+    const ids = ['distance', 'height', 'angle', 'speed'];
+    let state = 'idle', slow = false, last = 0, elapsed = 0, raf = 0;
+    let ball = null, path = [], bounceCount = 0, scored = false, peak = 0, flight = 0;
+    const canvas = $('scene'), ctx = canvas.getContext('2d');
+    const hoopY = 3.05, rimR = 0.045, ballR = 0.12, opening = 0.46;
+
+    function params() {
+      return {
+        d: +$('distance').value,
+        h: +$('height').value,
+        ang: +$('angle').value * Math.PI / 180,
+        v: +$('speed').value
+      };
+    }
+
+    function ideal() {
+      let p = params();
+      let vx = p.v * Math.cos(p.ang);
+      let vy = p.v * Math.sin(p.ang);
+      let a = -g / (2 * vx * vx);
+      let b = vy / vx;
+      let c = p.h;
+      let disc = b * b - 4 * a * c;
+      let root = disc >= 0 ? (-b - Math.sqrt(disc)) / (2 * a) : 0;
+      let xv = -b / (2 * a);
+      let yv = a * xv * xv + b * xv + c;
+      let at = p.h + Math.tan(p.ang) * p.d - g * p.d * p.d / (2 * p.v * p.v * Math.cos(p.ang) ** 2);
+      return { ...p, vx, vy, a, b, c, root, xv, yv, at };
+    }
+
+    function fmt(n, k = 2) {
+      return Number.isFinite(n) ? n.toFixed(k).replace('.', ',') : '—';
+    }
+
+    function setResult(msg, type = '') {
+      let el = $('result');
+      el.className = 'result ' + type;
+      el.textContent = msg;
+    }
+
+    function updateLabels() {
+      let p = params();
+      $('distanceV').textContent = fmt(p.d, 1) + ' m';
+      $('heightV').textContent = fmt(p.h, 2) + ' m';
+      $('angleV').textContent = Math.round(p.ang * 180 / Math.PI) + '°';
+      $('speedV').textContent = fmt(p.v, 1) + ' m/s';
+
+      let q = ideal();
+      $('equation').textContent = `y(x) = ${fmt(q.a, 3)}x² + ${fmt(q.b, 3)}x + ${fmt(q.c, 2)}`;
+      $('vertex').textContent = `Vértice V = (${fmt(q.xv, 2)} m ; ${fmt(q.yv, 2)} m) · Eje simetría: x = ${fmt(q.xv, 2)} m`;
+      $('mmax').textContent = fmt(q.yv, 2) + ' m';
+      $('mvel').textContent = fmt(p.v, 1) + ' m/s';
+      draw();
+    }
+
+    function resetBall() {
+      let p = params();
+      ball = {
+        x: 0,
+        y: p.h,
+        vx: p.v * Math.cos(p.ang),
+        vy: p.v * Math.sin(p.ang),
+        t: 0
+      };
+      path = [];
+      bounceCount = 0;
+      scored = false;
+      peak = p.h;
+      flight = 0;
+      state = 'idle';
+      $('mbounce').textContent = '0';
+      $('mtime').textContent = '—';
+      setResult('Lanzamiento preparado. Tocá “Lanzar pelota” para iniciar la simulación.');
+      draw();
+    }
+
+    function launch() {
+      cancelAnimationFrame(raf);
+      resetBall();
+      state = 'run';
+      last = 0;
+      raf = requestAnimationFrame(loop);
+    }
+
+    function pause() {
+      if (state === 'run') {
+        state = 'pause';
+        cancelAnimationFrame(raf);
+        setResult('Simulación pausada. Podés continuar con “Lanzar pelota” o reiniciar.', 'warn');
+      } else if (state === 'pause') {
+        state = 'run';
+        last = 0;
+        raf = requestAnimationFrame(loop);
+      }
+    }
+
+    function physics(dt) {
+      let old = { x: ball.x, y: ball.y };
+      ball.t += dt;
+      ball.vy -= g * dt;
+      ball.x += ball.vx * dt;
+      ball.y += ball.vy * dt;
+      ball.vx *= (1 - 0.012 * dt);
+      ball.vy *= (1 - 0.004 * dt);
+      peak = Math.max(peak, ball.y);
+
+      const p = params(), hx = p.d, left = hx - opening / 2, right = hx + opening / 2;
+
+      // Obstáculo didáctico de la misión 3 (Defensor)
+      if (window.obstacle) {
+        let ox = 2.5, oy = 2.7;
+        if (old.x < ox && ball.x >= ox && Math.min(old.y, ball.y) < oy && Math.max(old.y, ball.y) > oy) {
+          ball.x = old.x;
+          ball.vx = -ball.vx * 0.45;
+          ball.vy = Math.abs(ball.vy) * 0.45;
+          bounceCount++;
+        }
+      }
+
+      // Aro: colisión circular con bordes frontal y posterior
+      for (let rx of [left, right]) {
+        let dx = ball.x - rx, dy = ball.y - hoopY, dist = Math.hypot(dx, dy), min = ballR + rimR;
+        if (dist < min && dist > 0 && ball.vy < 0) {
+          let nx = dx / dist, ny = dy / dist;
+          ball.x = rx + nx * min;
+          ball.y = hoopY + ny * min;
+          let vn = ball.vx * nx + ball.vy * ny;
+          if (vn < 0) {
+            ball.vx -= (1.55 * vn) * nx;
+            ball.vy -= (1.55 * vn) * ny;
+            bounceCount++;
+          }
+        }
+      }
+
+      // Tablero vertical situado detrás del aro
+      let boardX = hx + 0.48;
+      if (ball.x + ballR > boardX && old.x + ballR <= boardX && ball.y > 2.85 && ball.y < 4.05 && ball.vx > 0) {
+        ball.x = boardX - ballR;
+        ball.vx = -ball.vx * 0.72;
+        ball.vy *= 0.88;
+        bounceCount++;
+      }
+
+      // Enceste: cruce descendente dentro de la abertura del aro
+      if (!scored && old.y >= hoopY && ball.y < hoopY && ball.vy < 0 && ball.x > left + ballR * 0.45 && ball.x < right - ballR * 0.45) {
+        scored = true;
+        setResult('¡¡¡ENCESTÓ!!! La pelota atravesó la abertura del aro. Registrá los parámetros analíticos y explicá por qué funcionó.', 'good');
+      }
+
+      // Suelo
+      if (ball.y < ballR) {
+        ball.y = ballR;
+        if (Math.abs(ball.vy) > 0.75 && bounceCount < 5) {
+          ball.vy = Math.abs(ball.vy) * 0.48;
+          ball.vx *= 0.78;
+          bounceCount++;
+        } else {
+          ball.vy = 0;
+          ball.vx *= 0.8;
+          if (Math.abs(ball.vx) < 0.25) {
+            state = 'done';
+            flight = ball.t;
+            $('mtime').textContent = fmt(flight, 2) + ' s';
+            if (!scored) {
+              setResult('La pelota terminó en el suelo sin entrar. Modificá una variable y probá otra vez.', 'bad');
+            }
+          }
+        }
+      }
+
+      path.push({ x: ball.x, y: ball.y });
+      if (path.length > 1000) path.shift();
+      $('mbounce').textContent = bounceCount;
+    }
+
+    function loop(now) {
+      if (state !== 'run') return;
+      if (!last) last = now;
+      let real = Math.min((now - last) / 1000, 0.04);
+      last = now;
+      let dt = real * (slow ? 0.35 : 1);
+      let steps = Math.max(1, Math.ceil(dt / 0.008));
+      for (let i = 0; i < steps && state === 'run'; i++) physics(dt / steps);
+      draw();
+      if (state === 'run') raf = requestAnimationFrame(loop);
+      else if (state === 'done') draw();
+    }
+
+    function draw() {
+      const W = canvas.width, H = canvas.height, L = 68, R = 950, T = 40, B = 465, xmax = 9, ymax = 6;
+      let X = x => L + x / xmax * (R - L);
+      let Y = y => B - y / ymax * (B - T);
+
+      ctx.clearRect(0, 0, W, H);
+      let grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, '#0b1c30');
+      grad.addColorStop(1, '#10263b');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Foco de luz de fondo
+      ctx.fillStyle = '#18334b';
+      ctx.beginPath();
+      ctx.arc(770, 120, 115, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cuadrícula y escalas
+      ctx.strokeStyle = '#203b55';
+      ctx.lineWidth = 1;
+      ctx.font = '13px Inter, system-ui';
+      ctx.fillStyle = '#8fa7c1';
+      for (let x = 0; x <= 9; x++) {
+        ctx.beginPath();
+        ctx.moveTo(X(x), T);
+        ctx.lineTo(X(x), B);
+        ctx.stroke();
+        ctx.fillText(x, X(x) - 4, B + 22);
+      }
+      for (let y = 0; y <= 6; y++) {
+        ctx.beginPath();
+        ctx.moveTo(L, Y(y));
+        ctx.lineTo(R, Y(y));
+        ctx.stroke();
+        ctx.fillText(y + ' m', 17, Y(y) + 4);
+      }
+      ctx.strokeStyle = '#d0d9e4';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(L, B);
+      ctx.lineTo(R, B);
+      ctx.stroke();
+
+      // Marcas de la cancha
+      ctx.strokeStyle = '#496781';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(X(0), B, 90, Math.PI * 1.5, Math.PI * 2);
+      ctx.stroke();
+
+      // Soporte, tablero y aro
+      let p = params(), hx = X(p.d), hy = Y(hoopY), gap = opening;
+      ctx.strokeStyle = '#dce8f5';
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(hx + 48, Y(4.05));
+      ctx.lineTo(hx + 48, Y(2.88));
+      ctx.stroke();
+
+      ctx.strokeStyle = '#51d6a0';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(hx - gap / 2 * (R - L) / xmax, hy);
+      ctx.lineTo(hx + gap / 2 * (R - L) / xmax, hy);
+      ctx.stroke();
+
+      ctx.fillStyle = '#51d6a0';
+      for (let x of [-gap / 2, gap / 2]) {
+        ctx.beginPath();
+        ctx.arc(X(p.d + x), hy, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.strokeStyle = '#51d6a0';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(X(p.d - gap / 2), hy + 5);
+      ctx.lineTo(X(p.d - gap / 2 + 0.08), hy + 28);
+      ctx.lineTo(X(p.d + gap / 2 - 0.08), hy + 28);
+      ctx.lineTo(X(p.d + gap / 2), hy + 5);
+      ctx.stroke();
+
+      ctx.fillStyle = '#8fe8c5';
+      ctx.font = 'bold 13px Inter, system-ui';
+      ctx.fillText('ARO · 3,05 m', Math.min(hx - 48, 850), hy - 17);
+
+      // Obstáculo didáctico (Defensor de la Misión 3)
+      if (window.obstacle) {
+        ctx.fillStyle = '#e9c76a';
+        ctx.fillRect(X(2.5) - 7, Y(2.7), 14, B - Y(2.7));
+        ctx.fillText('DEFENSOR', X(2.5) - 34, Y(2.7) - 10);
+      }
+
+      // Parábola analítica ideal (línea punteada)
+      let q = ideal();
+      ctx.setLineDash([7, 7]);
+      ctx.strokeStyle = '#ff9d3666';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let end = Math.min(9, Math.max(0, q.root || 9));
+      for (let i = 0; i <= 150; i++) {
+        let x = end * i / 150, y = q.a * x * x + q.b * x + q.c;
+        if (i === 0) ctx.moveTo(X(x), Y(y));
+        else ctx.lineTo(X(x), Y(y));
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Trayectoria real recorrida
+      if (path.length > 1) {
+        ctx.strokeStyle = '#ff9d36';
+        ctx.lineWidth = 4;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        path.forEach((pt, i) => i ? ctx.lineTo(X(pt.x), Y(pt.y)) : ctx.moveTo(X(pt.x), Y(pt.y)));
+        ctx.stroke();
+      }
+
+      // Marcador del Vértice
+      if (q.xv >= 0 && q.xv <= 9 && q.yv <= 6) {
+        ctx.fillStyle = '#ffcf7a';
+        ctx.beginPath();
+        ctx.arc(X(q.xv), Y(q.yv), 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillText('V', X(q.xv) + 9, Y(q.yv) - 8);
+      }
+
+      // Silueta del jugador
+      ctx.fillStyle = '#dce7f3';
+      ctx.beginPath();
+      ctx.arc(X(0) + 8, Y(p.h) - 31, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#dce7f3';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(X(0) + 8, Y(p.h) - 20);
+      ctx.lineTo(X(0) + 8, Y(0.25));
+      ctx.moveTo(X(0) + 8, Y(p.h) - 8);
+      ctx.lineTo(X(0) + 27, Y(p.h) + 4);
+      ctx.stroke();
+
+      // Pelota
+      let bx = ball ? ball.x : 0, by = ball ? ball.y : p.h;
+      let cx = X(bx), cy = Y(by), rad = ballR * (R - L) / xmax;
+      ctx.fillStyle = '#f28b2d';
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#542b15';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx - rad, cy);
+      ctx.quadraticCurveTo(cx, cy - rad * 0.35, cx + rad, cy);
+      ctx.moveTo(cx, cy - rad);
+      ctx.quadraticCurveTo(cx - rad * 0.4, cy, cx, cy + rad);
+      ctx.stroke();
+
+      // Eje X
+      ctx.fillStyle = '#a8bad0';
+      ctx.font = '12px Inter, system-ui';
+      ctx.fillText('Distancia horizontal (m)', R - 150, B + 48);
+    }
+
+    ids.forEach(id => $(id).addEventListener('input', () => {
+      window.obstacle = false;
+      cancelAnimationFrame(raf);
+      resetBall();
+      updateLabels();
+    }));
+
+    $('launch').onclick = launch;
+    $('pause').onclick = pause;
+    $('reset').onclick = () => {
+      window.obstacle = false;
+      cancelAnimationFrame(raf);
+      resetBall();
+      updateLabels();
+    };
+
+    $('slow').onclick = () => {
+      slow = !slow;
+      $('slow').textContent = '🐢 Cámara lenta: ' + (slow ? 'ON' : 'OFF');
+    };
+
+    document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+      let m = b.dataset.m;
+      window.obstacle = m === '3';
+      let sets = {
+        1: [5, 2, 52, 9],
+        2: [7, 2.1, 52, 10.5],
+        3: [5, 2, 55, 9],
+        4: [5, 2, 48, 8]
+      };
+      sets[m].forEach((v, i) => $(ids[i]).value = v);
+      cancelAnimationFrame(raf);
+      resetBall();
+      updateLabels();
+      $('feedback').textContent = 'Misión ' + m + ' cargada. Lanzá, observá el resultado y fundamentá qué variables influyeron en el tiro.';
+      setResult('Misión ' + m + ' preparada. ¡Hacé clic en Lanzar!', 'warn');
+    });
+
+    // --- ACCESIBILIDAD DUA (Tipografía, Contraste, TTS) ---
+    let baseFontSize = 16;
+    $('btn-font-add').onclick = () => {
+      if (baseFontSize < 24) {
+        baseFontSize += 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    };
+    $('btn-font-sub').onclick = () => {
+      if (baseFontSize > 12) {
+        baseFontSize -= 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    };
+    $('btn-font-reset').onclick = () => {
+      baseFontSize = 16;
+      document.documentElement.style.fontSize = '16px';
+    };
+    $('btn-contrast').onclick = () => {
+      document.body.classList.toggle('high-contrast');
+      $('btn-contrast').classList.toggle('active');
+    };
+    $('btn-tts').onclick = () => {
+      if (!('speechSynthesis' in window)) {
+        alert('Tu navegador no soporta síntesis de voz.');
+        return;
+      }
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        $('btn-tts').innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Leer</span>';
+        return;
+      }
+      const textToRead = `${$('result').textContent}. Ecuación cuadrática: ${$('equation').textContent}. ${$('vertex').textContent}. ${$('feedback').textContent}`;
+      const utter = new SpeechSynthesisUtterance(textToRead);
+      utter.lang = 'es-AR';
+      utter.rate = 1.0;
+      utter.onend = () => {
+        $('btn-tts').innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Leer</span>';
+      };
+      $('btn-tts').innerHTML = '<i class="fa-solid fa-pause"></i> <span>Detener</span>';
+      window.speechSynthesis.speak(utter);
+    };
+
+    resetBall();
+    updateLabels();
+  </script>
+</body>
+</html>
