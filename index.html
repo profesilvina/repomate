@@ -845,15 +845,19 @@
       {
         id: "mate-10",
         emoji: "🐔",
-        titulo: "El Gallinero Matemático: Área, Perímetro y Ecuaciones",
+        titulo: "El Gallinero Matemático: Área, Perímetro y Ecuaciones + Escape Room",
         autor: "Verónica Oliva",
-        descripcion: "Simulador interactivo y laboratorio de optimización geométrica. Permite modelizar el cerramiento de un gallinero escolar variando dimensiones y cercas para analizar la relación entre perímetro, área y funciones cuadráticas con desafíos interactivos y accesibilidad DUA.",
+        descripcion: "Proyecto integral que articula dos herramientas didácticas con accesibilidad DUA: 1) Simulador y laboratorio de optimización geométrica para modelizar cerramientos de gallineros y analizar la relación entre perímetro y área; y 2) Escape room gamificado de 1.° año con estaciones progresivas de cálculo de perímetros y áreas en corrales, nidos y rampas, con modalidad individual o por equipos.",
         nivel: "Secundaria",
         materia: "Matemática",
         eje: "Geometría y Magnitudes",
         color: "#d97706",
         url: "veronica.html",
-        tags: ["Geometría", "Área y Perímetro", "Ecuaciones Cuadráticas", "Optimización", "DUA", "Secundaria", "Modelización", "ABP"]
+        acciones: [
+          { texto: "Abrir Simulador del Gallinero", url: "veronica.html", icono: "fa-solid fa-calculator" },
+          { texto: "Abrir Escape Room (2.ª app)", url: "gallinero_escape.html", icono: "fa-solid fa-gamepad" }
+        ],
+        tags: ["Geometría", "Área y Perímetro", "Ecuaciones Cuadráticas", "Optimización", "Escape Room", "Gamificación", "DUA", "Secundaria", "Modelización", "ABP"]
       },
       {
         id: "mate-11",
@@ -868,18 +872,22 @@
         url: "karen.html",
         tags: ["Consumo Eléctrico", "Funciones", "Proporcionalidad", "Estadística", "DUA", "TTS", "Chart.js", "Secundaria", "Eficiencia Energética", "ABP"]
       },
-      {
+            {
         id: "mate-12",
         emoji: "🐝",
-        titulo: "Pioneras de la Geometría y el Enigma del Panal",
-        autor: "Ángel Viegas",
-        descripcion: "Escape room gamificado con accesibilidad DUA, lector por voz y candados interactivos. Los estudiantes resuelven 6 estaciones sobre polígonos, ángulos interiores, economía de cera, áreas compuestas y escalas técnicas junto a destacadas científicas de la historia para obtener la Licencia de Diseñador Geométrico.",
+        titulo: "Pioneras de la Geometría (Escape Room) + GeoAgro-Lab (Bancales)",
+        autor: "Ángel Viegas (E.E.S.A. N.º 1 Quilmes)",
+        descripcion: "Proyecto integral de Educación Secundaria Agraria con diseño DUA que articula dos aplicaciones: 1) «Pioneras de la Geometría y el Enigma del Panal», escape room gamificado de 6 estaciones junto a científicas históricas para resolver polígonos, ángulos y áreas; y 2) «GeoAgro-Lab», simulador y entorno de dibujo técnico sobre cuadrícula métrica para calcular perímetros y áreas de bancales y simular cobertura de riego.",
         nivel: "Secundaria",
         materia: "Matemática",
         eje: "Geometría y Magnitudes",
-        color: "#b45309", // Ámbar / miel apícola
+        color: "#059669", // Verde agronómico / ámbar
         url: "viegas.html",
-        tags: ["Escape Room", "Geometría", "Polígonos", "Áreas", "DUA", "Pioneras", "Huerta", "Ángulos", "ABP"]
+        acciones: [
+          { texto: "Abrir Escape Room: Pioneras", url: "viegas.html", icono: "fa-solid fa-puzzle-piece" },
+          { texto: "Abrir GeoAgro-Lab: Bancales (2.ª app)", url: "geoagrolab.html", icono: "fa-solid fa-wheat-awn" }
+        ],
+        tags: ["Geometría", "Escape Room", "Polígonos", "Áreas", "Perímetro", "Dibujo Técnico", "Bancales", "Secundaria Agraria", "Simulador Hídrico", "DUA", "Pioneras", "ABP"]
       },
       {
         id: "mate-13",
@@ -919,6 +927,19 @@
         color: "#ea580c", // Naranja básquet
         url: "fabricio.html",
         tags: ["Versión PRO", "Función Cuadrática", "Parábola", "Vértice", "Básquet", "Física", "DUA", "Simulador", "ABP"]
+      },
+      {
+        id: "mate-16",
+        emoji: "🦠",
+        titulo: "Simulá el Brote: Función Exponencial y Capacidad Hospitalaria",
+        autor: "Nicolás Gómez",
+        descripcion: "Simulador interactivo del modelo de crecimiento exponencial epidémico N(t) = N₀ · (1+r)ᵗ y análisis de capacidad del sistema de salud para 5.° año de secundaria. Permite experimentar con tasas de crecimiento, tiempo de duplicación, medidas de intervención para aplanar la curva, escala logarítmica para linealización y consignas de indagación ABP.",
+        nivel: "Secundaria",
+        materia: "Matemática",
+        eje: "Funciones y Análisis",
+        color: "#e11d48", // Carmesí epidemiológico
+        url: "nicolas.html",
+        tags: ["Función Exponencial", "Modelización", "Epidemiología", "Tiempo de Duplicación", "Logaritmos", "Chart.js", "Escala Logarítmica", "DUA", "TTS", "5.° Año", "ABP"]
       }
     ];
 

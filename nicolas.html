@@ -1,0 +1,658 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Simulá el Brote — Función Exponencial (Nicolás Gómez)</title>
+<meta name="description" content="Simulador interactivo del modelo de crecimiento exponencial de brotes epidemiológicos y capacidad hospitalaria. Diseñado por Nicolás Gómez para EDI 2026.">
+
+<!-- Google Fonts & FontAwesome -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+:root {
+  --red: #fc8181; --red-bg: rgba(252,129,129,0.12);
+  --blue: #90cdf4; --blue-bg: rgba(144,205,244,0.12);
+  --green: #68d391; --green-bg: rgba(104,211,145,0.12);
+  --orange: #f6ad55; --orange-bg: rgba(246,173,85,0.12);
+  --bg: #1a202c; --card: #2d3748; --border: #4a5568;
+  --text: #e2e8f0; --muted: #a0aec0;
+  --toolbar-bg: #171923;
+  --font-base: 15px;
+  box-sizing: border-box;
+}
+
+body.high-contrast {
+  --bg: #000000 !important;
+  --card: #121212 !important;
+  --border: #ffffff !important;
+  --text: #ffffff !important;
+  --muted: #e2e8f0 !important;
+  --red: #ff8888 !important;
+  --blue: #88ddff !important;
+  --green: #88ff88 !important;
+  --orange: #ffbb66 !important;
+  --toolbar-bg: #000000 !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: var(--font-base); }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.5;
+  width: 100%;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* DUA TOOLBAR */
+.dua-bar {
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.dua-left, .dua-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dua-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.dua-btn:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.dua-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.dua-btn.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 50px; }
+
+/* HEADER */
+.hdr { text-align: center; margin-bottom: 28px; }
+.hdr h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--red);
+  margin-bottom: 6px;
+}
+.hdr p { color: var(--muted); font-size: 0.95rem; }
+.hdr strong { color: var(--text); font-family: 'IBM Plex Mono', monospace; }
+
+/* GRID */
+.grid { display: grid; grid-template-columns: 310px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .hdr h1 { font-size: 1.5rem; }
+}
+
+/* CARD */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+.card-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* SLIDERS */
+.sg { margin-bottom: 16px; }
+.sl { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.sl span:first-child { font-size: 0.88rem; font-weight: 500; }
+.sv {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--red);
+  background: var(--red-bg);
+  padding: 2px 8px;
+  border-radius: 6px;
+  min-width: 56px;
+  text-align: center;
+}
+input[type=range] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e53e3e;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+/* FORMULA */
+.formula {
+  background: var(--blue-bg);
+  border: 1px solid rgba(144, 205, 244, 0.35);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.88rem;
+  color: var(--blue);
+  text-align: center;
+  line-height: 1.8;
+}
+
+/* TOGGLE */
+.tog {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--green-bg);
+  border: 1px solid rgba(104, 211, 145, 0.35);
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 14px;
+  transition: background 0.2s;
+}
+.tog:hover { background: rgba(104, 211, 145, 0.22); }
+.tog input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--green); }
+.tog span { font-size: 0.84rem; color: var(--green); font-weight: 600; line-height: 1.4; }
+
+/* LOG TOGGLE */
+.log-tog {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 0;
+}
+.log-tog input { accent-color: var(--blue); width: 16px; height: 16px; }
+
+/* CHART */
+.chart-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  position: relative;
+  height: 320px;
+  margin-bottom: 16px;
+}
+
+/* STATS */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.stat-lbl {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 800; }
+.stat-val.r { color: var(--red); }
+.stat-val.b { color: var(--blue); }
+.stat-val.o { color: var(--orange); }
+.stat-val.g { color: var(--green); }
+.stat-detail { font-size: 0.74rem; color: var(--muted); margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
+
+/* WARNING */
+.warn {
+  background: var(--orange-bg);
+  border: 1px solid rgba(246, 173, 85, 0.45);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  color: var(--orange);
+  margin-bottom: 16px;
+  display: none;
+  font-weight: 500;
+}
+
+/* QUESTIONS */
+.qs {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  margin-top: 20px;
+}
+.qs-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.qs-lbl {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.q { display: flex; gap: 12px; margin-bottom: 14px; font-size: 0.92rem; line-height: 1.6; }
+.qn { font-weight: 800; color: var(--orange); min-width: 22px; font-family: 'Space Grotesk', sans-serif; }
+
+/* FOOTER */
+.foot {
+  text-align: center;
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.foot a { color: var(--blue); text-decoration: underline; }
+.tag {
+  display: inline-block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin: 3px 4px;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+  <!-- BARRA DE ACCESIBILIDAD DUA -->
+  <header class="dua-bar" role="banner">
+    <div class="dua-left">
+      <a href="index.html" class="dua-btn" aria-label="Volver al catálogo principal de aplicaciones de matemática">
+        <i class="fa-solid fa-arrow-left"></i> Catálogo
+      </a>
+      <span style="font-weight:700;font-size:0.9rem;color:var(--text);margin-left:4px;">
+        🦠 Simulá el Brote <span style="font-size:0.75rem;font-weight:normal;color:var(--muted);">(Nicolás Gómez)</span>
+      </span>
+    </div>
+    <div class="dua-right" role="toolbar" aria-label="Herramientas de accesibilidad">
+      <button class="dua-btn" onclick="adjustFont(-1)" title="Reducir tamaño del texto" aria-label="Reducir tamaño de letra">A-</button>
+      <button class="dua-btn" onclick="adjustFont(0)" title="Tamaño de texto normal" aria-label="Restablecer tamaño de letra">A</button>
+      <button class="dua-btn" onclick="adjustFont(1)" title="Aumentar tamaño del texto" aria-label="Aumentar tamaño de letra">A+</button>
+      <button class="dua-btn" id="btn-contrast" onclick="toggleContrast()" title="Alternar modo de alto contraste" aria-label="Activar o desactivar alto contraste">
+        <i class="fa-solid fa-circle-half-stroke"></i> Contraste
+      </button>
+      <button class="dua-btn" id="btn-tts" onclick="toggleTTS()" title="Lectura en voz alta de consignas" aria-label="Lectura por voz de las consignas">
+        <i class="fa-solid fa-volume-high"></i> <span id="tts-label">Leer</span>
+      </button>
+    </div>
+  </header>
+
+<div class="wrap">
+
+  <main>
+    <div class="hdr">
+      <h1>🦠 Simulá el Brote</h1>
+      <p>¿Cuándo llegamos al límite? — Modelo de crecimiento exponencial · <strong>N(t) = N₀ · (1+r)ᵗ</strong></p>
+    </div>
+
+    <div class="grid">
+      <!-- CONTROLES -->
+      <section class="card" aria-labelledby="params-title">
+        <div class="card-label" id="params-title"><i class="fa-solid fa-sliders"></i> Parámetros del modelo</div>
+
+        <div class="sg">
+          <div class="sl"><span>Infectados iniciales (N₀)</span><span class="sv" id="n0v">10</span></div>
+          <input type="range" id="n0" min="1" max="500" value="10" aria-label="Infectados iniciales (N cero)" aria-valuemin="1" aria-valuemax="500" aria-valuenow="10">
+        </div>
+
+        <div class="sg">
+          <div class="sl"><span>Tasa de crecimiento diaria (r)</span><span class="sv" id="rv">20%</span></div>
+          <input type="range" id="rs" min="1" max="50" value="20" aria-label="Tasa de crecimiento diaria r" aria-valuemin="1" aria-valuemax="50" aria-valuenow="20">
+        </div>
+
+        <div class="sg">
+          <div class="sl"><span>Días a simular</span><span class="sv" id="dv">30</span></div>
+          <input type="range" id="ds" min="7" max="90" value="30" aria-label="Días a simular" aria-valuemin="7" aria-valuemax="90" aria-valuenow="30">
+        </div>
+
+        <div class="sg">
+          <div class="sl"><span>Capacidad hospitalaria</span><span class="sv" id="cv">1.000</span></div>
+          <input type="range" id="cs" min="100" max="50000" value="1000" step="100" aria-label="Capacidad hospitalaria" aria-valuemin="100" aria-valuemax="50000" aria-valuenow="1000">
+        </div>
+
+        <div class="tog" onclick="doToggle()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')doToggle()" aria-label="Activar o desactivar aplanar la curva">
+          <input type="checkbox" id="ftog" tabindex="-1">
+          <span>🟢 Aplanar la curva<br><small style="font-weight:normal;opacity:0.9">(intervención día 15 → r = 5%)</small></span>
+        </div>
+
+        <div class="log-tog">
+          <input type="checkbox" id="logScale" onchange="setLogScale()">
+          <label for="logScale" style="cursor:pointer">Escala logarítmica en eje Y</label>
+        </div>
+
+        <div class="formula" id="fbox" aria-live="polite">
+          N(t) = 10 · (1.20)ᵗ<br>
+          <span style="font-size:.75rem;color:var(--muted)">Tiempo de duplicación: 3.8 días</span>
+        </div>
+      </section>
+
+      <!-- GRÁFICO + STATS -->
+      <div>
+        <div class="chart-wrap">
+          <canvas id="ch" role="img" aria-label="Gráfico de evolución temporal de casos infectados"></canvas>
+        </div>
+
+        <div class="warn" id="capwarn" role="alert" aria-live="assertive">
+          <i class="fa-solid fa-triangle-exclamation"></i> La capacidad hospitalaria se supera el <strong id="capday">—</strong>.
+          ¡El sistema de salud colapsa!
+        </div>
+
+        <div class="stats" aria-label="Métricas calculadas">
+          <div class="stat">
+            <div class="stat-lbl">Total al final</div>
+            <div class="stat-val r" id="s-tot">—</div>
+            <div class="stat-detail">infectados</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl">Días hasta 1.000</div>
+            <div class="stat-val b" id="s-1k">—</div>
+            <div class="stat-detail" id="d-1k">t = log(1000/N₀)/log(1+r)</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl">Días hasta 10.000</div>
+            <div class="stat-val o" id="s-10k">—</div>
+            <div class="stat-detail" id="d-10k">t = log(10000/N₀)/log(1+r)</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl">Tiempo de duplicación</div>
+            <div class="stat-val g" id="s-dbl">—</div>
+            <div class="stat-detail">log(2) / log(1+r) días</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSIGNAS PEDAGÓGICAS ABP -->
+    <section class="qs" id="seccion-consignas" aria-labelledby="qs-title">
+      <div class="qs-hdr">
+        <div class="qs-lbl" id="qs-title"><i class="fa-solid fa-clipboard-list"></i> Guía de exploración para los estudiantes (ABP)</div>
+        <button class="dua-btn" style="font-size:0.78rem" onclick="leerConsignas()"><i class="fa-solid fa-headphones"></i> Escuchar preguntas</button>
+      </div>
+      <div class="q"><span class="qn">1.</span><span>Con N₀ = 10 y r = 20% diario, ¿cuántos días faltan para superar los 1.000 infectados? Primero estimá con el simulador, luego verificá usando la fórmula logarítmica: <em>t = log(1000/N₀) / log(1+r)</em>. ¿Coinciden los resultados?</span></div>
+      <div class="q"><span class="qn">2.</span><span>¿Qué pasa si duplicás la tasa de crecimiento de 20% a 40%? ¿Llegás al límite hospitalario en la mitad de tiempo? Usá el simulador para verificar y justificá con la fórmula por qué sí o por qué no.</span></div>
+      <div class="q"><span class="qn">3.</span><span>Activá "Aplanar la curva". ¿Cuántos días de diferencia hay entre llegar al límite hospitalario con y sin intervención? ¿Qué cambió en el modelo matemático?</span></div>
+      <div class="q"><span class="qn">4.</span><span>Activá la <em>escala logarítmica</em> en el eje Y. ¿Qué forma tiene ahora la curva exponencial? ¿Por qué se convierte en una recta? ¿Qué relación tiene esto con la función logarítmica?</span></div>
+      <div class="q"><span class="qn">5.</span><span>Si el tiempo de duplicación de un virus es de 5 días, ¿cuál es su tasa de crecimiento diaria r? Despejá r de la fórmula <em>T₂ = log(2) / log(1+r)</em> y verificá con el deslizador.</span></div>
+    </section>
+  </main>
+
+  <!-- PIE DE PÁGINA INSTITUCIONAL VCER -->
+  <footer class="foot" role="contentinfo">
+    <div style="margin-bottom:12px;">
+      <span class="tag">📐 Matemática 5.° año</span>
+      <span class="tag">🧠 Función Exponencial</span>
+      <span class="tag">🏫 ISFDyT N.° 24 — Bernal</span>
+      <span class="tag">✨ Vibe Coding Responsable</span>
+    </div>
+    <p>
+      Propuesta pedagógica desarrollada por <strong>Nicolás Gómez</strong> para el espacio curricular <em>EDI: Matemática y el trabajo por proyectos</em> (4.° Año B, Prof. Silvina Elena Busto).
+    </p>
+    <p style="margin-top:6px;font-size:0.76rem;">
+      Código fuente bajo licencia <a href="LICENSE" target="_blank" rel="noopener">GNU AGPL v3</a>. Contenidos educativos bajo <a href="LICENSE-CONTENT" target="_blank" rel="noopener">Creative Commons CC BY-SA 4.0</a>.
+    </p>
+    <p style="margin-top:4px;font-size:0.72rem;color:var(--muted);">
+      Desarrollado mediante vibe coding con asistencia de inteligencia artificial y supervisión didáctica humana. Privacidad 100% local, sin cookies ni recopilación de datos personales.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+// ─── ESTADO ──────────────────────────────────────────────────────────────────
+let N0=10, r=.20, D=30, CAP=1000, flat=false, logY=false;
+let isHighContrast = false;
+let currentFontScale = 0;
+
+// ─── ACCESIBILIDAD DUA ───────────────────────────────────────────────────────
+function adjustFont(direction) {
+  if (direction === 0) currentFontScale = 0;
+  else currentFontScale = Math.max(-1, Math.min(2, currentFontScale + direction));
+  
+  const sizes = ['14px', '15px', '17px', '19px'];
+  document.documentElement.style.setProperty('--font-base', sizes[currentFontScale + 1]);
+}
+
+function toggleContrast() {
+  isHighContrast = !isHighContrast;
+  document.body.classList.toggle('high-contrast', isHighContrast);
+  document.getElementById('btn-contrast').classList.toggle('active', isHighContrast);
+  
+  // Actualizar colores del Chart
+  const gridColor = isHighContrast ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)';
+  const tickColor = isHighContrast ? '#ffffff' : '#a0aec0';
+  chart.options.scales.x.grid.color = gridColor;
+  chart.options.scales.y.grid.color = gridColor;
+  chart.options.scales.x.ticks.color = tickColor;
+  chart.options.scales.y.ticks.color = tickColor;
+  chart.options.plugins.legend.labels.color = isHighContrast ? '#ffffff' : '#e2e8f0';
+  chart.update();
+}
+
+let isSpeaking = false;
+function toggleTTS() {
+  if (isSpeaking) {
+    window.speechSynthesis.cancel();
+    isSpeaking = false;
+    document.getElementById('tts-label').textContent = 'Leer';
+    document.getElementById('btn-tts').classList.remove('active');
+  } else {
+    const textToRead = "Simulá el Brote. Modelo de crecimiento exponencial. ¿Cuándo llegamos al límite? " +
+      "Parámetros: Infectados iniciales " + N0 + ", tasa diaria " + Math.round(r*100) + " por ciento. " +
+      document.getElementById('seccion-consignas').innerText;
+    speakText(textToRead);
+  }
+}
+
+function leerConsignas() {
+  if (isSpeaking) window.speechSynthesis.cancel();
+  const text = "Guía de exploración para los estudiantes. " + document.getElementById('seccion-consignas').innerText;
+  speakText(text);
+}
+
+function speakText(txt) {
+  if (!('speechSynthesis' in window)) {
+    alert('Tu navegador no soporta la síntesis de voz en el navegador.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(txt);
+  utterance.lang = 'es-AR';
+  utterance.rate = 1.0;
+  utterance.onend = () => {
+    isSpeaking = false;
+    document.getElementById('tts-label').textContent = 'Leer';
+    document.getElementById('btn-tts').classList.remove('active');
+  };
+  utterance.onerror = () => {
+    isSpeaking = false;
+    document.getElementById('tts-label').textContent = 'Leer';
+    document.getElementById('btn-tts').classList.remove('active');
+  };
+  isSpeaking = true;
+  document.getElementById('tts-label').textContent = 'Pausar';
+  document.getElementById('btn-tts').classList.add('active');
+  window.speechSynthesis.speak(utterance);
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────────
+const ctx=document.getElementById('ch').getContext('2d');
+const chart=new Chart(ctx,{
+  type:'line',
+  data:{labels:[],datasets:[
+    {label:'Sin intervención',data:[],borderColor:'#fc8181',backgroundColor:'rgba(252,129,129,0.1)',borderWidth:2.5,pointRadius:0,tension:.3,fill:true},
+    {label:'Con intervención',data:[],borderColor:'#68d391',backgroundColor:'rgba(104,211,145,0.08)',borderWidth:2.5,pointRadius:0,tension:.3,fill:true,hidden:true},
+    {label:'Capacidad hospitalaria',data:[],borderColor:'#f6ad55',backgroundColor:'transparent',borderWidth:1.5,borderDash:[6,4],pointRadius:0},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,animation:{duration:180},
+    plugins:{
+      legend:{labels:{color:'#e2e8f0',font:{size:11},boxWidth:12,padding:12}},
+      tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${fmt(c.parsed.y)}`}}
+    },
+    scales:{
+      x:{ticks:{color:'#a0aec0',font:{size:10},maxTicksLimit:10},grid:{color:'rgba(255,255,255,0.06)'}},
+      y:{type:'linear',ticks:{color:'#a0aec0',font:{size:10},callback:v=>fmt(v)},grid:{color:'rgba(255,255,255,0.06)'}}
+    }
+  }
+});
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function fmt(n){
+  if(!isFinite(n)||n===null)return '∞';
+  if(n>=1e9)return (n/1e9).toFixed(1)+'B';
+  if(n>=1e6)return (n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return (n/1e3).toFixed(1)+'K';
+  return Math.round(n).toLocaleString('es-AR');
+}
+function dTo(target){
+  if(N0>=target)return 0;
+  const t=Math.log(target/N0)/Math.log(1+r);
+  return isFinite(t)?Math.ceil(t):null;
+}
+function val(t){return N0*Math.pow(1+r,t);}
+function valFlat(t){
+  if(t<=15)return val(t);
+  return val(15)*Math.pow(1.05,t-15);
+}
+
+// ─── UPDATE ──────────────────────────────────────────────────────────────────
+function update(){
+  const labels=[],main=[],flatArr=[],capLine=[];
+  for(let t=0;t<=D;t++){
+    labels.push('Día '+t);
+    const v=val(t);
+    main.push(isFinite(v)?v:null);
+    flatArr.push(valFlat(t));
+    capLine.push(CAP);
+  }
+  chart.data.labels=labels;
+  chart.data.datasets[0].data=main;
+  chart.data.datasets[0].hidden=flat;
+  chart.data.datasets[1].data=flatArr;
+  chart.data.datasets[1].hidden=!flat;
+  chart.data.datasets[2].data=capLine;
+
+  // Log scale
+  chart.options.scales.y.type=logY?'logarithmic':'linear';
+  chart.update();
+
+  // Stats
+  const tot=val(D);
+  const d1k=dTo(1000), d10k=dTo(10000), dbl=Math.log(2)/Math.log(1+r);
+  const rc=(1+r).toFixed(2);
+
+  document.getElementById('s-tot').textContent=isFinite(tot)?fmt(tot):'> astronómico';
+  document.getElementById('s-1k').textContent=d1k===null?`>${D}d`:d1k>D?`>${D}d`:`${d1k}d`;
+  document.getElementById('s-10k').textContent=d10k===null?`>${D}d`:d10k>D?`>${D}d`:`${d10k}d`;
+  document.getElementById('s-dbl').textContent=dbl.toFixed(1)+'d';
+  document.getElementById('d-1k').textContent=`log(1000/${N0}) / log(${rc})`;
+  document.getElementById('d-10k').textContent=`log(10000/${N0}) / log(${rc})`;
+
+  // Warning
+  const capDay=dTo(CAP);
+  const wEl=document.getElementById('capwarn');
+  if(capDay!==null&&capDay<=D){
+    wEl.style.display='block';
+    document.getElementById('capday').textContent='día '+capDay;
+  } else { wEl.style.display='none'; }
+
+  // Formula
+  document.getElementById('fbox').innerHTML=
+    `N(t) = ${N0} · (${rc})ᵗ<br><span style="font-size:.75rem;color:var(--muted)">Tiempo de duplicación: ${dbl.toFixed(1)} días · r = ${(r*100).toFixed(0)}% diario</span>`;
+}
+
+// ─── EVENTS ──────────────────────────────────────────────────────────────────
+document.getElementById('n0').addEventListener('input',e=>{
+  N0=+e.target.value;
+  document.getElementById('n0v').textContent=N0.toLocaleString('es-AR');
+  e.target.setAttribute('aria-valuenow', N0);
+  update();
+});
+document.getElementById('rs').addEventListener('input',e=>{
+  r=e.target.value/100;
+  document.getElementById('rv').textContent=e.target.value+'%';
+  e.target.setAttribute('aria-valuenow', e.target.value);
+  update();
+});
+document.getElementById('ds').addEventListener('input',e=>{
+  D=+e.target.value;
+  document.getElementById('dv').textContent=D;
+  e.target.setAttribute('aria-valuenow', D);
+  update();
+});
+document.getElementById('cs').addEventListener('input',e=>{
+  CAP=+e.target.value;
+  document.getElementById('cv').textContent=(+e.target.value).toLocaleString('es-AR');
+  e.target.setAttribute('aria-valuenow', CAP);
+  update();
+});
+function doToggle(){
+  const cb=document.getElementById('ftog');
+  cb.checked=!cb.checked;
+  flat=cb.checked;
+  update();
+}
+function setLogScale(){
+  logY=document.getElementById('logScale').checked;
+  update();
+}
+
+update();
+</script>
+</body>
+</html>

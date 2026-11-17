@@ -1,0 +1,961 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoAgro-Lab: Simulador y Dibujo Técnico de Bancales</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+        canvas {
+            cursor: crosshair;
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header / Navbar -->
+    <header class="bg-emerald-800 text-white px-6 py-3 shadow-lg flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="bg-emerald-600 p-2 rounded-lg text-amber-300">
+                <i class="fa-solid fa-wheat-awn text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
+                    GeoAgro-Lab <span class="text-xs bg-emerald-600 text-emerald-100 px-2 py-0.5 rounded-full font-normal">EDI 2026</span>
+                </h1>
+                <p class="text-xs text-emerald-200">E.E.S.A. N.º 1 Quilmes • Diseñador Geométrico & Simulador Hídrico en Centímetros</p>
+            </div>
+        </div>
+
+        <!-- Quick Metrics Header Bar -->
+        <div class="hidden lg:flex items-center space-x-4 text-xs font-medium">
+            <div class="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-lg text-emerald-100">
+                <i class="fa-solid fa-ruler-horizontal text-emerald-400 mr-1.5"></i> Perímetro: <span id="hdrPerimeter" class="font-bold text-white">0 cm</span>
+            </div>
+            <div class="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-lg text-emerald-100">
+                <i class="fa-solid fa-draw-polygon text-emerald-400 mr-1.5"></i> Área Bancal: <span id="hdrArea" class="font-bold text-white">0 cm²</span>
+            </div>
+            <div class="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-lg text-emerald-100">
+                <i class="fa-solid fa-droplet text-cyan-400 mr-1.5"></i> Cobertura Riego: <span id="hdrCoverage" class="font-bold text-cyan-300">0.0 %</span>
+            </div>
+        </div>
+    
+        <!-- Botón Volver y DUA -->
+        <div class="flex items-center space-x-2">
+            <a href="index.html" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm" aria-label="Volver al catálogo general">
+                <i class="fa-solid fa-arrow-left"></i> Catálogo
+            </a>
+            <button onclick="toggleHighContrast()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors" title="Alternar alto contraste" aria-label="Alto contraste">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+            </button>
+            <button onclick="readHelpTTS()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors" title="Lectura en voz alta" aria-label="Lectura por voz">
+                <i class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex flex-1 relative overflow-hidden">
+        
+        <!-- Left Sidebar: Tools, Presets & Controls -->
+        <aside class="w-80 bg-white border-r border-slate-200 p-4 flex flex-col justify-between shadow-sm z-10 overflow-y-auto shrink-0">
+            <div class="space-y-4">
+                
+                <!-- Tool Mode Selector -->
+                <div>
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Modo de Edición</h2>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button id="btnToolDraw" onclick="setMode('draw')" class="flex flex-col items-center justify-center p-2 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-medium transition hover:shadow-sm">
+                            <i class="fa-solid fa-pen-ruler text-sm mb-1"></i>
+                            <span class="text-[11px]">Trazar</span>
+                        </button>
+                        <button id="btnToolSprinkler" onclick="setMode('sprinkler')" class="flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-medium transition hover:bg-slate-50">
+                            <i class="fa-solid fa-faucet-drip text-sm mb-1 text-cyan-600"></i>
+                            <span class="text-[11px]">Aspersor</span>
+                        </button>
+                        <button id="btnToolMove" onclick="setMode('move')" class="flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-medium transition hover:bg-slate-50">
+                            <i class="fa-solid fa-hand text-sm mb-1 text-amber-600"></i>
+                            <span class="text-[11px]">Mover</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Freehand Actions -->
+                <div id="drawActions" class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <p class="text-[11px] text-slate-500"><i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i> Haz clic para fijar vértices. Distancias en <b>cm</b>.</p>
+                    <button id="btnClosePolygon" onclick="closePolygon()" disabled class="w-full py-1.5 bg-emerald-600 text-white rounded-lg font-semibold text-xs shadow-sm opacity-50 cursor-not-allowed hover:bg-emerald-700 transition">
+                        <i class="fa-solid fa-check-double mr-1"></i> Cerrar Polígono
+                    </button>
+                    <button onclick="clearAll()" class="w-full py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg font-medium text-xs hover:bg-rose-100 transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Borrar Todo / Limpiar
+                    </button>
+                </div>
+
+                <!-- Multiple Preset Shapes -->
+                <div>
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Figuras Geométricas</h2>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button onclick="drawPresetShape('hexagon')" class="py-1.5 px-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-shapes text-amber-600"></i> Hexágono
+                        </button>
+                        <button onclick="drawPresetShape('rectangle')" class="py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5">
+                            <i class="fa-regular fa-square text-blue-600"></i> Rectángulo
+                        </button>
+                        <button onclick="drawPresetShape('triangle')" class="py-1.5 px-2 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-play -rotate-90 text-purple-600"></i> Triángulo
+                        </button>
+                        <button onclick="drawPresetShape('pentagon')" class="py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-draw-polygon text-emerald-600"></i> Pentágono
+                        </button>
+                        <button onclick="drawPresetShape('trapezoid')" class="py-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 col-span-2">
+                            <i class="fa-solid fa-layer-group text-indigo-600"></i> Trapecio Agrario
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Individual Sprinkler Radius Controls -->
+                <div class="bg-cyan-50/80 p-3 rounded-xl border border-cyan-200 space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <label for="sprinklerRadius" class="font-bold text-cyan-900" id="lblSprinklerControlTitle">Radio por Defecto (cm):</label>
+                        <span id="radiusValue" class="font-extrabold text-cyan-700 bg-cyan-100 px-2 py-0.5 rounded">200 cm</span>
+                    </div>
+                    <input type="range" id="sprinklerRadius" min="30" max="600" step="10" value="200" oninput="updateSprinklerRadius(this.value)" class="w-full accent-cyan-600 cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-cyan-600 font-mono">
+                        <span>30 cm</span>
+                        <span>300 cm</span>
+                        <span>600 cm</span>
+                    </div>
+                    <p id="sprinklerSelectHint" class="text-[10px] text-cyan-700 italic border-t border-cyan-200 pt-1">
+                        * Haz clic en un aspersor para seleccionarlo y ajustar su radio individual.
+                    </p>
+                    <button id="btnDeleteSelectedSprinkler" onclick="deleteSelectedSprinkler()" class="hidden w-full py-1 bg-rose-600 text-white rounded text-xs font-semibold hover:bg-rose-700 transition">
+                        <i class="fa-solid fa-trash mr-1"></i> Eliminar Aspersor Seleccionado
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Bottom Scale Information -->
+            <div class="mt-3 pt-2 border-t border-slate-200 text-[11px] text-slate-500 flex justify-between items-center">
+                <span><i class="fa-solid fa-ruler-combined"></i> Escala: <b>1 px = 2 cm</b></span>
+                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">1:2</span>
+            </div>
+        
+                <!-- VCER Footer -->
+                <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
+                    <p class="font-bold text-slate-700">🌱 GeoAgro-Lab — E.E.S.A. N.º 1 Quilmes</p>
+                    <p>Desarrollado por <strong>Ángel Viegas</strong> (EDI 2026 · ISFDyT N.° 24 · Prof. Silvina Elena Busto).</p>
+                    <p class="text-[10px]">
+                        Código: <a href="LICENSE" target="_blank" class="underline text-emerald-700">GNU AGPL v3</a> • Contenidos: <a href="LICENSE-CONTENT" target="_blank" class="underline text-emerald-700">CC BY-SA 4.0</a>
+                    </p>
+                    <p class="text-[9px] text-slate-400">Vibe coding con supervisión didáctica humana. Cero cookies ni analítica.</p>
+                </div>
+
+        </aside>
+
+        <!-- Center Canvas Area -->
+        <main class="flex-1 relative bg-slate-50 flex items-center justify-center overflow-hidden">
+            <canvas id="geoCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+            <!-- Floating Tool Instruction -->
+            <div id="canvasHelp" class="absolute top-4 left-4 bg-white/95 backdrop-blur border border-slate-200 shadow-sm px-3 py-2 rounded-lg text-xs text-slate-600 pointer-events-none flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="txtInstruction">Selecciona 'Trazar Libre' o una 'Figura Geométrica' para comenzar el bancal.</span>
+            </div>
+        </main>
+
+        <!-- Right Dedicated Metrics Sidebar -->
+        <aside class="w-80 bg-white border-l border-slate-200 p-4 flex flex-col justify-between shadow-sm z-10 shrink-0 overflow-y-auto">
+            <div class="space-y-4">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Métricas del Bancal</span>
+                    <i class="fa-solid fa-chart-pie text-emerald-600"></i>
+                </h2>
+
+                <!-- Main Area Stats Card -->
+                <div class="bg-slate-900 text-white p-4 rounded-xl space-y-3 font-mono shadow-md">
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Área Total del Bancal</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="lblAreaCm" class="text-xl font-extrabold text-emerald-400">0</span>
+                            <span class="text-xs text-emerald-200 font-sans">cm²</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-sans">
+                            ≈ <span id="lblAreaM" class="font-semibold text-slate-200">0.00</span> m²
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-2">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Área Abarcada por Riego</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="lblWetCm" class="text-xl font-extrabold text-cyan-400">0</span>
+                            <span class="text-xs text-cyan-200 font-sans">cm²</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-sans">
+                            ≈ <span id="lblWetM" class="font-semibold text-slate-200">0.00</span> m²
+                        </div>
+                    </div>
+
+                    <!-- NUEVO APARTADO: ÁREA INUNDADA / SUPERPOSICIÓN -->
+                    <div class="border-t border-slate-800 pt-2 bg-purple-950/40 -mx-4 p-4 border-purple-900/50">
+                        <span class="text-[10px] text-purple-300 uppercase tracking-wider block font-bold"><i class="fa-solid fa-water mr-1"></i> Área Inundada (Superposición)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="lblFloodCm" class="text-xl font-extrabold text-purple-400">0</span>
+                            <span class="text-xs text-purple-200 font-sans">cm²</span>
+                        </div>
+                        <div class="text-[11px] text-purple-300/80 font-sans">
+                            ≈ <span id="lblFloodM" class="font-semibold text-purple-200">0.00</span> m² con doble riego
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-2">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Zona Seca (Sin agua)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="lblDryCm" class="text-xl font-extrabold text-amber-400">0</span>
+                            <span class="text-xs text-amber-200 font-sans">cm²</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-sans">
+                            ≈ <span id="lblDryM" class="font-semibold text-slate-200">0.00</span> m²
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-2 bg-rose-950/40 -mx-4 -mb-4 p-4 rounded-b-xl border-rose-900/50">
+                        <span class="text-[10px] text-rose-300 uppercase tracking-wider block font-bold">Agua Desperdiciada (Fuera del Bancal)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="lblWasteCm" class="text-xl font-extrabold text-rose-400">0</span>
+                            <span class="text-xs text-rose-200 font-sans">cm²</span>
+                        </div>
+                        <div class="text-[11px] text-rose-300/80 font-sans">
+                            ≈ <span id="lblWasteM" class="font-semibold text-rose-200">0.00</span> m² de desborde
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Efficiency Indicator & Bar -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-slate-700">Eficiencia de Cobertura:</span>
+                        <span id="lblEfficiency" class="font-extrabold text-emerald-700 text-sm">0.0 %</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden flex">
+                        <div id="barWet" class="bg-cyan-500 h-3 transition-all duration-300" style="width: 0%"></div>
+                        <div id="barDry" class="bg-amber-300 h-3 transition-all duration-300" style="width: 100%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                        <span>Mojado: <b id="barWetTxt">0%</b></span>
+                        <span>Seco: <b id="barDryTxt">100%</b></span>
+                    </div>
+                </div>
+
+                <!-- Secondary Geometry Info -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs font-mono">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Perímetro Total:</span>
+                        <span id="lblPerimeterCm" class="font-bold text-slate-900">0 cm</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Lado Promedio:</span>
+                        <span id="lblAvgSideCm" class="font-bold text-slate-900">0 cm</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Aspersores Colocados:</span>
+                        <span id="lblSprinklerCount" class="font-bold text-cyan-700">0 u.</span>
+                    </div>
+                </div>
+
+                <!-- List of Active Sprinklers -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Aspersores Ubicados</h3>
+                    <div id="sprinklerList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1 text-xs">
+                        <p class="text-slate-400 italic text-[11px]">No hay aspersores colocados.</p>
+                    </div>
+                </div>
+
+            </div>
+        
+                <!-- VCER Footer -->
+                <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
+                    <p class="font-bold text-slate-700">🌱 GeoAgro-Lab — E.E.S.A. N.º 1 Quilmes</p>
+                    <p>Desarrollado por <strong>Ángel Viegas</strong> (EDI 2026 · ISFDyT N.° 24 · Prof. Silvina Elena Busto).</p>
+                    <p class="text-[10px]">
+                        Código: <a href="LICENSE" target="_blank" class="underline text-emerald-700">GNU AGPL v3</a> • Contenidos: <a href="LICENSE-CONTENT" target="_blank" class="underline text-emerald-700">CC BY-SA 4.0</a>
+                    </p>
+                    <p class="text-[9px] text-slate-400">Vibe coding con supervisión didáctica humana. Cero cookies ni analítica.</p>
+                </div>
+
+        </aside>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        const SCALE_CM_PER_PX = 2; 
+        const canvas = document.getElementById('geoCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let mode = 'draw'; 
+        let vertices = []; 
+        let isClosed = false;
+        let sprinklers = []; 
+        let selectedSprinklerIndex = -1;
+        let defaultRadius = 200; 
+        let hoveredVertexIndex = -1;
+
+        let isDragging = false;
+        let draggedType = null; 
+        let draggedIndex = -1;
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            draw();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        window.onload = () => {
+            resizeCanvas();
+            setMode('draw');
+        };
+
+        function setMode(newMode) {
+            mode = newMode;
+            const btnDraw = document.getElementById('btnToolDraw');
+            const btnSprinkler = document.getElementById('btnToolSprinkler');
+            const btnMove = document.getElementById('btnToolMove');
+            const txtInstruction = document.getElementById('txtInstruction');
+
+            btnDraw.className = "flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-medium transition hover:bg-slate-50";
+            btnSprinkler.className = "flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-medium transition hover:bg-slate-50";
+            btnMove.className = "flex flex-col items-center justify-center p-2 rounded-xl border-2 border-slate-200 bg-white text-slate-600 font-medium transition hover:bg-slate-50";
+
+            if (mode === 'draw') {
+                btnDraw.className = "flex flex-col items-center justify-center p-2 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-emerald-800 font-medium transition hover:shadow-sm";
+                txtInstruction.innerText = isClosed ? "Polígono cerrado. Puedes cambiar a 'Mover' para ajustar vértices o continuar trazando si lo abres." : "Haz clic para colocar vértices del bancal. Cierra el polígono cerca del primer punto.";
+            } else if (mode === 'sprinkler') {
+                btnSprinkler.className = "flex flex-col items-center justify-center p-2 rounded-xl border-2 border-cyan-600 bg-cyan-50 text-cyan-800 font-medium transition hover:shadow-sm";
+                txtInstruction.innerText = "Haz clic en el canvas para agregar un aspersor, o haz clic en uno existente para ajustar su radio.";
+            } else if (mode === 'move') {
+                btnMove.className = "flex flex-col items-center justify-center p-2 rounded-xl border-2 border-amber-600 bg-amber-50 text-amber-900 font-medium transition hover:shadow-sm";
+                txtInstruction.innerText = "Modo Mover: Arrastra cualquier vértice o aspersor para reposicionarlo libremente.";
+            }
+            draw();
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (mode === 'move') {
+                for (let i = 0; i < vertices.length; i++) {
+                    if (Math.hypot(x - vertices[i].x, y - vertices[i].y) <= 14) {
+                        isDragging = true;
+                        draggedType = 'vertex';
+                        draggedIndex = i;
+                        return;
+                    }
+                }
+                for (let i = 0; i < sprinklers.length; i++) {
+                    if (Math.hypot(x - sprinklers[i].x, y - sprinklers[i].y) <= 14) {
+                        isDragging = true;
+                        draggedType = 'sprinkler';
+                        draggedIndex = i;
+                        selectSprinkler(i);
+                        return;
+                    }
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (mode === 'move' && isDragging) {
+                if (draggedType === 'vertex' && draggedIndex !== -1) {
+                    vertices[draggedIndex].x = x;
+                    vertices[draggedIndex].y = y;
+                } else if (draggedType === 'sprinkler' && draggedIndex !== -1) {
+                    sprinklers[draggedIndex].x = x;
+                    sprinklers[draggedIndex].y = y;
+                }
+                recalculateMetrics();
+                draw(x, y);
+                return;
+            }
+
+            if (mode === 'draw' && !isClosed && vertices.length >= 3) {
+                const first = vertices[0];
+                hoveredVertexIndex = Math.hypot(x - first.x, y - first.y) < 15 ? 0 : -1;
+            } else {
+                hoveredVertexIndex = -1;
+            }
+            draw(x, y);
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                draggedType = null;
+                draggedIndex = -1;
+            }
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (mode === 'move') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (mode === 'draw') {
+                if (isClosed) {
+                    isClosed = false;
+                    document.getElementById('btnClosePolygon').disabled = false;
+                    document.getElementById('btnClosePolygon').classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                if (vertices.length >= 3) {
+                    const first = vertices[0];
+                    if (Math.hypot(x - first.x, y - first.y) < 15) {
+                        closePolygon();
+                        return;
+                    }
+                }
+
+                vertices.push({ x, y });
+                if (vertices.length >= 3) {
+                    document.getElementById('btnClosePolygon').disabled = false;
+                    document.getElementById('btnClosePolygon').classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } else if (mode === 'sprinkler') {
+                if (!isClosed) {
+                    alert("Por favor, cierra o selecciona una figura geométrica para el bancal antes de colocar aspersores.");
+                    return;
+                }
+
+                let clickedIndex = -1;
+                for (let i = 0; i < sprinklers.length; i++) {
+                    if (Math.hypot(x - sprinklers[i].x, y - sprinklers[i].y) <= 12) {
+                        clickedIndex = i;
+                        break;
+                    }
+                }
+
+                if (clickedIndex !== -1) {
+                    selectSprinkler(clickedIndex);
+                } else {
+                    sprinklers.push({ x, y, r: defaultRadius });
+                    selectSprinkler(sprinklers.length - 1);
+                }
+            }
+
+            recalculateMetrics();
+            draw();
+        });
+
+        function closePolygon() {
+            if (vertices.length < 3) return;
+            isClosed = true;
+            document.getElementById('btnClosePolygon').disabled = true;
+            document.getElementById('btnClosePolygon').classList.add('opacity-50', 'cursor-not-allowed');
+            setMode('sprinkler');
+            recalculateMetrics();
+            draw();
+        }
+
+        function clearAll() {
+            vertices = [];
+            sprinklers = [];
+            isClosed = false;
+            selectedSprinklerIndex = -1;
+            isDragging = false;
+            document.getElementById('btnClosePolygon').disabled = true;
+            document.getElementById('btnClosePolygon').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('btnDeleteSelectedSprinkler').classList.add('hidden');
+            document.getElementById('lblSprinklerControlTitle').innerText = "Radio por Defecto (cm):";
+            setMode('draw');
+            recalculateMetrics();
+            draw();
+        }
+
+        function selectSprinkler(index) {
+            selectedSprinklerIndex = index;
+            const btnDel = document.getElementById('btnDeleteSelectedSprinkler');
+            const lblTitle = document.getElementById('lblSprinklerControlTitle');
+            const slider = document.getElementById('sprinklerRadius');
+            const txtVal = document.getElementById('radiusValue');
+
+            if (index >= 0 && index < sprinklers.length) {
+                btnDel.classList.remove('hidden');
+                lblTitle.innerText = `Radio Aspersor #${index + 1} (cm):`;
+                slider.value = sprinklers[index].r;
+                txtVal.innerText = sprinklers[index].r + ' cm';
+            } else {
+                btnDel.classList.add('hidden');
+                lblTitle.innerText = "Radio por Defecto (cm):";
+                slider.value = defaultRadius;
+                txtVal.innerText = defaultRadius + ' cm';
+            }
+            renderSprinklerList();
+            draw();
+        }
+
+        function updateSprinklerRadius(val) {
+            const newR = parseFloat(val);
+            document.getElementById('radiusValue').innerText = newR + ' cm';
+
+            if (selectedSprinklerIndex >= 0 && selectedSprinklerIndex < sprinklers.length) {
+                sprinklers[selectedSprinklerIndex].r = newR;
+            } else {
+                defaultRadius = newR;
+            }
+            recalculateMetrics();
+            renderSprinklerList();
+            draw();
+        }
+
+        function deleteSelectedSprinkler() {
+            if (selectedSprinklerIndex >= 0 && selectedSprinklerIndex < sprinklers.length) {
+                sprinklers.splice(selectedSprinklerIndex, 1);
+                selectSprinkler(-1);
+                recalculateMetrics();
+                draw();
+            }
+        }
+
+        function drawPresetShape(type) {
+            clearAll();
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            if (type === 'hexagon') {
+                const rPx = 100;
+                for (let i = 0; i < 6; i++) {
+                    const angle = (Math.PI / 3) * i - Math.PI / 6;
+                    vertices.push({ x: cx + rPx * Math.cos(angle), y: cy + rPx * Math.sin(angle) });
+                }
+            } else if (type === 'rectangle') {
+                const wPx = 150;
+                const hPx = 100;
+                vertices = [
+                    { x: cx - wPx/2, y: cy - hPx/2 },
+                    { x: cx + wPx/2, y: cy - hPx/2 },
+                    { x: cx + wPx/2, y: cy + hPx/2 },
+                    { x: cx - wPx/2, y: cy + hPx/2 }
+                ];
+            } else if (type === 'triangle') {
+                const rPx = 110;
+                vertices = [
+                    { x: cx, y: cy - rPx },
+                    { x: cx + rPx * Math.cos(Math.PI/6), y: cy + rPx * Math.sin(Math.PI/6) },
+                    { x: cx - rPx * Math.cos(Math.PI/6), y: cy + rPx * Math.sin(Math.PI/6) }
+                ];
+            } else if (type === 'pentagon') {
+                const rPx = 105;
+                for (let i = 0; i < 5; i++) {
+                    const angle = (2 * Math.PI / 5) * i - Math.PI / 2;
+                    vertices.push({ x: cx + rPx * Math.cos(angle), y: cy + rPx * Math.sin(angle) });
+                }
+            } else if (type === 'trapezoid') {
+                vertices = [
+                    { x: cx - 80, y: cy - 70 },
+                    { x: cx + 80, y: cy - 70 },
+                    { x: cx + 140, y: cy + 70 },
+                    { x: cx - 140, y: cy + 70 }
+                ];
+            }
+
+            closePolygon();
+            sprinklers.push({ x: cx, y: cy, r: defaultRadius });
+            selectSprinkler(0);
+            recalculateMetrics();
+            draw();
+        }
+
+        function computePolygonAreaCm() {
+            if (vertices.length < 3) return 0;
+            let areaPx = 0;
+            for (let i = 0; i < vertices.length; i++) {
+                let j = (i + 1) % vertices.length;
+                areaPx += vertices[i].x * vertices[j].y;
+                areaPx -= vertices[j].x * vertices[i].y;
+            }
+            areaPx = Math.abs(areaPx) / 2;
+            return areaPx * (SCALE_CM_PER_PX * SCALE_CM_PER_PX);
+        }
+
+        function computePerimeterCm() {
+            if (vertices.length < 2) return 0;
+            let perimPx = 0;
+            const count = isClosed ? vertices.length : vertices.length - 1;
+            for (let i = 0; i < count; i++) {
+                let j = (i + 1) % vertices.length;
+                perimPx += Math.hypot(vertices[j].x - vertices[i].x, vertices[j].y - vertices[i].y);
+            }
+            return perimPx * SCALE_CM_PER_PX;
+        }
+
+        function isPointInPolygon(px, py) {
+            let inside = false;
+            for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+                const xi = vertices[i].x, yi = vertices[i].y;
+                const xj = vertices[j].x, yj = vertices[j].y;
+                const intersect = ((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+
+        // --- CÁLCULO DE RIEGO, SUPERPOSICIÓN (ÁREA INUNDADA) Y DESPERDICIO ---
+        function computeIrrigationMetrics() {
+            if (!isClosed || vertices.length < 3 || sprinklers.length === 0) return { wet: 0, flood: 0, waste: 0 };
+
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            vertices.forEach(v => {
+                if (v.x < minX) minX = v.x;
+                if (v.x > maxX) maxX = v.x;
+                if (v.y < minY) minY = v.y;
+                if (v.y > maxY) maxY = v.y;
+            });
+
+            sprinklers.forEach(s => {
+                const rPx = s.r / SCALE_CM_PER_PX;
+                if (s.x - rPx < minX) minX = s.x - rPx;
+                if (s.x + rPx > maxX) maxX = s.x + rPx;
+                if (s.y - rPx < minY) minY = s.y - rPx;
+                if (s.y + rPx > maxY) maxY = s.y + rPx;
+            });
+
+            const step = 4;
+            let wetInsidePoints = 0;
+            let floodInsidePoints = 0;
+            let wastePoints = 0;
+
+            for (let x = minX; x <= maxX; x += step) {
+                for (let y = minY; y <= maxY; y += step) {
+                    const inside = isPointInPolygon(x, y);
+                    
+                    // Contar cuántos aspersores alcanzan este punto
+                    let sprinklerCount = 0;
+                    for (let s of sprinklers) {
+                        const rPx = s.r / SCALE_CM_PER_PX;
+                        if (Math.hypot(x - s.x, y - s.y) <= rPx) {
+                            sprinklerCount++;
+                        }
+                    }
+
+                    if (inside) {
+                        if (sprinklerCount >= 1) {
+                            wetInsidePoints++; // Área alcanzada por agua
+                        }
+                        if (sprinklerCount >= 2) {
+                            floodInsidePoints++; // Superposición (2 o más radios cruzándose adentro)
+                        }
+                    } else {
+                        if (sprinklerCount >= 1) {
+                            wastePoints++; // Agua que cae afuera (desperdicio)
+                        }
+                    }
+                }
+            }
+
+            const pixelAreaCm2 = (step * step) * (SCALE_CM_PER_PX * SCALE_CM_PER_PX);
+            return {
+                wet: wetInsidePoints * pixelAreaCm2,
+                flood: floodInsidePoints * pixelAreaCm2,
+                waste: wastePoints * pixelAreaCm2
+            };
+        }
+
+        function recalculateMetrics() {
+            const perimCm = computePerimeterCm();
+            const totalAreaCm = computePolygonAreaCm();
+            const { wet: wetAreaCm, flood: floodAreaCm, waste: wasteAreaCm } = computeIrrigationMetrics();
+            const dryAreaCm = Math.max(0, totalAreaCm - wetAreaCm);
+            
+            // Eficiencia afectada negativamente por el exceso de área inundada (saturación/encharcamiento)
+            let baseEfficiency = totalAreaCm > 0 ? (wetAreaCm / totalAreaCm) * 100 : 0;
+            let saturationPenalty = totalAreaCm > 0 ? (floodAreaCm / totalAreaCm) * 15 : 0; // Penalización pedagógica por superposición excesiva
+            const efficiency = Math.max(0, baseEfficiency - saturationPenalty);
+
+            const totalAreaM = totalAreaCm / 10000;
+            const wetAreaM = wetAreaCm / 10000;
+            const floodAreaM = floodAreaCm / 10000;
+            const dryAreaM = dryAreaCm / 10000;
+            const wasteAreaM = wasteAreaCm / 10000;
+
+            document.getElementById('hdrPerimeter').innerText = perimCm.toFixed(0) + ' cm';
+            document.getElementById('hdrArea').innerText = totalAreaCm.toFixed(0) + ' cm²';
+            document.getElementById('hdrCoverage').innerText = efficiency.toFixed(1) + ' %';
+
+            document.getElementById('lblAreaCm').innerText = Math.round(totalAreaCm).toLocaleString();
+            document.getElementById('lblAreaM').innerText = totalAreaM.toFixed(2);
+
+            document.getElementById('lblWetCm').innerText = Math.round(wetAreaCm).toLocaleString();
+            document.getElementById('lblWetM').innerText = wetAreaM.toFixed(2);
+
+            document.getElementById('lblFloodCm').innerText = Math.round(floodAreaCm).toLocaleString();
+            document.getElementById('lblFloodM').innerText = floodAreaM.toFixed(2);
+
+            document.getElementById('lblDryCm').innerText = Math.round(dryAreaCm).toLocaleString();
+            document.getElementById('lblDryM').innerText = dryAreaM.toFixed(2);
+
+            document.getElementById('lblWasteCm').innerText = Math.round(wasteAreaCm).toLocaleString();
+            document.getElementById('lblWasteM').innerText = wasteAreaM.toFixed(2);
+
+            document.getElementById('lblEfficiency').innerText = efficiency.toFixed(1) + ' %';
+            document.getElementById('lblPerimeterCm').innerText = Math.round(perimCm) + ' cm';
+
+            const avgSide = vertices.length > 0 ? (perimCm / (isClosed ? vertices.length : vertices.length - 1)) : 0;
+            document.getElementById('lblAvgSideCm').innerText = Math.round(avgSide) + ' cm';
+            document.getElementById('lblSprinklerCount').innerText = sprinklers.length + ' u.';
+
+            document.getElementById('barWet').style.width = Math.min(100, baseEfficiency).toFixed(1) + '%';
+            document.getElementById('barDry').style.width = Math.max(0, 100 - baseEfficiency).toFixed(1) + '%';
+            document.getElementById('barWetTxt').innerText = baseEfficiency.toFixed(0) + '%';
+            document.getElementById('barDryTxt').innerText = Math.max(0, 100 - baseEfficiency).toFixed(0) + '%';
+
+            renderSprinklerList();
+        }
+
+        function renderSprinklerList() {
+            const container = document.getElementById('sprinklerList');
+            if (sprinklers.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 italic text-[11px]">No hay aspersores colocados.</p>';
+                return;
+            }
+
+            container.innerHTML = sprinklers.map((s, idx) => `
+                <div onclick="selectSprinkler(${idx})" class="p-2 rounded-lg border text-xs cursor-pointer flex justify-between items-center transition ${selectedSprinklerIndex === idx ? 'bg-cyan-100 border-cyan-400 font-bold text-cyan-900' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'}">
+                    <span><i class="fa-solid fa-faucet-drip text-cyan-600 mr-1.5"></i> Aspersor #${idx + 1}</span>
+                    <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-[11px]">r = ${s.r} cm</span>
+                </div>
+            `).join('');
+        }
+
+        function isClockwise() {
+            let sum = 0;
+            for (let i = 0; i < vertices.length; i++) {
+                let j = (i + 1) % vertices.length;
+                sum += (vertices[j].x - vertices[i].x) * (vertices[j].y + vertices[i].y);
+            }
+            return sum > 0;
+        }
+
+        function draw(mouseX, mouseY) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Draw Sprinklers Coverage Areas
+            sprinklers.forEach((s, idx) => {
+                const rPx = s.r / SCALE_CM_PER_PX;
+
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, rPx, 0, Math.PI * 2);
+                ctx.fillStyle = selectedSprinklerIndex === idx ? 'rgba(6, 182, 212, 0.35)' : 'rgba(6, 182, 212, 0.2)';
+                ctx.fill();
+
+                ctx.lineWidth = selectedSprinklerIndex === idx ? 2 : 1.2;
+                ctx.strokeStyle = selectedSprinklerIndex === idx ? '#0284c7' : '#0891b2';
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, selectedSprinklerIndex === idx ? 7 : 5, 0, Math.PI * 2);
+                ctx.fillStyle = selectedSprinklerIndex === idx ? '#f59e0b' : '#0369a1';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // 2. Draw Polygon / Edges
+            if (vertices.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(vertices[0].x, vertices[0].y);
+
+                for (let i = 1; i < vertices.length; i++) {
+                    ctx.lineTo(vertices[i].x, vertices[i].y);
+                }
+
+                if (isClosed) {
+                    ctx.closePath();
+                    ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+                    ctx.fill();
+                } else if (mouseX !== undefined && mouseY !== undefined) {
+                    ctx.lineTo(mouseX, mouseY);
+                }
+
+                ctx.strokeStyle = '#059669';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // 3. Draw Edge Dimension Labels in CM
+                const count = isClosed ? vertices.length : vertices.length - 1;
+                for (let i = 0; i < count; i++) {
+                    let j = (i + 1) % vertices.length;
+                    const p1 = vertices[i];
+                    const p2 = vertices[j];
+
+                    const midX = (p1.x + p2.x) / 2;
+                    const midY = (p1.y + p2.y) / 2;
+                    const lenCm = Math.hypot(p2.x - p1.x, p2.y - p1.y) * SCALE_CM_PER_PX;
+
+                    const label = Math.round(lenCm) + ' cm';
+                    ctx.font = 'bold 11px Inter, sans-serif';
+                    const textWidth = ctx.measureText(label).width;
+
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                    ctx.fillRect(midX - textWidth / 2 - 4, midY - 9, textWidth + 8, 18);
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(midX - textWidth / 2 - 4, midY - 9, textWidth + 8, 18);
+
+                    ctx.fillStyle = '#065f46';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(label, midX, midY);
+                }
+
+                // 4. Draw True Interior Angles and Arcs
+                if (isClosed && vertices.length >= 3) {
+                    const clockwise = isClockwise();
+
+                    for (let i = 0; i < vertices.length; i++) {
+                        const prev = vertices[(i - 1 + vertices.length) % vertices.length];
+                        const curr = vertices[i];
+                        const next = vertices[(i + 1) % vertices.length];
+
+                        const vPrev = { x: prev.x - curr.x, y: prev.y - curr.y };
+                        const vNext = { x: next.x - curr.x, y: next.y - curr.y };
+
+                        const dot = vPrev.x * vNext.x + vPrev.y * vNext.y;
+                        const magPrev = Math.hypot(vPrev.x, vPrev.y);
+                        const magNext = Math.hypot(vNext.x, vNext.y);
+
+                        if (magPrev > 0 && magNext > 0) {
+                            let cosAngle = dot / (magPrev * magNext);
+                            cosAngle = Math.max(-1, Math.min(1, cosAngle));
+                            let angleRad = Math.acos(cosAngle);
+                            let angleDeg = angleRad * (180 / Math.PI);
+
+                            const cross = vPrev.x * vNext.y - vPrev.y * vNext.x;
+                            
+                            let interiorAngleDeg = angleDeg;
+                            let drawClockwise = false;
+
+                            if (clockwise) {
+                                if (cross < 0) {
+                                    interiorAngleDeg = 360 - angleDeg;
+                                    drawClockwise = true;
+                                }
+                            } else {
+                                if (cross > 0) {
+                                    interiorAngleDeg = 360 - angleDeg;
+                                    drawClockwise = false;
+                                } else {
+                                    drawClockwise = true;
+                                }
+                            }
+
+                            let startAngle = Math.atan2(vPrev.y, vPrev.x);
+                            let endAngle = Math.atan2(vNext.y, vNext.x);
+
+                            const angleLabel = Math.round(interiorAngleDeg) + '°';
+                            const arcRadius = 28;
+
+                            ctx.beginPath();
+                            ctx.arc(curr.x, curr.y, arcRadius, startAngle, endAngle, drawClockwise);
+                            ctx.strokeStyle = '#3b82f6';
+                            ctx.lineWidth = 1.5;
+                            ctx.stroke();
+
+                            let bAngle = (startAngle + endAngle) / 2;
+                            let diff = Math.abs(startAngle - endAngle);
+                            if (diff > Math.PI) {
+                                bAngle += Math.PI;
+                            }
+                            
+                            const testX = curr.x + Math.cos(bAngle) * 10;
+                            const testY = curr.y + Math.sin(bAngle) * 10;
+                            if (!isPointInPolygon(testX, testY)) {
+                                bAngle += Math.PI;
+                            }
+
+                            const angleX = curr.x + Math.cos(bAngle) * (arcRadius - 2);
+                            const angleY = curr.y + Math.sin(bAngle) * (arcRadius - 2);
+
+                            ctx.font = 'bold 9px Inter, sans-serif';
+                            const tWidth = ctx.measureText(angleLabel).width;
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                            ctx.fillRect(angleX - tWidth/2 - 3, angleY - 6, tWidth + 6, 12);
+                            ctx.strokeStyle = '#93c5fd';
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(angleX - tWidth/2 - 3, angleY - 6, tWidth + 6, 12);
+
+                            ctx.fillStyle = '#1d4ed8';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(angleLabel, angleX, angleY);
+                        }
+                    }
+                }
+
+                // 5. Draw Vertex Dots
+                vertices.forEach((v, idx) => {
+                    ctx.beginPath();
+                    ctx.arc(v.x, v.y, idx === 0 && hoveredVertexIndex === 0 ? 8 : 5, 0, Math.PI * 2);
+
+                    if (idx === 0 && !isClosed) {
+                        ctx.fillStyle = hoveredVertexIndex === 0 ? '#f59e0b' : '#10b981';
+                    } else {
+                        ctx.fillStyle = '#047857';
+                    }
+
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            }
+        }
+    
+        // --- DUA ACCESIBILIDAD ---
+        let isGeoContrast = false;
+        function toggleHighContrast() {
+            isGeoContrast = !isGeoContrast;
+            document.body.classList.toggle('invert', isGeoContrast);
+            document.body.classList.toggle('hue-rotate-180', isGeoContrast);
+        }
+
+        function readHelpTTS() {
+            if (!('speechSynthesis' in window)) {
+                alert('Tu navegador no soporta síntesis de voz.');
+                return;
+            }
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                return;
+            }
+            const txt = "GeoAgro-Lab: Simulador y Dibujo Técnico de Bancales. Desarrollado por Ángel Viegas para la Escuela Agraria de Quilmes y EDI 2026. " +
+                "Selecciona una herramienta en el panel izquierdo para dibujar polígonos, medir perímetros y áreas en centímetros, o simular aspersores de riego.";
+            const u = new SpeechSynthesisUtterance(txt);
+            u.lang = 'es-AR';
+            window.speechSynthesis.speak(u);
+        }
+
+    </script>
+</body>
+</html>

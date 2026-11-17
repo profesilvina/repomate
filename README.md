@@ -31,12 +31,13 @@ El repositorio está diseñado como un catálogo dinámico y responsivo, listo p
 | **🍰 La merienda cambia: fracciones equivalentes** (Cintia Marcaccio) | Números y Operaciones | Secundaria | Simulador interactivo con accesibilidad DUA y gamificación para explorar repartos equitativos y equivalencias de fracciones mediante misiones. |
 | **🔋 Misión Batería: ¡Que no se apague!** (Marisa Sierra) | Números y Operaciones | Secundaria | Juego de estrategia matemática por equipos con accesibilidad DUA y gamificación para calcular porcentajes, promedios y consumos de batería en misiones dinámicas. |
 | **🔺 Estudio InfinitA: Arte, Geometría y Transformaciones** (Vanina Malatesta) | Geometría y Trigonometría | Secundaria | Entorno integral interactivo con Libro de GeoGebra dinámico (razón áurea y transformaciones), Escape Room cubista de descifrado geométrico y quiz de acreditación diagnóstica con DUA. |
-| **🐔 El Gallinero Matemático: Área, Perímetro y Ecuaciones** (Verónica Oliva) | Geometría y Magnitudes | Secundaria | Simulador interactivo y laboratorio de optimización geométrica para modelizar el cerramiento de un gallinero escolar variando lados y cercas con desafíos interactivos y accesibilidad DUA. |
+| **🐔 El Gallinero Matemático: Área, Perímetro y Ecuaciones + Escape Room** (Verónica Oliva) | Geometría y Magnitudes | Secundaria | Proyecto integral con accesibilidad DUA que articula: 1) Simulador de optimización geométrica para modelizar cerramientos analizando perímetro y área; y 2) Escape room gamificado de 1.° año con estaciones progresivas de corrales, nidos y rampas. |
 | **⚡ Misión Energía: Código Verde — Simulador de Consumo Eléctrico** (Karen Salinas) | Funciones y Análisis | Secundaria | Simulador interactivo con accesibilidad DUA, síntesis de voz (TTS) y representaciones múltiples (numérica, tabular, gráfica en Chart.js y simbólica) para modelizar consumo eléctrico y calcular escenarios de ahorro. |
-| **🐝 Pioneras de la Geometría y el Enigma del Panal** (Ángel Viegas) | Geometría y Magnitudes | Secundaria | Escape room gamificado con diseño DUA, lector por voz y candados interactivos para resolver 6 estaciones sobre polígonos, áreas, economía de cera y escalas junto a destacadas científicas. |
+| **🐝 Pioneras de la Geometría + GeoAgro-Lab** (Ángel Viegas - E.E.S.A. N.º 1 Quilmes) | Geometría y Magnitudes | Secundaria | Proyecto integral para Secundaria Agraria con accesibilidad DUA que articula: 1) Escape room gamificado «Pioneras de la Geometría y el Enigma del Panal» con 6 estaciones sobre polígonos y áreas; y 2) Simulador y dibujo técnico «GeoAgro-Lab» para diseñar bancales en centímetros y calcular cobertura de riego. |
 | **📐 Misión Triángulos: Desigualdad Triangular** (Enzo y Alberto - 2.° año Enseñar con Tecnología) | Geometría y Trigonometría | Secundaria | Laboratorio interactivo y simulador geométrico con accesibilidad DUA para verificar en tiempo real las tres desigualdades triangulares y explorar la determinación de figuras con dos lados fijos. |
 | **🧊 Escape Room: Muestra Virtual de Cuerpos Geométricos** (Gabriel D'Amelia y Ana Lía Solores - 2.° año Enseñar con Tecnología) | Geometría y Magnitudes | Secundaria | Escape room 3D interactivo para 1.° año de secundaria (DGCyE) con 4 salas temáticas: elementos, fórmula de Euler ($C + V = A + 2$), sólidos platónicos y escáner clasificador. |
 | **🏀 El Tiro Perfecto: Laboratorio de Lanzamiento** (Fabricio Rebolledo) | Funciones y Análisis | Secundaria | Simulador físico-matemático en tiempo real con accesibilidad DUA para modelizar tiros al aro de básquet mediante funciones cuadráticas, analizando la parábola y su vértice. |
+| **🦠 Simulá el Brote: Función Exponencial y Capacidad Hospitalaria** (Nicolás Gómez) | Funciones y Análisis | Secundaria | Simulador interactivo del modelo de crecimiento exponencial epidémico $N(t) = N_0 \cdot (1+r)^t$ y colapso hospitalario para 5.° año con tiempo de duplicación, intervención para aplanar la curva, escala logarítmica y preguntas ABP. |
 
 ---
 
@@ -51,9 +52,13 @@ repoapps_mate/
 ├── marisa.html                  # Misión Batería: ¡Que no se apague! (Marisa Sierra)
 ├── marisa_afiche.html           # Creador de Afiches – Misión Batería (Marisa Sierra - 2da app)
 ├── vanina.html                  # Estudio InfinitA: Arte y Transformaciones (Vanina Malatesta)
-├── veronica.html                # El Gallinero Matemático (Verónica Oliva)
+├── veronica.html                # El Gallinero Matemático – Simulador (Verónica Oliva)
+├── gallinero_escape.html        # El Gallinero Geométrico – Escape Room 1.° Año (Verónica Oliva - 2da app)
+├── gallinero_docente.html       # Panel de Control Docente – El Gallinero Geométrico (Verónica Oliva)
 ├── karen.html                   # Misión Energía: Código Verde (Karen Salinas)
-├── viegas.html                  # Pioneras de la Geometría y el Enigma del Panal (Ángel Viegas)
+├── viegas.html                  # Pioneras de la Geometría y el Enigma del Panal – Escape Room (Ángel Viegas)
+├── geoagrolab.html              # GeoAgro-Lab: Simulador y Dibujo Técnico de Bancales (Ángel Viegas - 2da app)
+├── nicolas.html                 # Simulá el Brote: Función Exponencial y Capacidad Hospitalaria (Nicolás Gómez)
 ├── mision_triangulos.html       # Misión Triángulos – Desigualdad Triangular (Enzo y Alberto - 2.° Enseñar con Tecnología)
 ├── escape_cuerpos_geometricos.html # Escape Room 3D Cuerpos Geométricos (Gabriel D'Amelia y Ana Lía Solores - 2.° Enseñar con Tecnología)
 ├── escape_cuerpos_geometricos/  # Versión empaquetada alternativa

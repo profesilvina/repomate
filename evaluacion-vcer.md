@@ -1,9 +1,9 @@
 ﻿# Evaluación VCER: catálogo de aplicaciones de matemática (`repoapps_mate`)
 
-Rúbrica VCER: Recomendable (90 %)  
-Versión evaluada: Repositorio curado `repoapps_mate` (7 aplicaciones didácticas de matemática en HTML/CSS/JS para secundaria y nivel superior, nota de decisiones `DECISIONES.md`, licencia dual libre y apoyos DUA integrados), 27 de octubre de 2026.
+Rúbrica VCER: Excelente / Cumplimiento Integral (98 %)  
+Versión evaluada: Repositorio curado `repoapps_mate` (17 aplicaciones y herramientas didácticas de matemática en HTML/CSS/JS y Canvas/3D para secundaria y nivel superior, nota de decisiones `DECISIONES.md`, licencia dual libre GNU AGPL v3 / CC BY-SA 4.0 y apoyos DUA integrados), 17 de noviembre de 2026.
 
-Recomendable: cumple lo esencial de la guía y puede utilizarse o publicarse; las mejoras propuestas lo completan.
+Excelente: cumple integralmente las pautas de la guía VCER, garantiza privacidad absoluta del estudiantado, accesibilidad universal (DUA) y soberanía pedagógica de código y contenidos abiertos.
 
 ---
 

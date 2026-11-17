@@ -1,0 +1,835 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!doctype html> 
+<html lang="es"> 
+<head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <title>El Gallinero Geométrico — Panel Docente & Juego</title> 
+  <link rel="preconnect" href="https://fonts.googleapis.com" /> 
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> 
+  <link 
+href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&f
+amily=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600
+;700&display=swap" rel="stylesheet" /> 
+  <style> 
+    * { box-sizing: border-box; margin: 0; padding: 0; } 
+    body { 
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif; 
+      background: #FAF8F5; 
+      color: #1C1917; 
+      line-height: 1.5; 
+      min-height: 100vh; 
+    } 
+    h1, h2, h3 { font-family: 'Bricolage Grotesque', system-ui, sans-serif; } 
+    .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; 
+} 
+    header { 
+      background: #FFFFFF; 
+      border-bottom: 1px solid #E7E5E4; 
+      padding: 14px 24px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      gap: 16px; 
+      flex-wrap: wrap; 
+    } 
+    .brand { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 
+1.15rem; color: #1C1917; text-decoration: none; cursor: pointer; } 
+    .nav-tabs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } 
+    .nav-btn { background: none; border: none; font-size: 0.88rem; font-weight: 600; 
+color: #57534E; cursor: pointer; padding: 6px 12px; border-radius: 8px; font-family: 
+inherit; transition: all 120ms ease; } 
+    .nav-btn:hover { color: #1C1917; background: #F5F5F4; } 
+    .nav-btn.active { color: #E11D48; background: #FFF1F2; font-weight: 700; } 
+    .container { max-width: 1180px; margin: 0 auto; padding: 24px 16px; } 
+    .card { 
+      background: #FFFFFF; 
+      border: 1px solid #E7E5E4; 
+      border-radius: 16px; 
+      padding: 24px; 
+    } 
+    .btn { 
+      border: none; 
+      border-radius: 12px; 
+      padding: 11px 20px; 
+      font-weight: 600; 
+      font-size: 0.9rem; 
+      cursor: pointer; 
+      font-family: inherit; 
+      transition: background 150ms ease, transform 120ms ease; 
+    } 
+    .btn-primary { background: #E11D48; color: #FFFFFF; } 
+    .btn-primary:hover { background: #BE123C; } 
+    .btn-secondary { background: #FFFFFF; color: #1C1917; border: 1px solid #D6D3D1; 
+} 
+    .btn-secondary:hover { background: #F5F5F4; } 
+    .btn-amber { background: #F59E0B; color: #1C1917; } 
+    .btn-amber:hover { background: #D97706; } 
+    .input { 
+      width: 100%; 
+      padding: 10px 14px; 
+      border-radius: 12px; 
+      border: 1px solid #D6D3D1; 
+      font-size: 0.95rem; 
+      font-family: inherit; 
+    } 
+    .grid-arena { 
+      display: grid; 
+      grid-template-columns: 1fr; 
+      gap: 24px; 
+    } 
+    @media (min-width: 960px) { 
+      .grid-arena { grid-template-columns: 2fr 1fr; align-items: start; } 
+      .grid-modal { grid-template-columns: 1fr 1fr; } 
+    } 
+    .basket-rim { 
+      background: #F5EFE2; 
+      border: 1px solid #DFD2B7; 
+      border-radius: 16px; 
+      padding: 18px; 
+      margin-top: 16px; 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); 
+      gap: 12px; 
+    } 
+    .egg-btn { 
+      background: rgba(255,255,255,0.92); 
+      border: 1px solid #E7E5E4; 
+      border-radius: 12px; 
+      padding: 10px 6px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      min-height: 106px; 
+      transition: transform 150ms ease; 
+    } 
+    .egg-btn:hover:not(:disabled) { transform: translateY(-3px) rotate(-3deg); background: 
+#FFFFFF; } 
+    .egg-btn:disabled { opacity: 0.72; cursor: default; background: #E7E5E4; } 
+    .carton-grid { 
+      background: #EFE7D6; 
+      border-radius: 12px; 
+      padding: 12px; 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 10px; 
+      margin-top: 12px; 
+    } 
+    .carton-slot { 
+      height: 78px; 
+      background: #E3D6BE; 
+      border-radius: 10px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 0.72rem; 
+    } 
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(28, 25, 23, 0.65); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 16px; 
+      z-index: 50; 
+      overflow-y: auto; 
+    } 
+    .modal-box { 
+      background: #FFFFFF; 
+      border-radius: 18px; 
+      max-width: 860px; 
+      width: 100%; 
+      padding: 24px; 
+      max-height: 94vh; 
+      overflow-y: auto; 
+    } 
+    .grid-modal { display: grid; gap: 20px; margin-top: 16px; } 
+    .opt-btn { 
+      width: 100%; 
+      text-align: left; 
+      padding: 10px 12px; 
+      border-radius: 10px; 
+      border: 1px solid #E7E5E4; 
+      background: #FFFFFF; 
+      cursor: pointer; 
+      font-size: 0.86rem; 
+    } 
+    .opt-btn.selected { 
+      background: #FFFBEB; 
+      border-color: #D97706; 
+      font-weight: 600; 
+    } 
+    .muted { color: #78716C; font-size: 0.8rem; } 
+    .teacher-badge { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; 
+padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; } 
+  
+    body.high-contrast {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+    body.high-contrast .card, body.high-contrast header, body.high-contrast footer {
+      background: #121212 !important;
+      color: #ffffff !important;
+      border-color: #ffffff !important;
+    }
+    body.high-contrast .nav-btn {
+      color: #ffffff !important;
+      border: 1px solid #ffffff !important;
+    }
+    body.high-contrast .brand { color: #facc15 !important; }
+
+  </style> 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head> 
+<body> 
+  <header> 
+    <div style="display:flex;align-items:center;gap:12px"> 
+      <span class="brand" onclick="setTab('GAME')">El Gallinero Geométrico</span> 
+      <span class="teacher-badge">VERSIÓN DOCENTE</span> 
+    </div> 
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"> 
+       
+      <div class="nav-tabs"> 
+        <button class="nav-btn active" id="btn-tab-game" 
+onclick="setTab('GAME')">Juego</button> 
+        <button class="nav-btn" id="btn-tab-teacher" onclick="setTab('TEACHER')">Panel 
+& Respuestas</button> 
+        <button class="nav-btn" id="btn-tab-formulas" 
+onclick="setTab('FORMULAS')">Guía Fórmulas</button> 
+      </div> 
+      <div class="muted">1º Año Secundaria · Números Naturales (ℕ)</div> 
+    </div> 
+  
+    <div style="display:flex;align-items:center;gap:8px;">
+      <a href="index.html" class="nav-btn" style="background:#F5F5F4;display:inline-flex;align-items:center;gap:6px;text-decoration:none;" aria-label="Volver al catálogo principal">
+        <i class="fa-solid fa-arrow-left"></i> Catálogo
+      </a>
+      <button class="nav-btn" onclick="toggleContrast()" style="background:#F5F5F4;" title="Alto contraste" aria-label="Alternar alto contraste">
+        <i class="fa-solid fa-circle-half-stroke"></i>
+      </button>
+      <button class="nav-btn" onclick="toggleSpeech()" style="background:#F5F5F4;" title="Lectura por voz" aria-label="Lectura por voz">
+        <i class="fa-solid fa-volume-high"></i>
+      </button>
+    </div>
+
+  </header> 
+  <div class="container" id="app"></div> 
+ 
+  <script> 
+    const IS_TEACHER = true; 
+    const EXERCISES = [{"id":"calc-1","category":"CALCULO","title":"El Corral Principal  de las Gallinas","storyContext":"El corral principal del gallinero tiene forma rectangular.  Su base mide 14 m y su altura mide 8 m. Calculá cuántos metros de tejido se necesitan  para rodearlo (Perímetro) y qué superficie ocupa  (Área).","shape":{"kind":"RECTANGULO","labels":{"bottom":"b = 14 m","right":"h = 8  m"},"accentHex":"#0284C7"},"unit":"m","expectedPerimeter":44,"expectedArea":112,"hin t":"Para el perímetro sumá los 4 lados del rectángulo (2 · 14 + 2 · 8). Para el área  multiplicá la base por la altura (14 · 8).","steps":["Perímetro del rectángulo: P = 2 · 14 m  + 2 · 8 m = 28 m + 16 m = 44 m.","Área del rectángulo: A = 14 m · 8 m = 112  m²."]},{"id":"calc-2","category":"CALCULO","title":"El Nido Cuadrado de las  Ponedoras","storyContext":"Construimos una plataforma cuadrada de madera para los  nidos. Cada uno de sus cuatro lados iguales mide 9 m. Calculá su Perímetro y su  Área.","shape":{"kind":"CUADRADO","labels":{"bottom":"L = 9 m","right":"L = 9  m"},"accentHex":"#D97706"},"unit":"m","expectedPerimeter":36,"expectedArea":81,"hint"
+:"Un cuadrado tiene sus 4 lados iguales: el perímetro es 4 · L y el área es L ·  L.","steps":["Perímetro del cuadrado: P = 4 · 9 m = 36 m.","Área del cuadrado: A = 9 m ·  9 m = 81 m²."]},{"id":"calc-3","category":"CALCULO","title":"La Rampa Triangular del  Gallinero","storyContext":"El lateral de la rampa para subir a los nidos forma un  triángulo rectángulo con base de 8 m, altura de 6 m y lado inclinado de 10 m. Calculá  su Perímetro y su  Área.","shape":{"kind":"TRIANGULO_RECTANGULO","labels":{"bottom":"b = 8  m","left":"h = 6 m","hypotenuse":"10  m"},"accentHex":"#059669"},"unit":"m","expectedPerimeter":24,"expectedArea":24,"hint"
+:"Sumá los 3 lados exteriores para el perímetro (8 + 6 + 10). Para el área del triángulo  hacé (base · altura) : 2.","steps":["Perímetro del triángulo: P = 8 m + 6 m + 10 m = 24  m.","Área del triángulo: A = (8 m · 6 m) : 2 = 48 : 2 = 24  m²."]},{"id":"calc-4","category":"CALCULO","title":"El Techo a Dos Aguas del  Granero","storyContext":"El frente del techo del gallinero es un triángulo isósceles: su  base mide 12 m, sus dos lados inclinados miden 10 m cada uno y su altura central es  de 8 m.","shape":{"kind":"TRIANGULO_ISOSCELES","labels":{"bottom":"b = 12  m","left":"10 m","right":"10 m","height":"h = 8  m"},"accentHex":"#E11D48"},"unit":"m","expectedPerimeter":32,"expectedArea":48,"hint"
+:"¡Atención! La altura interna (8 m) NO forma parte del borde exterior: usá los 3 lados  para el perímetro y usá la altura de 8 m para el área.","steps":["Perímetro: sumamos  solo el contorno exterior: P = 12 m + 10 m + 10 m = 32 m.","Área: A = (12 m · 8 m) : 2 =  96 : 2 = 48 m²."]},{"id":"calc-5","category":"CALCULO","title":"El Cartel con Forma de  Rombo","storyContext":"En la entrada colgamos un cartel con forma de rombo. Cada  uno de sus 4 lados iguales mide 10 cm, su diagonal mayor mide 16 cm y su diagonal  menor mide 12 cm.","shape":{"kind":"ROMBO","labels":{"top":"L = 10  cm","diagMajor":"D = 16 cm","diagMinor":"d = 12  cm"},"accentHex":"#7C3AED"},"unit":"cm","expectedPerimeter":40,"expectedArea":96,"h int":"El perímetro del rombo suma sus 4 lados iguales (4 · 10). El área del rombo se  calcula haciendo (Diagonal mayor · diagonal menor) : 2.","steps":["Perímetro del rombo:  P = 4 · 10 cm = 40 cm.","Área del rombo: A = (16 cm · 12 cm) : 2 = 192 : 2 = 96  cm²."]},{"id":"calc-6","category":"CALCULO","title":"El Cantero de Maíz en  Paralelogramo","storyContext":"Sembramos maíz para los pollitos en un terreno con  forma de paralelogramo: tiene base de 15 m, lados oblicuos de 10 m y una altura  perpendicular de 8 m.","shape":{"kind":"PARALELOGRAMO","labels":{"bottom":"b = 15  m","right":"a = 10 m","height":"h = 8  m"},"accentHex":"#059669"},"unit":"m","expectedPerimeter":50,"expectedArea":120,"hint ":"Para rodear el paralelogramo sumá los lados exteriores (15 + 10 + 15 + 10). Para el  área multiplicá la base por la altura perpendicular (15 · 8).","steps":["Perímetro del  paralelogramo: P = 2 · 15 m + 2 · 10 m = 30 m + 20 m = 50 m.","Área del  paralelogramo: A = 15 m · 8 m = 120  m²."]},{"id":"calc-7","category":"CALCULO","title":"El Comedero con Forma de  Trapecio","storyContext":"La tapa del comedero es un trapecio isósceles con base  mayor de 14 cm, base menor de 8 cm, dos lados laterales iguales de 5 cm y altura de 4  cm.","shape":{"kind":"TRAPECIO_ISOSCELES","labels":{"bottom":"B = 14 cm","top":"b  = 8 cm","left":"5 cm","right":"5 cm","height":"h = 4  cm"},"accentHex":"#D97706"},"unit":"cm","expectedPerimeter":32,"expectedArea":44,"hi nt":"Para el perímetro sumá los 4 lados exteriores. Para el área del trapecio sumá las  dos bases, multiplicá por la altura y dividí por 2: ((B + b) · h) : 2.","steps":["Perímetro del  trapecio: P = 14 cm + 8 cm + 5 cm + 5 cm = 32 cm.","Área del trapecio: A = ((14 + 8) ·  4) : 2 = (22 · 4) : 2 = 88 : 2 = 44 cm²."]},{"id":"calc-8","category":"CALCULO","title":"El  Patio Doble en Forma de L","storyContext":"El patio de recreo de los pollitos une dos  rectángulos formando una L. Observá las medidas de todos sus lados exteriores en el  plano y calculá su Perímetro y su Área  total.","shape":{"kind":"CORRAL_EN_L","labels":{"left":"8 m","top":"4 m","extra1":"5  m","extra2":"6 m","right":"3 m","bottom":"10  m"},"accentHex":"#0284C7"},"unit":"m","expectedPerimeter":36,"expectedArea":50,"hint"
+:"Sumá los 6 tramos del contorno para el perímetro (8 + 4 + 5 + 6 + 3 + 10). Para el  área podés partir la L en dos rectángulos: uno izquierdo de 4 m × 8 m y otro derecho de  6 m × 3 m.","steps":["Perímetro de la figura en L: P = 8 + 4 + 5 + 6 + 3 + 10 = 36  m.","Área dividiendo en dos rectángulos: (4 m · 8 m) + (6 m · 3 m) = 32 m² + 18 m² = 50  m²."]},{"id":"fig-1","category":"FIGURA_FORMULAS","title":"Plano Secreto Nº 1: Cuatro  Lados y Cuatro Ángulos Iguales","storyContext":"La gallina arquitecta encontró este  plano con sus cuatro lados congruentes de medida L y cuatro ángulos rectos. Elegí su  nombre y sus fórmulas  correctas.","shape":{"kind":"CUADRADO","labels":{"bottom":"L","right":"L"},"accentHex":
+"#D97706"},"expectedName":"Cuadrado","nameOptions":["Cuadrado","Rectángulo","Ro mbo","Trapecio"],"expectedPerimeterFormula":"P = 4 ·  L","perimeterFormulaOptions":["P = 4 · L","P = L · L","P = 2 · L","P = (L · 4) :  2"],"expectedAreaFormula":"A = L²  (es decir, L · L)","areaFormulaOptions":["A = L²  (es  decir, L · L)","A = 4 · L","A = (L · L) : 2","A = 2 · L + 2 · L"],"hint":"Tiene 4 lados iguales  (L) y 4 ángulos de 90°. Su contorno suma 4 veces L y su superficie multiplica lado por  lado.","steps":["Nombre de la figura: Cuadrado.","Fórmula de Perímetro: P = 4 · L (la  suma de sus cuatro lados iguales).","Fórmula de Área: A = L² = L ·  L."]},{"id":"fig-2","category":"FIGURA_FORMULAS","title":"Plano Secreto Nº 2: Lados  Opuestos Iguales y Ángulos Rectos","storyContext":"Observá la figura plana de base b,  altura h y cuatro ángulos rectos (90°). Identificá su nombre y cómo se calculan su  perímetro y su  área.","shape":{"kind":"RECTANGULO","labels":{"bottom":"b","right":"h"},"accentHex":"# 0284C7"},"expectedName":"Rectángulo","nameOptions":["Rectángulo","Paralelogramo",
+"Cuadrado","Trapecio"],"expectedPerimeterFormula":"P = 2 · b + 2 ·  h","perimeterFormulaOptions":["P = 2 · b + 2 · h","P = b · h","P = b + h","P = 4 ·  b"],"expectedAreaFormula":"A = b · h","areaFormulaOptions":["A = b · h","A = (b · h) :  2","A = 2 · b + 2 · h","A = b² + h²"],"hint":"Tiene dos bases iguales (b) y dos alturas  iguales (h), formando cuatro esquinas de 90°.","steps":["Nombre de la figura:  Rectángulo.","Fórmula de Perímetro: P = 2 · b + 2 · h (también se escribe 2 · (b +  h)).","Fórmula de Área: A = b ·  h."]},{"id":"fig-3","category":"FIGURA_FORMULAS","title":"Plano Secreto Nº 3: Polígono  de Tres Lados","storyContext":"Esta figura plana de tres lados (L₁, L₂ y base b) tiene  marcada su altura perpendicular h. Seleccioná su nombre y las fórmulas  correspondientes.","shape":{"kind":"TRIANGULO_GENERICO","labels":{"bottom":"b  (L₃)","left":"L₁","right":"L₂","height":"h"},"accentHex":"#E11D48"},"expectedName":"Triáng ulo","nameOptions":["Triángulo","Rombo","Trapecio","Paralelogramo"],"expectedPerimet erFormula":"P = L₁ + L₂ + L₃","perimeterFormulaOptions":["P = L₁ + L₂ + L₃","P = b · h","P  = L₁ + L₂ + h","P = (b + h) · 2"],"expectedAreaFormula":"A = (b · h) :  2","areaFormulaOptions":["A = (b · h) : 2","A = b · h","A = L₁ · L₂ · L₃","A = (L₁ + L₂ + L₃) :  2"],"hint":"Ocupa exactamente la mitad de la superficie de un rectángulo o  paralelogramo de igual base b y altura h.","steps":["Nombre de la figura:  Triángulo.","Fórmula de Perímetro: P = L₁ + L₂ + L₃ (suma de sus tres lados).","Fórmula  de Área: A = (b · h) : 2."]},{"id":"fig-4","category":"FIGURA_FORMULAS","title":"Plano  Secreto Nº 4: Cuatro Lados Iguales y Dos Diagonales","storyContext":"Observá este  cuadrilátero con 4 lados iguales de longitud L y dos diagonales perpendiculares:  diagonal mayor (D) y diagonal menor  (d).","shape":{"kind":"ROMBO","labels":{"top":"L","diagMajor":"D","diagMinor":"d"},"accen tHex":"#7C3AED"},"expectedName":"Rombo","nameOptions":["Rombo","Cuadrado","Pa ralelogramo","Trapecio"],"expectedPerimeterFormula":"P = 4 ·  L","perimeterFormulaOptions":["P = 4 · L","P = 2 · D + 2 · d","P = D + d + L","P = L ·  L"],"expectedAreaFormula":"A = (D · d) : 2","areaFormulaOptions":["A = (D · d) : 2","A =  D · d","A = 4 · L","A = (D + d) : 2"],"hint":"Sus cuatro lados exteriores miden L, pero sus  ángulos no son rectos; su área usa las diagonales D y d.","steps":["Nombre de la figura:  Rombo.","Fórmula de Perímetro: P = 4 · L.","Fórmula de Área: A = (D · d) :  2."]},{"id":"fig-5","category":"FIGURA_FORMULAS","title":"Plano Secreto Nº 5: Lados  Paralelos Dos a Dos Inclinados","storyContext":"Este cuadrilátero tiene lados opuestos  paralelos e iguales (base b y lado oblicuo a) y altura perpendicular h. ¿Cómo se llama y  cuáles son sus  fórmulas?","shape":{"kind":"PARALELOGRAMO","labels":{"bottom":"b","right":"a","height ":"h"},"accentHex":"#059669"},"expectedName":"Paralelogramo","nameOptions":["Paral elogramo","Rectángulo","Trapecio","Rombo"],"expectedPerimeterFormula":"P = 2 · b +  2 · a","perimeterFormulaOptions":["P = 2 · b + 2 · a","P = 2 · b + 2 · h","P = b · h","P = 4  · a"],"expectedAreaFormula":"A = b · h","areaFormulaOptions":["A = b · h","A = b · a","A  = (b · h) : 2","A = (b + a) · h"],"hint":"Cuidado al distinguir el lado inclinado (a) que va en  el perímetro y la altura derecha (h) que va en el área.","steps":["Nombre de la figura:  Paralelogramo (o romboide).","Fórmula de Perímetro: P = 2 · b + 2 · a.","Fórmula de  Área: A = b · h."]},{"id":"fig-6","category":"FIGURA_FORMULAS","title":"Plano Secreto  Nº 6: Un Solo Par de Bases Paralelas","storyContext":"Esta figura plana tiene una base  mayor (B) paralela a una base menor (b), dos lados laterales (L₁ y L₂) y altura  h.","shape":{"kind":"TRAPECIO_ISOSCELES","labels":{"bottom":"B","top":"b","left":"L₁"," right":"L₂","height":"h"},"accentHex":"#D97706"},"expectedName":"Trapecio","nameOptio ns":["Trapecio","Paralelogramo","Rombo","Rectángulo"],"expectedPerimeterFormula":"P  = B + b + L₁ + L₂","perimeterFormulaOptions":["P = B + b + L₁ + L₂","P = 2 · B + 2 · b","P  = B + b + h","P = (B + b) · h"],"expectedAreaFormula":"A = ((B + b) · h) :  2","areaFormulaOptions":["A = ((B + b) · h) : 2","A = (B · b) : 2","A = B · h","A = (B + b) ·  h"],"hint":"Tiene solo dos lados paralelos llamados base mayor (B) y base menor  (b).","steps":["Nombre de la figura: Trapecio.","Fórmula de Perímetro: P = B + b + L₁ +  L₂.","Fórmula de Área: A = ((B + b) · h) :  2."]},{"id":"ecu-1","category":"ECUACION","title":"Ecuación en el Corral  Cuadrado","storyContext":"Cada lado del corral cuadrado mide (2x + 1) metros. Si  sabemos que su Perímetro total es de 28 m, planteá la ecuación para hallar x y  descubrí cuánto mide cada lado.","givenDatumLabel":"Dato: Perímetro = 28  m","shape":{"kind":"CUADRADO","labels":{"bottom":"2x + 1 m","right":"2x + 1  m"},"accentHex":"#D97706"},"expectedEquation":"4 · (2x + 1) =  28","equationOptions":["4 · (2x + 1) = 28","2 · (2x + 1) = 28","2x + 1 = 28","(2x + 1)² =  28"],"expectedX":3,"secondaryQuestionLabel":"Medida de cada lado (en  m)","secondaryUnit":"m","expectedSecondaryValue":7,"hint":"Como los 4 lados son  iguales, 4 · (2x + 1) = 28. Podés dividir 28 : 4 = 7, entonces 2x + 1 =  7.","steps":["Planteamos la ecuación del perímetro: 4 · (2x + 1) = 28.","Aplicamos  propiedad distributiva (o dividimos por 4): 8x + 4 = 28.","Restamos 4 en ambos  miembros: 8x = 24 → x = 24 : 8 → x = 3.","Reemplazamos x = 3 en el lado: 2 · 3 + 1 = 7  m."]},{"id":"ecu-2","category":"ECUACION","title":"El Alambre del Gallinero  Rectangular","storyContext":"Un gallinero rectangular tiene base de (x + 5) m y altura  de x m. Para cercar todo su Perímetro se usaron exactamente 34 m de alambre. Hallá  x y luego calculá su Área.","givenDatumLabel":"Dato: Perímetro = 34  m","shape":{"kind":"RECTANGULO","labels":{"bottom":"x + 5 m","right":"x  m"},"accentHex":"#0284C7"},"expectedEquation":"2 · (x + 5) + 2 · x =  34","equationOptions":["2 · (x + 5) + 2 · x = 34","(x + 5) + x = 34","x · (x + 5) = 34","4 · x  + 5 = 34"],"expectedX":6,"secondaryQuestionLabel":"Área del gallinero (en  m²)","secondaryUnit":"m²","expectedSecondaryValue":66,"hint":"Sumá los 4 lados: (x +  5) + x + (x + 5) + x = 34, lo que equivale a 4x + 10 = 34. Cuando halles x, multiplicá  base por altura.","steps":["Ecuación del perímetro: 2 · (x + 5) + 2 · x = 34 → 2x + 10 +  2x = 34.","Agrupamos las x: 4x + 10 = 34 → 4x = 34 - 10 → 4x = 24 → x = 6.","Con x =  6, la base mide 6 + 5 = 11 m y la altura mide 6 m.","Calculamos el Área: A = 11 m · 6 m  = 66 m²."]},{"id":"ecu-3","category":"ECUACION","title":"La Bandeja de Huevos y su  Área","storyContext":"Una bandeja rectangular tiene una base de 9 cm y una altura de  (x + 3) cm. Si sabemos que su Área es de 72 cm², descubrí cuánto vale x y cuál es su  Perímetro.","givenDatumLabel":"Dato: Área = 72  cm²","shape":{"kind":"RECTANGULO","labels":{"bottom":"9 cm","right":"x + 3  cm"},"accentHex":"#059669"},"expectedEquation":"9 · (x + 3) =  72","equationOptions":["9 · (x + 3) = 72","2 · 9 + 2 · (x + 3) = 72","9 + x + 3 = 72","(9 · (x  + 3)) : 2 = 72"],"expectedX":5,"secondaryQuestionLabel":"Perímetro de la bandeja (en  cm)","secondaryUnit":"cm","expectedSecondaryValue":34,"hint":"El área del rectángulo  es base · altura = 72, así que 9 · (x + 3) = 72. Pasá el 9 dividiendo (72 : 9 =  8).","steps":["Planteamos el área: 9 · (x + 3) = 72.","Dividimos ambos miembros por 9: x  + 3 = 72 : 9 → x + 3 = 8.","Despejamos x: x = 8 - 3 → x = 5.","La altura mide 5 + 3 = 8  cm. Entonces Perímetro = 2 · 9 + 2 · 8 = 18 + 16 = 34  cm."]},{"id":"ecu-4","category":"ECUACION","title":"El Cartel Triangular  Equilátero","storyContext":"En la puerta del gallinero hay un cartel con forma de  triángulo equilátero (sus 3 lados son iguales). Cada lado mide (3x + 2) cm y su  Perímetro es 33 cm.","givenDatumLabel":"Dato: Perímetro = 33  cm","shape":{"kind":"TRIANGULO_EQUILATERO","labels":{"bottom":"3x + 2  cm","left":"3x + 2 cm","right":"3x + 2  cm"},"accentHex":"#E11D48"},"expectedEquation":"3 · (3x + 2) =  33","equationOptions":["3 · (3x + 2) = 33","4 · (3x + 2) = 33","3x + 2 = 33","(3 · (3x + 2)) :  2 = 33"],"expectedX":3,"secondaryQuestionLabel":"Medida de cada lado (en  cm)","secondaryUnit":"cm","expectedSecondaryValue":11,"hint":"Como los 3 lados  miden lo mismo, 3 · (3x + 2) = 33. Dividí 33 : 3 = 11 y despejá x.","steps":["Planteamos  la ecuación: 3 · (3x + 2) = 33.","Dividimos por 3: 3x + 2 = 11.","Restamos 2: 3x = 9 → x  = 9 : 3 → x = 3.","Cada lado mide: 3 · 3 + 2 = 11  cm."]},{"id":"ecu-5","category":"ECUACION","title":"El Techo Triangular de los  Pollitos","storyContext":"El frente del refugio de los pollitos es un triángulo con base de  10 m y altura de (x + 2) m. Si su Área es exactamente 35 m², encontrá x y la altura del  techo.","givenDatumLabel":"Dato: Área = 35  m²","shape":{"kind":"TRIANGULO_ISOSCELES","labels":{"bottom":"b = 10  m","height":"h = x + 2 m"},"accentHex":"#7C3AED"},"expectedEquation":"(10 · (x + 2)) :  2 = 35","equationOptions":["(10 · (x + 2)) : 2 = 35","10 · (x + 2) = 35","10 + x + 2 = 35","2  · 10 + 2 · (x + 2) = 35"],"expectedX":5,"secondaryQuestionLabel":"Altura h del triángulo  (en m)","secondaryUnit":"m","expectedSecondaryValue":7,"hint":"En la fórmula (10 · (x  + 2)) : 2 = 35, podés simplificar 10 : 2 = 5, quedando 5 · (x + 2) =  35.","steps":["Planteamos la fórmula de área del triángulo: (10 · (x + 2)) : 2 =  35.","Resolvemos 10 : 2 = 5, entonces queda: 5 · (x + 2) = 35.","Dividimos por 5: x + 2 =  35 : 5 → x + 2 = 7 → x = 5.","La altura h mide: 5 + 2 = 7  m."]},{"id":"ecu-6","category":"ECUACION","title":"La Ventana con Forma de  Rombo","storyContext":"Una ventana de ventilación tiene forma de rombo con diagonal  mayor D = 12 cm y diagonal menor d = 2x cm. Sabiendo que su Área es 48 cm², hallá x  y la diagonal menor.","givenDatumLabel":"Dato: Área = 48  cm²","shape":{"kind":"ROMBO","labels":{"diagMajor":"D = 12 cm","diagMinor":"d = 2x  cm"},"accentHex":"#0284C7"},"expectedEquation":"(12 · 2x) : 2 =  48","equationOptions":["(12 · 2x) : 2 = 48","12 · 2x = 48","4 · 2x = 48","12 + 2x =  48"],"expectedX":4,"secondaryQuestionLabel":"Medida de la diagonal menor d (en  cm)","secondaryUnit":"cm","expectedSecondaryValue":8,"hint":"Área del rombo = (D · d)  : 2. Entonces (12 · 2x) : 2 = 48, lo que simplifica a 12x = 48.","steps":["Planteamos el  área del rombo: (12 · 2x) : 2 = 48.","Multiplicamos 12 · 2x = 24x y dividimos por 2: 12x =  48.","Despejamos x: x = 48 : 12 → x = 4.","La diagonal menor mide d = 2 · 4 = 8  cm."]},{"id":"ecu-7","category":"ECUACION","title":"El Comedero Trapecial  Simétrico","storyContext":"Un comedero con forma de trapecio isósceles tiene base  mayor de 16 cm, base menor de 10 cm y sus dos lados laterales iguales miden (x + 2)  cm cada uno. Su Perímetro es 42 cm.","givenDatumLabel":"Dato: Perímetro = 42  cm","shape":{"kind":"TRAPECIO_ISOSCELES","labels":{"bottom":"B = 16 cm","top":"b =  10 cm","left":"x + 2 cm","right":"x + 2  cm"},"accentHex":"#D97706"},"expectedEquation":"16 + 10 + 2 · (x + 2) =  42","equationOptions":["16 + 10 + 2 · (x + 2) = 42","16 + 10 + x + 2 = 42","((16 + 10) · (x  + 2)) : 2 = 42","2 · 16 + 2 · (x + 2) =  42"],"expectedX":6,"secondaryQuestionLabel":"Medida de cada lado lateral (en  cm)","secondaryUnit":"cm","expectedSecondaryValue":8,"hint":"Sumá los cuatro lados  del trapecio: 16 + 10 + (x + 2) + (x + 2) = 42 → 2x + 30 = 42.","steps":["Sumamos los 4  lados: 16 + 10 + 2 · (x + 2) = 42.","Desarrollamos: 26 + 2x + 4 = 42 → 2x + 30 =  42.","Restamos 30: 2x = 12 → x = 12 : 2 → x = 6.","Cada lado lateral mide: 6 + 2 = 8  cm."]},{"id":"ecu-8","category":"ECUACION","title":"El Patio Cuadrado de 100  m²","storyContext":"El patio soleado de las gallinas es un cuadrado cuyo lado mide (x +  4) m. Si su Área total es de 100 m², hallá el número natural x y el Perímetro del  patio.","givenDatumLabel":"Dato: Área = 100  m²","shape":{"kind":"CUADRADO","labels":{"bottom":"x + 4 m","right":"x + 4  m"},"accentHex":"#059669"},"expectedEquation":"(x + 4)² = 100","equationOptions":["(x  + 4)² = 100","4 · (x + 4) = 100","2 · (x + 4) = 100","x² + 4 =  100"],"expectedX":6,"secondaryQuestionLabel":"Perímetro del patio (en  m)","secondaryUnit":"m","expectedSecondaryValue":40,"hint":"Pensá qué número  natural multiplicado por sí mismo da 100: como 10 · 10 = 100, el lado (x + 4) debe valer  10.","steps":["Planteamos el área del cuadrado: (x + 4)² = 100.","Aplicamos raíz  cuadrada en números naturales: x + 4 = √100 → x + 4 = 10.","Despejamos x: x = 10 - 4  → x = 6.","Como el lado mide 10 m, el Perímetro es 4 · 10 m = 40 m."]}]; 
+    const CONFIG = { 
+      courseName: "1º Año Secundaria", 
+      defaultMode: "INDIVIDUAL", 
+      minutesLimit: 5, 
+      chickCount: 4 
+    }; 
+ 
+    const CHICKS = [ 
+      { chickName: 'Pollito Pitágoras', chickMessage: '¡Pío, pío! Elegiste un huevo  comodín y salió el Pollito Pitágoras. ¡Ganaste 1 huevo directo para tu huevera sin  resolver cuentas!' }, 
+      { chickName: 'Pollita Hipatia', chickMessage: '¡Sorpresa en el nido! La Pollita Hipatia  te regala 1 punto automático en tu huevera.' }, 
+      { chickName: 'Pollito Euclides', chickMessage: '¡Qué suerte! Salió el Pollito Euclides  y sumás 1 huevo dorado gratis.' }, 
+      { chickName: 'Plumita Natural', chickMessage: '¡Comodín desbloqueado! Plumita  Natural saltó del cascarón y puso 1 huevo en tu huevera.' } 
+    ]; 
+ 
+    const PALETTES = [ 
+      { base: '#FB7185', accent: '#FFE4E6', stroke: '#9F1239' }, 
+      { base: '#38BDF8', accent: '#E0F2FE', stroke: '#075985' }, 
+      { base: '#FBBF24', accent: '#FEF3C7', stroke: '#92400E' }, 
+      { base: '#34D399', accent: '#D1FAE5', stroke: '#065F46' }, 
+      { base: '#A78BFA', accent: '#EDE9FE', stroke: '#5B21B6' }, 
+      { base: '#FB923C', accent: '#FFEDD5', stroke: '#9A3412' } 
+    ]; 
+ 
+    let audioCtx = null; 
+    function beep(freqs, dur = 0.14) { 
+      try { 
+        const AC = window.AudioContext || window.webkitAudioContext; 
+        if (!AC) return; 
+        if (!audioCtx) audioCtx = new AC(); 
+        if (audioCtx.state === 'suspended') audioCtx.resume(); 
+        const now = audioCtx.currentTime; 
+        freqs.forEach((f, i) => { 
+          const o = audioCtx.createOscillator(); 
+          const g = audioCtx.createGain(); 
+          o.type = 'triangle'; 
+          o.frequency.setValueAtTime(f, now + i * 0.09); 
+          g.gain.setValueAtTime(0.14, now + i * 0.09); 
+          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + dur); 
+          o.connect(g); g.connect(audioCtx.destination); 
+          o.start(now + i * 0.09); o.stop(now + i * 0.09 + dur + 0.02); 
+        }); 
+      } catch (e) {} 
+    } 
+ 
+    function shuffle(a) { 
+      const c = [...a]; 
+      for (let i = c.length - 1; i > 0; i--) { 
+        const j = Math.floor(Math.random() * (i + 1)); 
+        [c[i], c[j]] = [c[j], c[i]]; 
+      } 
+      return c; 
+    } 
+ 
+    function rotateOpts(arr, shift) { 
+      const n = arr.length; 
+      return arr.map((_, idx) => arr[(idx + shift) % n]); 
+    } 
+ 
+    let state = { 
+      activeTab: 'GAME', 
+      teacherFilter: 'ALL', 
+      showTeacherAnswers: true, 
+      phase: 'SETUP', 
+      mode: CONFIG.defaultMode, 
+      studentName: '', 
+      teamCount: 2, 
+      teamNames: ['Gallinas Pitagóricas', 'Pollitos Veloces', 'Gallos Calculadores', 'Nido  Dorado'], 
+      eggs: [], 
+      players: [], 
+      turnIdx: 0, 
+      activeEgg: null, 
+      secondsLeft: CONFIG.minutesLimit * 60, 
+      showHint: false, 
+      resolution: 'IN_PROGRESS', 
+      form: { perim: '', area: '', name: '', pForm: '', aForm: '', eq: '', x: '', sec: '', error: '' }, 
+      winner: null 
+    }; 
+ 
+    let timerHandle = null; 
+ 
+    function setTab(tab) { 
+      state.activeTab = tab; 
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); 
+      const btn = document.getElementById('btn-tab-' + tab.toLowerCase()); 
+      if (btn) btn.classList.add('active'); 
+      render(); 
+    } 
+ 
+    function buildEggs() { 
+      const needed = 24 - CONFIG.chickCount; 
+      const picked = shuffle(EXERCISES).slice(0, needed).map(ex => ({ type: 
+'EXERCISE', exercise: ex })); 
+      for (let i = 0; i < CONFIG.chickCount; i++) { 
+        picked.push({ type: 'CHICK_WILDCARD', ...CHICKS[i % CHICKS.length] }); 
+      } 
+      return shuffle(picked).map((content, idx) => ({ 
+        number: idx + 1, 
+        palette: PALETTES[idx % PALETTES.length], 
+        content, 
+        status: 'INTACT' 
+      })); 
+    } 
+ 
+    function labelBoxSvg(x, y, txt, color = '#1C1917') { 
+      if (!txt) return ''; 
+      const w = Math.max(44, txt.length * 8.2 + 16); 
+      return '<g transform="translate(' + x + ',' + y + ')">' + 
+        '<rect x="' + (-w/2) + '" y="-13" width="' + w + '" height="24" rx="6" fill="#FFF"  stroke="#D6D3D1" stroke-width="1.2"/>' + 
+        '<text x="0" y="3" text-anchor="middle" fill="' + color + '" font-size="12.5"  font-weight="600" font-family="IBM Plex Mono, monospace">' + txt + '</text></g>'; 
+    } 
+ 
+    function renderShapeSvg(spec) { 
+      const s = spec.accentHex || '#0284C7'; 
+      const f = s + '20'; 
+      const L = spec.labels || {}; 
+      let body = ''; 
+      if (spec.kind === 'CUADRADO') { 
+        body = '<rect x="110" y="40" width="130" height="130" fill="'+f+'" stroke="'+s+'"  stroke-width="3"/>' + 
+          labelBoxSvg(175, 198, L.bottom) + labelBoxSvg(292, 105, L.right); 
+      } else if (spec.kind === 'RECTANGULO') { 
+        body = '<rect x="72" y="52" width="196" height="112" fill="'+f+'" stroke="'+s+'"  stroke-width="3"/>' + 
+          labelBoxSvg(170, 192, L.bottom) + labelBoxSvg(312, 108, L.right); 
+      } else if (spec.kind === 'TRIANGULO_RECTANGULO') { 
+        body = '<polygon points="92,46 92,168 258,168" fill="'+f+'" stroke="'+s+'"  stroke-width="3"/>' + 
+          labelBoxSvg(175, 196, L.bottom) + labelBoxSvg(48, 110, L.left) + 
+labelBoxSvg(206, 94, L.hypotenuse); 
+      } else if (spec.kind === 'TRIANGULO_ISOSCELES' || spec.kind === 
+'TRIANGULO_EQUILATERO' || spec.kind === 'TRIANGULO_GENERICO') { 
+        body = '<polygon points="180,38 78,170 282,170" fill="'+f+'" stroke="'+s+'"  stroke-width="3"/>' + 
+          (L.height ? '<line x1="180" y1="38" x2="180" y2="170" stroke="#DC2626"  stroke-width="2" stroke-dasharray="5 4"/>' : '') + 
+          labelBoxSvg(180, 198, L.bottom) + labelBoxSvg(104, 98, L.left) + 
+labelBoxSvg(256, 98, L.right) + labelBoxSvg(180, 122, L.height, '#B91C1C'); 
+      } else if (spec.kind === 'ROMBO') { 
+        body = '<polygon points="180,32 276,112 180,192 84,112" fill="'+f+'" stroke="'+s+'"  stroke-width="3"/>' + 
+          '<line x1="180" y1="32" x2="180" y2="192" stroke="#0F766E" stroke-width="2"  stroke-dasharray="5 4"/>' + 
+          '<line x1="84" y1="112" x2="276" y2="112" stroke="#B91C1C" stroke-width="2"  stroke-dasharray="5 4"/>' + 
+          labelBoxSvg(248, 60, L.top) + labelBoxSvg(180, 212, L.diagMajor, '#0F766E') + 
+labelBoxSvg(98, 142, L.diagMinor, '#B91C1C'); 
+      } else if (spec.kind === 'PARALELOGRAMO') { 
+        body = '<polygon points="106,52 288,52 248,166 66,166" fill="'+f+'" stroke="'+s+'"  stroke-width="3"/>' + 
+          (L.height ? '<line x1="106" y1="52" x2="106" y2="166" stroke="#DC2626"  stroke-width="2" stroke-dasharray="5 4"/>' : '') + 
+          labelBoxSvg(162, 194, L.bottom) + labelBoxSvg(298, 114, L.right) + 
+labelBoxSvg(130, 114, L.height, '#B91C1C'); 
+      } else if (spec.kind === 'TRAPECIO_ISOSCELES') { 
+        body = '<polygon points="122,56 238,56 284,166 76,166" fill="'+f+'" stroke="'+s+'"  stroke-width="3"/>' + 
+          (L.height ? '<line x1="122" y1="56" x2="122" y2="166" stroke="#DC2626"  stroke-width="2" stroke-dasharray="5 4"/>' : '') + 
+          labelBoxSvg(180, 32, L.top) + labelBoxSvg(180, 194, L.bottom) + 
+labelBoxSvg(74, 110, L.left) + labelBoxSvg(286, 110, L.right) + labelBoxSvg(148, 116, 
+L.height, '#B91C1C'); 
+      } else if (spec.kind === 'CORRAL_EN_L') { 
+        body = '<polygon points="96,38 168,38 168,118 266,118 266,172 96,172"  fill="'+f+'" stroke="'+s+'" stroke-width="3"/>' + 
+          '<line x1="168" y1="118" x2="168" y2="172" stroke="'+s+'" stroke-width="1.5"  stroke-dasharray="4 4"/>' + 
+          labelBoxSvg(56, 105, L.left) + labelBoxSvg(132, 20, L.top) + labelBoxSvg(200, 
+78, L.extra1) + labelBoxSvg(222, 100, L.extra2) + labelBoxSvg(300, 145, L.right) + 
+labelBoxSvg(181, 198, L.bottom); 
+      } 
+      return '<div style="border:1px solid  #E7E5E4;border-radius:12px;padding:12px;background:#FFF"><svg viewBox="0 0 360  230" style="width:100%;max-height:220px">' + body + '</svg></div>'; 
+    } 
+ 
+    function startGame() { 
+      state.eggs = buildEggs(); 
+      state.turnIdx = 0; 
+      state.winner = null; 
+      if (state.mode === 'INDIVIDUAL') { 
+        state.players = [{ name: state.studentName.trim() || 'Estudiante', carton: [], correct: 
+0, chicks: 0, attempts: 0 }]; 
+      } else { 
+        state.players = Array.from({ length: state.teamCount }, (_, i) => ({ 
+          name: state.teamNames[i].trim() || ('Equipo ' + (i + 1)), 
+          carton: [], correct: 0, chicks: 0, attempts: 0 
+        })); 
+      } 
+      state.phase = 'BOARD'; 
+      beep([520, 720]); 
+      render(); 
+    } 
+ 
+    function openEgg(num) { 
+      const egg = state.eggs.find(e => e.number === num); 
+      if (!egg || egg.status !== 'INTACT') return; 
+      state.activeEgg = egg; 
+      state.secondsLeft = CONFIG.minutesLimit * 60; 
+      state.showHint = false; 
+      state.resolution = 'IN_PROGRESS'; 
+      state.form = { perim: '', area: '', name: '', pForm: '', aForm: '', eq: '', x: '', sec: '', error: '' 
+}; 
+      if (timerHandle) clearInterval(timerHandle); 
+      if (egg.content.type === 'CHICK_WILDCARD') { 
+        beep([980, 1320, 660, 880, 1046]); 
+      } else { 
+        beep([540, 680]); 
+        timerHandle = setInterval(() => { 
+          state.secondsLeft--; 
+          const timerEl = document.getElementById('live-timer'); 
+          if (timerEl) { 
+            const m = String(Math.floor(state.secondsLeft / 60)).padStart(2, '0'); 
+            const s = String(state.secondsLeft % 60).padStart(2, '0'); 
+            timerEl.textContent = m + ':' + s; 
+          } 
+          if (state.secondsLeft <= 0) { 
+            clearInterval(timerHandle); 
+            state.resolution = 'TIMEOUT'; 
+            beep([330, 262]); 
+            render(); 
+          } 
+        }, 1000); 
+      } 
+      render(); 
+    } 
+ 
+    function checkAnswer() { 
+      const ex = state.activeEgg.content.exercise; 
+      const f = state.form; 
+      if (ex.category === 'CALCULO') { 
+        if (!f.perim || !f.area) { f.error = 'Completá el Perímetro y el Área con números  naturales.'; render(); return; } 
+        const ok = parseInt(f.perim, 10) === ex.expectedPerimeter && parseInt(f.area, 10) 
+=== ex.expectedArea; 
+        finishQuestion(ok); 
+      } else if (ex.category === 'FIGURA_FORMULAS') { 
+        if (!f.name || !f.pForm || !f.aForm) { f.error = 'Seleccioná las 3 opciones pedidas.'; 
+render(); return; } 
+        const ok = f.name === ex.expectedName && f.pForm === 
+ex.expectedPerimeterFormula && f.aForm === ex.expectedAreaFormula; 
+        finishQuestion(ok); 
+      } else if (ex.category === 'ECUACION') { 
+        if (!f.eq || !f.x || !f.sec) { f.error = 'Elegí la ecuación y completá los dos valores.'; 
+render(); return; } 
+        const ok = f.eq === ex.expectedEquation && parseInt(f.x, 10) === ex.expectedX 
+&& parseInt(f.sec, 10) === ex.expectedSecondaryValue; 
+        finishQuestion(ok); 
+      } 
+    } 
+ 
+    function finishQuestion(ok) { 
+      if (timerHandle) clearInterval(timerHandle); 
+      state.resolution = ok ? 'CORRECT' : 'WRONG'; 
+      beep(ok ? [523, 659, 784] : [330, 262]); 
+      render(); 
+    } 
+ 
+    function closeEggAndContinue(outcome) { 
+      if (timerHandle) clearInterval(timerHandle); 
+      const egg = state.activeEgg; 
+      egg.status = outcome; 
+      const p = state.players[state.turnIdx]; 
+      p.attempts++; 
+      if (outcome === 'CHICK_WON' || outcome === 'SOLVED') { 
+        p.carton.push({ num: egg.number, kind: outcome }); 
+        if (outcome === 'SOLVED') p.correct++; 
+        else p.chicks++; 
+      } 
+      state.activeEgg = null; 
+      if (p.carton.length >= 6) { 
+        state.winner = p; 
+        state.phase = 'VICTORY'; 
+        beep([523, 659, 784, 1046]); 
+        render(); 
+        return; 
+      } 
+      if (!state.eggs.some(e => e.status === 'INTACT')) { 
+        state.phase = 'EMPTY'; 
+        render(); 
+        return; 
+      } 
+      state.turnIdx = (state.turnIdx + 1) % state.players.length; 
+      render(); 
+    } 
+ 
+    function renderTeacherPanel() { 
+      const filtered = state.teacherFilter === 'ALL' 
+        ? EXERCISES 
+        : EXERCISES.filter(e => e.category === state.teacherFilter); 
+ 
+      return '<div class="card">' + 
+        '<div  style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap: 12px;margin-bottom:20px;border-bottom:1px solid #E7E5E4;padding-bottom:14px">' + 
+          '<div>' + 
+            '<h2 style="font-size:1.4rem">Banco de Actividades & Respuestas Paso a  Paso</h2>' + 
+            '<p class="muted">22 ejercicios verificados para 1º año en Números Naturales  (ℕ) + ' + CONFIG.chickCount + ' pollitos comodín</p>' + 
+          '</div>' + 
+          '<div style="display:flex;gap:8px">' + 
+            '<button class="btn btn-secondary" style="padding:6px 12px;font-size:0.8rem"  onclick="state.showTeacherAnswers=!state.showTeacherAnswers;render()">' + 
+              (state.showTeacherAnswers ? 'Ocultar respuestas' : 'Ver respuestas') + 
+            '</button>' + 
+          '</div>' + 
+        '</div>' + 
+        '<div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">' + 
+          [ 
+            { id: 'ALL', label: 'Todos (22)' }, 
+            { id: 'CALCULO', label: 'Cálculo de Área/Perímetro (8)' }, 
+            { id: 'FIGURA_FORMULAS', label: 'Nombre & Fórmulas (6)' }, 
+            { id: 'ECUACION', label: 'Ecuaciones en ℕ (8)' } 
+          ].map(f => '<button class="btn ' + 
+(state.teacherFilter===f.id?'btn-amber':'btn-secondary') + '" style="padding:6px  12px;font-size:0.8rem" onclick="state.teacherFilter=\''+f.id+'\';render()">' + f.label + 
+'</button>').join('') + 
+        '</div>' + 
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px,  1fr));gap:16px">' + 
+          filtered.map((ex, i) => 
+            '<div class="card" style="padding:16px;background:#FAFAF9">' + 
+              '<div class="muted">#' + (i+1) + ' · ' + ex.category + '</div>' + 
+              '<h3 style="font-size:1.05rem;margin:4px 0 8px">' + ex.title + '</h3>' + 
+              renderShapeSvg(ex.shape) + 
+              '<p style="font-size:0.86rem;margin:10px 0;color:#44403C">' + ex.storyContext 
++ '</p>' + 
+              (state.showTeacherAnswers ? 
+                '<div style="margin-top:10px;background:#ECFDF5;border:1px solid  #A7F3D0;padding:10px;border-radius:10px;font-size:0.8rem">' + 
+                  '<strong style="color:#065F46">Solución exacta en ℕ:</strong>' + 
+                  (ex.category === 'CALCULO' ? '<div class="mono">P = ' + 
+ex.expectedPerimeter + ' ' + ex.unit + ' | A = ' + ex.expectedArea + ' ' + ex.unit + '²</div>' 
+: '') + 
+                  (ex.category === 'FIGURA_FORMULAS' ? '<div class="mono">' + 
+ex.expectedName + ' | ' + ex.expectedPerimeterFormula + ' | ' + 
+ex.expectedAreaFormula + '</div>' : '') + 
+                  (ex.category === 'ECUACION' ? '<div class="mono">' + 
+ex.expectedEquation + ' → x = ' + ex.expectedX + ' | ' + ex.secondaryQuestionLabel + '  = ' + ex.expectedSecondaryValue + ' ' + ex.secondaryUnit + '</div>' : '') + 
+                  '<div class="mono" style="margin-top:6px;color:#047857">' + 
+ex.steps.map(s => '<div>• ' + s + '</div>').join('') + '</div>' + 
+                '</div>' : '') + 
+            '</div>' 
+          ).join('') + 
+        '</div>' + 
+      '</div>'; 
+    } 
+ 
+    function renderFormulasGuide() { 
+      const list = [ 
+        { name: 'Cuadrado', desc: '4 lados iguales (L) · 4 ángulos rectos', p: 'P = 4 · L', a: 
+'A = L · L (L²)' }, 
+        { name: 'Rectángulo', desc: 'Lados opuestos iguales (base b y altura h)', p: 'P = 2 ·  b + 2 · h', a: 'A = b · h' }, 
+        { name: 'Triángulo', desc: '3 lados · Altura h perpendicular a la base b', p: 'P = L₁ +  L₂ + L₃', a: 'A = (b · h) : 2' }, 
+        { name: 'Rombo', desc: '4 lados iguales · Diagonal mayor (D) y menor (d)', p: 'P = 4  · L', a: 'A = (D · d) : 2' }, 
+        { name: 'Paralelogramo', desc: 'Lados paralelos 2 a 2 · Altura h sobre base b', p: 'P  = 2 · b + 2 · a', a: 'A = b · h' }, 
+        { name: 'Trapecio', desc: 'Base mayor (B), base menor (b) y lados laterales', p: 'P =  B + b + L₁ + L₂', a: 'A = ((B + b) · h) : 2' } 
+      ]; 
+      return '<div class="card">' + 
+        '<h2 style="font-size:1.4rem;margin-bottom:6px">Machete de Fórmulas y Figuras  Planas</h2>' + 
+        '<p class="muted" style="margin-bottom:18px">El Perímetro mide la longitud del  borde (contorno exterior) y el Área mide la superficie que ocupa por dentro.</p>' + 
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px,  1fr));gap:14px">' + 
+          list.map(f => 
+            '<div class="card" style="padding:16px;background:#FAFAF9">' + 
+              '<h3 style="font-size:1.15rem;margin-bottom:2px">' + f.name + '</h3>' + 
+              '<p class="muted" style="margin-bottom:10px">' + f.desc + '</p>' + 
+              '<div style="background:#FFF;border:1px solid #E7E5E4;padding:8px  12px;border-radius:8px;margin-bottom:6px"><strong>Perímetro:</strong> <span  class="mono">' + f.p + '</span></div>' + 
+              '<div style="background:#FFF;border:1px solid #E7E5E4;padding:8px  12px;border-radius:8px"><strong>Área:</strong> <span class="mono"  style="color:#047857">' + f.a + '</span></div>' + 
+            '</div>' 
+          ).join('') + 
+        '</div>' + 
+      '</div>'; 
+    } 
+ 
+    function render() { 
+      const root = document.getElementById('app'); 
+ 
+      if (state.activeTab === 'TEACHER' && IS_TEACHER) { 
+        root.innerHTML = renderTeacherPanel(); 
+        return; 
+      } 
+      if (state.activeTab === 'FORMULAS') { 
+        root.innerHTML = renderFormulasGuide(); 
+        return; 
+      } 
+ 
+      if (state.phase === 'SETUP') { 
+        root.innerHTML = '<div class="card" style="max-width:640px;margin:20px auto">' + 
+          '<p class="muted">' + CONFIG.courseName + ' · Escape Room Matemático</p>' 
++ 
+          '<h1 style="font-size:1.85rem;margin:6px 0 10px">Elegí un huevo y llená tu  huevera de 6</h1>' + 
+          '<p style="color:#57534E;font-size:0.95rem;margin-bottom:20px">Elegí huevos  de la canasta, resolvé ejercicios de área, perímetro, figuras planas y ecuaciones con  números naturales (o encontrá el pollito comodín). Tenés ' + CONFIG.minutesLimit + '  minutos por ejercicio.</p>' + 
+          '<div style="display:flex;gap:8px;margin-bottom:16px">' + 
+            '<button class="btn ' + 
+(state.mode==='INDIVIDUAL'?'btn-primary':'btn-secondary') + '"  onclick="state.mode=\'INDIVIDUAL\';render()">Modo Individual</button>' + 
+            '<button class="btn ' + (state.mode==='TEAMS'?'btn-primary':'btn-secondary') + 
+'" onclick="state.mode=\'TEAMS\';render()">Por Equipos (2 a 4)</button>' + 
+          '</div>' + 
+          (state.mode === 'INDIVIDUAL' 
+            ? '<label  style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:6px">Tu nombre y  apellido:</label>' + 
+              '<input class="input" placeholder="Ej: Valentina Pérez" value="' + 
+state.studentName.replace(/"/g,'&quot;') + '" oninput="state.studentName=this.value" />' 
+            : '<div style="margin-bottom:10px;display:flex;gap:6px">' + 
+              [2,3,4].map(n => '<button class="btn  '+(state.teamCount===n?'btn-amber':'btn-secondary')+'" style="padding:6px  12px;font-size:0.8rem" onclick="state.teamCount='+n+';render()">'+n+'  equipos</button>').join('') + 
+              '</div><div style="display:grid;gap:8px">' + 
+              Array.from({length:state.teamCount}, (_,i) => '<input class="input"  value="'+state.teamNames[i].replace(/"/g,'&quot;')+'"  oninput="state.teamNames['+i+']=this.value"/>').join('') + '</div>' 
+          ) + 
+          '<div style="margin-top:20px;text-align:right"><button class="btn btn-primary"  onclick="startGame()">Comenzar partida</button></div>' + 
+        '</div>'; 
+        return; 
+      } 
+ 
+      if (state.phase === 'VICTORY') { 
+        const w = state.winner; 
+        const code = 'GALLINERO-' + 
+(w.name.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,5) || 'GANO') + '-6H-' + 
+(w.correct*17 + w.chicks*11 + 600); 
+        root.innerHTML = '<div class="card" style="max-width:680px;margin:20px  auto;text-align:center">' + 
+          '<p class="muted" style="color:#B45309;font-weight:600">¡Portón abierto! ·  Huevera 6 / 6 completa</p>' + 
+          '<h1 style="font-size:2rem;margin:8px 0">¡Ganó ' + w.name + '!</h1>' + 
+          '<p style="color:#57534E;margin-bottom:18px">Resolviste ' + w.correct + '  ejercicios y encontraste ' + w.chicks + ' pollitos comodín en ' + w.attempts + ' huevos  abiertos.</p>' + 
+          '<div style="background:#F5F5F4;border:1px solid  #E7E5E4;border-radius:12px;padding:14px;margin-bottom:20px">' + 
+            '<div class="muted">Código comprobante para mostrar a tu profe:</div>' + 
+            '<div class="mono" style="font-size:1.15rem;font-weight:700;margin-top:4px">' + 
+code + '</div>' + 
+          '</div>' + 
+          '<button class="btn btn-primary" onclick="startGame()">Jugar otra  partida</button>' + 
+        '</div>'; 
+        return; 
+      } 
+ 
+      if (state.phase === 'EMPTY') { 
+        root.innerHTML = '<div class="card" style="max-width:560px;margin:20px  auto;text-align:center">' + 
+          '<h2>Se abrieron los 24 huevos sin llegar a 6</h2>' + 
+          '<p style="margin:12px 0 20px;color:#57534E">¡Probemos de nuevo con una  canasta recién mezclada!</p>' + 
+          '<button class="btn btn-primary" onclick="startGame()">Nueva  canasta</button></div>'; 
+        return; 
+      } 
+ 
+      const activeP = state.players[state.turnIdx]; 
+      root.innerHTML = 
+        '<div class="card" style="padding:14px  20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;f lex-wrap:wrap;gap:10px">' + 
+          '<div>Turno actual: <strong>' + activeP.name + '</strong></div>' + 
+          '<button class="btn btn-secondary" style="padding:7px 14px;font-size:0.8rem"  onclick="state.phase=\'SETUP\';render()">Reiniciar</button>' + 
+        '</div>' + 
+        '<div class="grid-arena">' + 
+          '<div class="card">' + 
+            '<h2 style="font-size:1.3rem">Elegí un huevo de la canasta</h2>' + 
+            '<div class="basket-rim">' + 
+              state.eggs.map(egg => { 
+                if (egg.status === 'INTACT') { 
+                  return '<button class="egg-btn" onclick="openEgg(' + egg.number + ')">' + 
+                    '<svg viewBox="0 0 64 76" style="width:52px;height:62px">' + 
+                      '<path d="M32 6 C16 6, 8 34, 8 50 C8 65, 18 72, 32 72 C46 72, 56 65, 56  50 C56 34, 48 6, 32 6 Z" fill="'+egg.palette.base+'" stroke="'+egg.palette.stroke+'"  stroke-width="2.5"/>' + 
+                      '<circle cx="32" cy="42" r="12" fill="#FFF" stroke="'+egg.palette.stroke+'"  stroke-width="1.8"/>' + 
+                      '<text x="32" y="46.5" text-anchor="middle" font-size="13"  font-weight="700" font-family="IBM Plex Mono, monospace">'+egg.number+'</text>' + 
+                    '</svg>' + 
+                    '<span style="font-size:0.75rem;margin-top:4px">Huevo ' + egg.number + 
+'</span></button>'; 
+                } 
+                const lbl = egg.status === 'CHICK_WON' ? '★ Pollito' : egg.status === 
+'SOLVED' ? '✓ Ganado' : '✕ Roto'; 
+                return '<button class="egg-btn" disabled><span class="mono"  style="font-weight:700;font-size:0.8rem">' + lbl + '</span><span class="muted">Nº ' + 
+egg.number + '</span></button>'; 
+              }).join('') + 
+            '</div>' + 
+          '</div>' + 
+          '<div style="display:grid;gap:16px">' + 
+            state.players.map((pl, idx) => 
+              '<div class="card" style="padding:18px;' + (idx===state.turnIdx && 
+state.players.length>1 ? 'border:2px solid #F59E0B' : '') + '">' + 
+                '<div style="display:flex;justify-content:space-between;align-items:center">' + 
+                  '<strong>' + pl.name + '</strong>' + 
+                  '<span class="mono" style="font-weight:700">' + pl.carton.length + ' /  6</span>' + 
+                '</div>' + 
+                '<div class="carton-grid">' + 
+                  Array.from({length:6}, (_, sIdx) => { 
+                    const item = pl.carton[sIdx]; 
+                    if (!item) return '<div class="carton-slot"><span  class="muted">Vacío</span></div>'; 
+                    return '<div class="carton-slot" style="background:#FEF3C7;border:1px  solid #F59E0B;font-weight:700">' + 
+                      (item.kind === 'CHICK_WON' ? '🐥 Pollito' : '🥚 Huevo') + 
+                      '<span class="mono">Nº' + item.num + '</span></div>'; 
+                  }).join('') + 
+                '</div>' + 
+              '</div>' 
+            ).join('') + 
+          '</div>' + 
+        '</div>'; 
+ 
+      if (state.activeEgg) { 
+        const egg = state.activeEgg; 
+        const modal = document.createElement('div'); 
+        modal.className = 'modal-backdrop'; 
+        if (egg.content.type === 'CHICK_WILDCARD') { 
+          modal.innerHTML = '<div class="modal-box"  style="max-width:480px;text-align:center">' + 
+            '<p class="muted">Huevo Nº ' + egg.number + ' · Comodín Sorpresa</p>' + 
+            '<h2 style="font-size:1.75rem;margin:8px 0">¡Salió ' + egg.content.chickName + 
+'!</h2>' + 
+            '<svg viewBox="0 0 120 120" style="width:130px;height:130px;margin:12px  auto;display:block">' + 
+              '<path d="M24 72 C24 102, 96 102, 96 72 L82 62 L70 74 L60 60 L48 74 L36  62 Z" fill="#FDE68A" stroke="#B45309" stroke-width="3"/>' + 
+              '<circle cx="60" cy="48" r="24" fill="#FACC15" stroke="#B45309"  stroke-width="3"/>' + 
+              '<circle cx="51" cy="44" r="3.5" fill="#1C1917"/><circle cx="69" cy="44" r="3.5"  fill="#1C1917"/>' + 
+              '<polygon points="60,48 53,56 67,56" fill="#EA580C"/>' + 
+            '</svg>' + 
+            '<p style="margin-bottom:20px;color:#44403C">' + egg.content.chickMessage + 
+'</p>' + 
+            '<button class="btn btn-amber"  onclick="closeEggAndContinue(\'CHICK_WON\')">Sumar huevo a la huevera</button>' 
++ 
+          '</div>'; 
+        } else { 
+          const ex = egg.content.exercise; 
+          const m = String(Math.floor(state.secondsLeft / 60)).padStart(2, '0'); 
+          const s = String(state.secondsLeft % 60).padStart(2, '0'); 
+          let inputsHtml = ''; 
+          const dis = state.resolution !== 'IN_PROGRESS' ? 'disabled' : ''; 
+          if (ex.category === 'CALCULO') { 
+            inputsHtml = 
+              '<div style="margin-bottom:12px"><label  style="font-size:0.85rem;font-weight:600">1. Perímetro (en ' + ex.unit + '):</label>' + 
+              '<input class="input mono" ' + dis + ' inputmode="numeric" value="' + 
+state.form.perim + '" oninput="state.form.perim=this.value.replace(/[^0-9]/g,\'\')"  placeholder="Solo número natural"/></div>' + 
+              '<div><label style="font-size:0.85rem;font-weight:600">2. Área (en ' + ex.unit + 
+'²):</label>' + 
+              '<input class="input mono" ' + dis + ' inputmode="numeric" value="' + 
+state.form.area + '" oninput="state.form.area=this.value.replace(/[^0-9]/g,\'\')"  placeholder="Solo número natural"/></div>'; 
+          } else if (ex.category === 'FIGURA_FORMULAS') { 
+            const nameOpts = rotateOpts(ex.nameOptions, egg.number % 4); 
+            const pOpts = rotateOpts(ex.perimeterFormulaOptions, (egg.number + 1) % 4); 
+            const aOpts = rotateOpts(ex.areaFormulaOptions, (egg.number + 2) % 4); 
+            inputsHtml = 
+              '<div style="margin-bottom:10px"><div  style="font-size:0.85rem;font-weight:600;margin-bottom:4px">1. Nombre de la  figura:</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">' + 
+              nameOpts.map(o => '<button type="button" '+dis+' class="opt-btn  '+(state.form.name===o?'selected':'')+'"  onclick="state.form.name=\''+o+'\';render()">'+o+'</button>').join('') + '</div></div>' + 
+              '<div style="margin-bottom:10px"><div  style="font-size:0.85rem;font-weight:600;margin-bottom:4px">2. Fórmula de  Perímetro:</div><div style="display:grid;gap:6px">' + 
+              pOpts.map(o => '<button type="button" '+dis+' class="opt-btn mono  '+(state.form.pForm===o?'selected':'')+'"  onclick="state.form.pForm=\''+o+'\';render()">'+o+'</button>').join('') + '</div></div>' + 
+              '<div><div style="font-size:0.85rem;font-weight:600;margin-bottom:4px">3.  Fórmula de Área:</div><div style="display:grid;gap:6px">' + 
+              aOpts.map(o => '<button type="button" '+dis+' class="opt-btn mono  '+(state.form.aForm===o?'selected':'')+'"  onclick="state.form.aForm=\''+o+'\';render()">'+o+'</button>').join('') + '</div></div>'; 
+          } else if (ex.category === 'ECUACION') { 
+            const eqOpts = rotateOpts(ex.equationOptions, egg.number % 4); 
+            inputsHtml = 
+              '<div style="margin-bottom:10px"><div  style="font-size:0.85rem;font-weight:600;margin-bottom:4px">1. Elegí la ecuación del  problema:</div><div style="display:grid;gap:6px">' + 
+              eqOpts.map(o => '<button type="button" '+dis+' class="opt-btn mono  '+(state.form.eq===o?'selected':'')+'"  onclick="state.form.eq=\''+o+'\';render()">'+o+'</button>').join('') + '</div></div>' + 
+              '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + 
+                '<div><label style="font-size:0.82rem;font-weight:600">2. Valor natural de  x:</label><input class="input mono" '+dis+' inputmode="numeric"  value="'+state.form.x+'" oninput="state.form.x=this.value.replace(/[^0-9]/g,\'\')"/></div>' 
++ 
+                '<div><label style="font-size:0.82rem;font-weight:600">3.  '+ex.secondaryQuestionLabel+':</label><input class="input mono" '+dis+'  inputmode="numeric" value="'+state.form.sec+'"  oninput="state.form.sec=this.value.replace(/[^0-9]/g,\'\')"/></div>' + 
+              '</div>'; 
+          } 
+ 
+          modal.innerHTML = '<div class="modal-box">' + 
+            '<div  style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px  solid #E7E5E4;padding-bottom:12px;gap:10px;flex-wrap:wrap">' + 
+              '<div><div class="muted">Huevo Nº ' + egg.number + ' · Turno de ' + 
+activeP.name + '</div><h2 style="font-size:1.3rem">' + ex.title + '</h2></div>' + 
+              '<div class="mono" style="background:#F5F5F4;padding:8px  14px;border-radius:10px;font-weight:700">⏱ <span id="live-timer">' + m + ':' + s + 
+'</span></div>' + 
+            '</div>' + 
+            '<div class="grid-modal">' + 
+              '<div>' + 
+                renderShapeSvg(ex.shape) + 
+                (ex.givenDatumLabel ? '<div class="mono"  style="margin-top:10px;background:#FFFBEB;border:1px solid  #FDE68A;padding:8px;border-radius:10px;text-align:center;font-weight:600">' + 
+ex.givenDatumLabel + '</div>' : '') + 
+                '<div style="margin-top:12px;background:#FAFAF9;border:1px solid  #E7E5E4;padding:12px;border-radius:12px">' + 
+                  '<button class="btn btn-secondary" style="padding:6px  12px;font-size:0.78rem" onclick="state.showHint=!state.showHint;render()">' + 
+(state.showHint ? 'Ocultar pista' : 'Pedir pista de la Profe') + '</button>' + 
+                  (state.showHint ? '<p  style="font-size:0.85rem;margin-top:8px;color:#44403C">' + ex.hint + '</p>' : '') + 
+                '</div>' + 
+              '</div>' + 
+              '<div>' + 
+                '<p style="font-size:0.92rem;margin-bottom:14px">' + ex.storyContext + '</p>' 
++ 
+                inputsHtml + 
+                (state.form.error && state.resolution==='IN_PROGRESS' ? '<p  style="color:#B91C1C;font-size:0.82rem;margin-top:8px">' + state.form.error + '</p>' : '') 
++ 
+                (state.resolution === 'IN_PROGRESS' 
+                  ? '<div style="margin-top:16px;text-align:right"><button class="btn  btn-primary" onclick="checkAnswer()">Comprobar respuesta</button></div>' 
+                  : '<div  style="margin-top:16px;padding:14px;border-radius:12px;background:' + 
+(state.resolution==='CORRECT'?'#ECFDF5':'#FEF2F2') + ';border:1px solid ' + 
+(state.resolution==='CORRECT'?'#A7F3D0':'#FECACA') + '">' + 
+                      '<strong>' + (state.resolution==='CORRECT' ? '✓ ¡Correcto! Ganaste 1  huevo para la huevera' : state.resolution==='TIMEOUT' ? '⏱ Tiempo agotado · El huevo  se rompió' : '✕ Respuesta incorrecta · El huevo se rompió') + '</strong>' + 
+                      '<div class="mono" style="font-size:0.8rem;margin-top:8px">' + 
+ex.steps.map((st,i)=>'<div>'+(i+1)+'. '+st+'</div>').join('') + '</div>' + 
+                      '<div style="margin-top:12px;text-align:right"><button class="btn  btn-primary" onclick="closeEggAndContinue(\'' + 
+(state.resolution==='CORRECT'?'SOLVED':'BROKEN_FAILED') + 
+'\')">Continuar</button></div>' + 
+                    '</div>' 
+                ) + 
+              '</div>' + 
+            '</div>' + 
+          '</div>'; 
+        } 
+        root.appendChild(modal); 
+      } 
+    } 
+ 
+    render(); 
+  
+    let isContrast = false;
+    function toggleContrast() {
+      isContrast = !isContrast;
+      document.body.classList.toggle('high-contrast', isContrast);
+    }
+
+    function toggleSpeech() {
+      if (!('speechSynthesis' in window)) {
+        alert('Síntesis de voz no disponible en este navegador.');
+        return;
+      }
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        return;
+      }
+      const title = document.title;
+      const u = new SpeechSynthesisUtterance("El Gallinero Geométrico. Escape Room de Matemática para primer año. Resuelve los desafíos de áreas y perímetros de corrales y figuras para avanzar en las estaciones.");
+      u.lang = 'es-AR';
+      window.speechSynthesis.speak(u);
+    }
+
+  </script> 
+
+  <footer style="margin-top:40px;padding:24px 16px;border-top:1px solid #E7E5E4;text-align:center;font-size:0.82rem;color:#78716C;background:#FFFFFF;">
+    <div style="max-width:1180px;margin:0 auto;line-height:1.7;">
+      <p style="font-weight:700;color:#1C1917;">🐔 El Gallinero Geométrico — Panel de Control Docente</p>
+      <p>Propuesta pedagógica desarrollada por <strong>Verónica Oliva</strong> (4.° Año B - Profesorado de Matemática, ISFDyT N.° 24, Bernal · Prof. Silvina Elena Busto).</p>
+      <p style="margin-top:4px;font-size:0.76rem;">
+        Código: <a href="LICENSE" target="_blank" style="color:#E11D48;text-decoration:underline;">GNU AGPL v3</a> • Contenidos: <a href="LICENSE-CONTENT" target="_blank" style="color:#E11D48;text-decoration:underline;">Creative Commons CC BY-SA 4.0</a>
+      </p>
+      <p style="margin-top:2px;font-size:0.72rem;color:#A8A29E;">Desarrollado mediante vibe coding con asistencia de inteligencia artificial y supervisión didáctica humana. Cero recopilación de datos.</p>
+    </div>
+  </footer>
+
+</body> 
+</html>
