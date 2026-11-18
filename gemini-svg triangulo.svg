@@ -1,0 +1,12 @@
+<svg class="math-icon" viewBox="0 0 100 100" width="80" height="80">
+  <!-- Escuadra exterior -->
+  <path d="M 18 82 L 82 82 L 18 18 Z" fill="#3B82F6" />
+  <!-- Hueco interior de la escuadra -->
+  <path d="M 28 73 L 64 73 L 28 37 Z" fill="#FFFFFF" />
+  <!-- Graduación de la regla -->
+  <line x1="36" y1="82" x2="36" y2="77" stroke="#1D4ED8" stroke-width="2" />
+  <line x1="46" y1="82" x2="46" y2="75" stroke="#1D4ED8" stroke-width="2" />
+  <line x1="56" y1="82" x2="56" y2="77" stroke="#1D4ED8" stroke-width="2" />
+  <!-- Ángulo recto (90°) -->
+  <polyline points="18,68 32,68 32,82" fill="none" stroke="#EF4444" stroke-width="2.5" />
+</svg>

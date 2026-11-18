@@ -1,0 +1,8 @@
+<svg class="math-icon" viewBox="0 0 100 100" width="80" height="80">
+  <!-- Fondo / Sector mayor (3/4) -->
+  <path d="M 50 50 L 50 14 A 36 36 0 1 0 86 50 Z" fill="#6366F1" />
+  <!-- Porción fraccionaria destacada (1/4) desplazada hacia afuera -->
+  <path d="M 56 44 L 56 8 A 36 36 0 0 1 92 44 Z" fill="#F59E0B" />
+  <!-- Vértice de origen -->
+  <circle cx="56" cy="44" r="3.5" fill="#FFFFFF" />
+</svg>

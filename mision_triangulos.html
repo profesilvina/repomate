@@ -1,0 +1,837 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Misión Triángulos – Desigualdad Triangular | Enzo y Alberto</title>
+  <meta name="description" content="Exploración interactiva de la desigualdad triangular y la determinación de triángulos. Creado por Enzo y Alberto para 2° año de Enseñar con Tecnología.">
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --azul: #1565c0;
+      --azul-oscuro: #0d47a1;
+      --azul-claro: #e3f2fd;
+      --verde: #2e7d32;
+      --rojo: #c62828;
+      --naranja: #e65100;
+      --gris-fondo: #f4f7f9;
+      --card-bg: #ffffff;
+      --texto: #1e293b;
+      --texto-muted: #64748b;
+      --borde: #cbd5e1;
+      --sombra: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --base-font-size: 16px;
+    }
+
+    body.high-contrast {
+      --azul: #00ffff;
+      --azul-oscuro: #ffffff;
+      --azul-claro: #111111;
+      --verde: #86efac;
+      --rojo: #fca5a5;
+      --naranja: #ffff00;
+      --gris-fondo: #000000;
+      --card-bg: #121212;
+      --texto: #ffffff;
+      --texto-muted: #e2e8f0;
+      --borde: #ffffff;
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: var(--base-font-size);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      background: var(--gris-fondo);
+      color: var(--texto);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--azul);
+      outline-offset: 3px;
+    }
+
+    /* Barra DUA Superior */
+    .app-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #0d47a1;
+      color: #ffffff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    body.high-contrast .app-toolbar {
+      background: #000000;
+      border-bottom: 2px solid #ffffff;
+    }
+
+    .toolbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .toolbar-brand a {
+      color: #ffffff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-tool:hover {
+      background: #ffffff;
+      color: #0d47a1;
+    }
+
+    /* Contenido */
+    .wrap {
+      max-width: 960px;
+      width: 100%;
+      margin: 24px auto;
+      padding: 0 16px;
+      flex: 1;
+    }
+
+    .header-box {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--azul);
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    body.high-contrast h1 { color: #ffff00; }
+
+    .subtitulo {
+      color: var(--texto-muted);
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .author-badge {
+      display: inline-block;
+      font-size: 0.88rem;
+      color: var(--texto-muted);
+      font-weight: 600;
+    }
+
+    .author-badge strong {
+      color: var(--texto);
+    }
+
+    body.high-contrast .author-badge strong { color: #00ffff; }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      box-shadow: var(--sombra);
+      border: 1px solid var(--borde);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--azul);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--azul);
+      padding-left: 10px;
+    }
+
+    body.high-contrast .card h2 {
+      color: #ffff00;
+      border-color: #ffff00;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .canvas-wrap {
+      flex: 1 1 420px;
+      min-width: 300px;
+    }
+
+    canvas {
+      width: 100%;
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+      background: #fafcff;
+      display: block;
+    }
+
+    body.high-contrast canvas {
+      background: #0a0a0a;
+      border-color: #ffffff;
+    }
+
+    .controls {
+      flex: 0 0 280px;
+      min-width: 250px;
+    }
+
+    .slider-group {
+      margin-bottom: 14px;
+    }
+
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 3px;
+    }
+
+    .slider-group label span.val {
+      color: var(--azul);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+    }
+
+    body.high-contrast .slider-group label span.val { color: #ffff00; }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--azul);
+      cursor: pointer;
+    }
+
+    .cond-box {
+      background: var(--azul-claro);
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      margin-top: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1.6;
+    }
+
+    body.high-contrast .cond-box {
+      background: #111111;
+      border-color: #ffffff;
+    }
+
+    .cond-box .ok { color: var(--verde); font-weight: 700; }
+    .cond-box .no { color: var(--rojo); font-weight: 700; }
+
+    .estado {
+      text-align: center;
+      font-size: 1.08rem;
+      font-weight: 800;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .estado.si { background: #e8f5e9; color: var(--verde); }
+    .estado.no { background: #ffebee; color: var(--rojo); }
+
+    body.high-contrast .estado.si { background: #052e16; color: #86efac; border: 1px solid #86efac; }
+    body.high-contrast .estado.no { background: #450a0a; color: #fca5a5; border: 1px solid #fca5a5; }
+
+    .info-b {
+      background: #fff3e0;
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      margin-top: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1.8;
+      color: #1e293b;
+    }
+
+    body.high-contrast .info-b {
+      background: #1a1a1a;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    .consignas ol { padding-left: 22px; }
+    .consignas li { margin-bottom: 8px; font-size: 0.95rem; }
+
+    .parte-label {
+      font-weight: 800;
+      color: var(--azul);
+      margin-top: 14px;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    body.high-contrast .parte-label { color: #ffff00; }
+
+    .cierre {
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      border-left: 5px solid var(--azul);
+      padding: 18px 20px;
+      border-radius: 8px;
+      font-size: 0.96rem;
+      color: #0f172a;
+    }
+
+    body.high-contrast .cierre {
+      background: #181818;
+      color: #ffffff;
+      border-color: #00ffff;
+    }
+
+    .cierre code {
+      background: rgba(255, 255, 255, 0.85);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+    }
+
+    body.high-contrast .cierre code {
+      background: #000000;
+      color: #00ffff;
+      border: 1px solid #00ffff;
+    }
+
+    details { margin-top: 12px; }
+    details summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--azul);
+      font-size: 1rem;
+      padding: 6px 0;
+    }
+
+    body.high-contrast details summary { color: #ffff00; }
+
+    .ggb-cmds {
+      background: #263238;
+      color: #e0e0e0;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .ggb-cmds .comment { color: #80cbc4; }
+
+    /* Pie de página VCER */
+    .vcer-footer {
+      background: #ffffff;
+      border-top: 1px solid var(--borde);
+      padding: 26px 20px;
+      font-size: 0.85rem;
+      color: var(--texto-muted);
+      text-align: center;
+      margin-top: 40px;
+      line-height: 1.6;
+    }
+
+    body.high-contrast .vcer-footer {
+      background: #000000;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .vcer-footer a {
+      color: var(--azul);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    body.high-contrast .vcer-footer a { color: #00ffff; }
+
+    @media (max-width: 700px) {
+      .controls { flex: 1 1 100%; }
+      .flex-row { gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de Accesibilidad DUA -->
+  <header class="app-toolbar" aria-label="Herramientas de Accesibilidad">
+    <div class="toolbar-brand">
+      <a href="index.html" title="Volver al catálogo del repositorio">
+        <i class="fa-solid fa-arrow-left"></i> <span>Repositorio apps</span>
+      </a>
+      <span style="opacity: 0.4;">|</span>
+      <span>🔺 Misión Triángulos</span>
+    </div>
+    <div class="toolbar-controls">
+      <button class="btn-tool" id="btn-font-sub" title="Disminuir tamaño de letra" aria-label="Disminuir fuente">A-</button>
+      <button class="btn-tool" id="btn-font-reset" title="Restablecer tamaño de letra" aria-label="Tamaño original">A</button>
+      <button class="btn-tool" id="btn-font-add" title="Aumentar tamaño de letra" aria-label="Aumentar fuente">A+</button>
+      <button class="btn-tool" id="btn-contrast" title="Alternar alto contraste" aria-label="Alto contraste"><i class="fa-solid fa-circle-half-stroke"></i> Contraste</button>
+      <button class="btn-tool" id="btn-tts" title="Leer en voz alta" aria-label="Lectura por voz"><i class="fa-solid fa-volume-high"></i> Leer</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    
+    <header class="header-box">
+      <h1>🔺 Misión Triángulos</h1>
+      <p class="subtitulo">Exploración interactiva de la desigualdad triangular y la determinación de triángulos</p>
+      <div class="author-badge">
+        <i class="fa-solid fa-users"></i> Autores: <strong>Enzo y Alberto</strong> · 2° Año Enseñar con Tecnología · ISFDyT N° 24
+      </div>
+    </header>
+
+    <!-- PARTE A -->
+    <section class="card" aria-label="Parte A: Desigualdad triangular">
+      <h2>PARTE A – Condiciones para construir un triángulo</h2>
+      <p style="margin-bottom: 12px; color: var(--texto-muted);">
+        Mové los deslizadores para cambiar las longitudes de los lados <strong>a</strong>, <strong>b</strong> y <strong>c</strong>. El triángulo se dibuja únicamente cuando se cumplen las tres desigualdades simultáneamente.
+      </p>
+      <div class="flex-row">
+        <div class="canvas-wrap">
+          <canvas id="cvA" width="500" height="400" aria-label="Representación gráfica interactiva del triángulo formado por los lados a, b y c"></canvas>
+        </div>
+        <div class="controls">
+          <div class="slider-group">
+            <label for="sa">Lado a (BC) <span class="val" id="va">5</span></label>
+            <input type="range" id="sa" min="1" max="12" step="1" value="5" aria-label="Longitud del lado a">
+          </div>
+          <div class="slider-group">
+            <label for="sb">Lado b (AC) <span class="val" id="vb">6</span></label>
+            <input type="range" id="sb" min="1" max="12" step="1" value="6" aria-label="Longitud del lado b">
+          </div>
+          <div class="slider-group">
+            <label for="sc">Lado c (AB) <span class="val" id="vc">7</span></label>
+            <input type="range" id="sc" min="1" max="12" step="1" value="7" aria-label="Longitud del lado c">
+          </div>
+          <div class="cond-box" id="condsA" aria-live="polite"></div>
+          <div class="estado" id="estadoA" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PARTE B -->
+    <section class="card" aria-label="Parte B: Determinación de triángulos">
+      <h2>PARTE B – ¿Dos lados determinan un único triángulo?</h2>
+      <p style="margin-bottom: 12px; color: var(--texto-muted);">
+        Los lados <strong>PQ = 7</strong> y <strong>PR = 5</strong> permanecen fijos. Mové el ángulo <strong>d</strong> para observar cómo varía la forma del triángulo y la longitud del tercer lado.
+      </p>
+      <div class="flex-row">
+        <div class="canvas-wrap">
+          <canvas id="cvB" width="500" height="380" aria-label="Representación gráfica interactiva con dos lados fijos y ángulo variable"></canvas>
+        </div>
+        <div class="controls">
+          <div class="slider-group">
+            <label for="sd">Ángulo d (°) <span class="val" id="vd">45</span></label>
+            <input type="range" id="sd" min="10" max="170" step="1" value="45" aria-label="Medida del ángulo comprendido d en grados">
+          </div>
+          <div class="info-b" id="infoB" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONSIGNAS -->
+    <section class="card consignas" aria-label="Consignas para estudiantes">
+      <h2>📝 Consignas para los estudiantes (ABP)</h2>
+      
+      <p class="parte-label">A. Exploración de la desigualdad triangular</p>
+      <ol>
+        <li>Dejen inicialmente \(a=5\), \(b=6\), \(c=7\). ¿Se forma un triángulo?</li>
+        <li>Mantengan \(a=5\) y \(b=6\). Modifiquen \(c\) hasta encontrar un caso en el que ya no se pueda construir.</li>
+        <li>Busquen una terna en la que la suma de dos lados sea <em>exactamente igual</em> al tercero. ¿Qué sucede con la figura geométrica?</li>
+        <li>Encuentren <strong>tres ternas posibles</strong> y <strong>tres imposibles</strong>. Registren los valores y justifiquen qué condición falla.</li>
+        <li>¿Alcanza con comprobar una sola desigualdad? Justifiquen usando los valores de los deslizadores.</li>
+      </ol>
+
+      <p class="parte-label">B. Exploración de la suficiencia de los datos</p>
+      <ol>
+        <li>Observen la segunda construcción. ¿Qué longitudes permanecen fijas?</li>
+        <li>Modifiquen el ángulo \(d\). ¿Qué sucede con el tercer lado?</li>
+        <li>¿Obtienen siempre la misma figura? ¿Qué dato adicional permitiría determinar una única construcción?</li>
+      </ol>
+    </section>
+
+    <!-- CIERRE -->
+    <section class="card" aria-label="Cierre conceptual">
+      <h2>🔒 Cierre y Registro Teórico</h2>
+      <div class="cierre">
+        <p>En todo triángulo, la suma de las longitudes de dos lados cualesquiera debe ser estrictamente <strong>mayor</strong> que la longitud del tercer lado:</p>
+        <p style="text-align: center; font-size: 1.15rem; margin: 12px 0;">
+          <code>a + b &gt; c</code> &nbsp;&nbsp;
+          <code>a + c &gt; b</code> &nbsp;&nbsp;
+          <code>b + c &gt; a</code>
+        </p>
+        <p>La <strong>igualdad no alcanza</strong>: los segmentos colapsan alineados sobre una misma recta y no encierran una región superficial.</p>
+        <p style="margin-top: 8px;">
+          Tres lados dados que cumplen las tres desigualdades determinan un triángulo único salvo congruencia. Conocer solamente dos lados, sin fijar el ángulo o la longitud del tercero, <strong>no determina una única figura</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- COMANDOS GEOGEBRA -->
+    <section class="card" aria-label="Comandos GeoGebra">
+      <h2>⚙️ Comandos para GeoGebra Classic</h2>
+      <p style="color: var(--texto-muted); margin-bottom: 8px;">
+        Si preferís modelizar la actividad en GeoGebra, copiá y pegá estos comandos en la barra de entrada (uno por línea, presionando Enter).
+      </p>
+      <details>
+        <summary>📋 PARTE A – Desigualdad triangular en GeoGebra</summary>
+        <div class="ggb-cmds"><span class="comment">// 1. Deslizadores</span>
+a = 5
+b = 6
+c = 7
+
+<span class="comment">// 2. Vértices y condiciones</span>
+A = (0, 0)
+B = (c, 0)
+xC = (b^2 + c^2 - a^2) / (2*c)
+cond1 = a + b > c
+cond2 = a + c > b
+cond3 = b + c > a
+posible = cond1 && cond2 && cond3
+C = Si(posible, (xC, sqrt(b^2 - xC^2)))
+triangulo = Polígono(A, B, C)
+estado = Si(posible, "SÍ: se puede construir", "NO: no se puede construir")
+
+<span class="comment">// 3. Textos dinámicos</span>
+info1 = Texto("a + b > c: " + cond1, (1, 8))
+info2 = Texto("a + c > b: " + cond2, (1, 7))
+info3 = Texto("b + c > a: " + cond3, (1, 6))
+info4 = Texto(estado, (1, 5))</div>
+      </details>
+      <details>
+        <summary>📋 PARTE B – Dos lados fijos y ángulo variable</summary>
+        <div class="ggb-cmds"><span class="comment">// 1. Deslizador de ángulo</span>
+d = 45
+
+<span class="comment">// 2. Construcción con lados 5 y 7</span>
+P = (15, 0)
+Q = (22, 0)
+R = (15 + 5*cos(d°), 5*sin(d°))
+triangulo2 = Polígono(P, Q, R)
+tercerLado = Distancia(Q, R)
+info5 = Texto("DOS LADOS FIJOS: 5 y 7", (14, 9))
+info6 = Texto("Ángulo comprendido: " + d + "°", (14, 8))
+info7 = Texto("Tercer lado: " + tercerLado, (14, 7))</div>
+      </details>
+    </section>
+
+  </div>
+
+  <!-- Pie de página VCER -->
+  <footer class="vcer-footer" role="contentinfo">
+    <p><strong>Misión Triángulos – Desigualdad Triangular</strong> · Autores: <strong>Enzo y Alberto</strong> (2° Año Enseñar con Tecnología) · Coordinación: <strong>Prof. Silvina Elena Busto</strong></p>
+    <p style="margin: 6px 0;">
+      <span><i class="fa-solid fa-code"></i> Código bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU AGPL v3</a></span>
+      <span style="margin: 0 8px;">·</span>
+      <span><i class="fa-brands fa-creative-commons"></i> Contenidos didácticos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></span>
+    </p>
+    <p style="font-size: 0.8rem; margin-top: 4px;">
+      Recurso educativo abierto bajo pautas de <em>Vibe Coding Responsable</em> (accesibilidad DUA, sin rastreadores y con asistencia ética de IA).
+    </p>
+  </footer>
+
+  <script>
+    // ======================== PARTE A ========================
+    const cvA = document.getElementById('cvA');
+    const ctxA = cvA.getContext('2d');
+    const sa = document.getElementById('sa');
+    const sb = document.getElementById('sb');
+    const sc = document.getElementById('sc');
+
+    function drawA() {
+      const a = +sa.value, b = +sb.value, c = +sc.value;
+      document.getElementById('va').textContent = a;
+      document.getElementById('vb').textContent = b;
+      document.getElementById('vc').textContent = c;
+
+      const c1 = (a + b > c);
+      const c2 = (a + c > b);
+      const c3 = (b + c > a);
+      const ok = c1 && c2 && c3;
+
+      document.getElementById('condsA').innerHTML =
+        `a + b &gt; c : ${a} + ${b} &gt; ${c} ` + (c1 ? '<span class="ok">✓ CUMPLE</span>' : '<span class="no">✗ NO CUMPLE</span>') + '<br>' +
+        `a + c &gt; b : ${a} + ${c} &gt; ${b} ` + (c2 ? '<span class="ok">✓ CUMPLE</span>' : '<span class="no">✗ NO CUMPLE</span>') + '<br>' +
+        `b + c &gt; a : ${b} + ${c} &gt; ${a} ` + (c3 ? '<span class="ok">✓ CUMPLE</span>' : '<span class="no">✗ NO CUMPLE</span>');
+
+      const est = document.getElementById('estadoA');
+      if (ok) {
+        est.className = 'estado si';
+        est.textContent = '✓ SÍ SE PUEDE CONSTRUIR';
+      } else {
+        est.className = 'estado no';
+        est.textContent = '✗ NO SE PUEDE CONSTRUIR';
+      }
+
+      const W = cvA.width, H = cvA.height;
+      ctxA.clearRect(0, 0, W, H);
+
+      const maxVal = Math.max(a, b, c, 8);
+      const scale = Math.min((W - 100) / maxVal, (H - 100) / maxVal);
+      const ox = 50, oy = H - 50;
+
+      // Grilla
+      ctxA.strokeStyle = '#e0e4ea'; ctxA.lineWidth = 0.5;
+      for (let i = 0; i <= maxVal + 2; i++) {
+        const x = ox + i * scale;
+        ctxA.beginPath(); ctxA.moveTo(x, 20); ctxA.lineTo(x, oy + 10); ctxA.stroke();
+        const y = oy - i * scale;
+        ctxA.beginPath(); ctxA.moveTo(ox - 10, y); ctxA.lineTo(W - 20, y); ctxA.stroke();
+      }
+      ctxA.strokeStyle = '#999'; ctxA.lineWidth = 1;
+      ctxA.beginPath(); ctxA.moveTo(ox, 20); ctxA.lineTo(ox, oy + 10); ctxA.stroke();
+      ctxA.beginPath(); ctxA.moveTo(ox - 10, oy); ctxA.lineTo(W - 20, oy); ctxA.stroke();
+
+      const Ax = ox, Ay = oy;
+      const Bx = ox + c * scale, By = oy;
+
+      if (ok) {
+        const xC = (b * b + c * c - a * a) / (2 * c);
+        const yC = Math.sqrt(Math.max(0, b * b - xC * xC));
+        const Cx = ox + xC * scale, Cy = oy - yC * scale;
+
+        // Triángulo relleno
+        ctxA.fillStyle = 'rgba(21,101,192,0.12)';
+        ctxA.beginPath(); ctxA.moveTo(Ax, Ay); ctxA.lineTo(Bx, By); ctxA.lineTo(Cx, Cy); ctxA.closePath(); ctxA.fill();
+
+        // Lados
+        ctxA.lineWidth = 2.5;
+        ctxA.strokeStyle = '#1565C0';
+        ctxA.beginPath(); ctxA.moveTo(Ax, Ay); ctxA.lineTo(Bx, By); ctxA.stroke(); // c
+        ctxA.strokeStyle = '#2E7D32';
+        ctxA.beginPath(); ctxA.moveTo(Ax, Ay); ctxA.lineTo(Cx, Cy); ctxA.stroke(); // b
+        ctxA.strokeStyle = '#C62828';
+        ctxA.beginPath(); ctxA.moveTo(Bx, By); ctxA.lineTo(Cx, Cy); ctxA.stroke(); // a
+
+        // Letras vértices
+        ctxA.font = 'bold 15px sans-serif'; ctxA.fillStyle = '#333';
+        ctxA.fillText('A', Ax - 16, Ay + 18);
+        ctxA.fillText('B', Bx + 6, By + 18);
+        ctxA.fillText('C', Cx - 5, Cy - 10);
+
+        // Etiquetas de lados
+        ctxA.font = '13px sans-serif';
+        ctxA.fillStyle = '#1565C0'; ctxA.fillText('c = ' + c, (Ax + Bx) / 2 - 14, Ay + 20);
+        ctxA.fillStyle = '#2E7D32'; ctxA.fillText('b = ' + b, (Ax + Cx) / 2 - 24, (Ay + Cy) / 2);
+        ctxA.fillStyle = '#C62828'; ctxA.fillText('a = ' + a, (Bx + Cx) / 2 + 8, (By + Cy) / 2);
+
+        // Puntos
+        [[Ax, Ay], [Bx, By], [Cx, Cy]].forEach(([x, y]) => {
+          ctxA.beginPath(); ctxA.arc(x, y, 4, 0, Math.PI * 2);
+          ctxA.fillStyle = '#333'; ctxA.fill();
+        });
+      } else {
+        // Base AB = c
+        ctxA.lineWidth = 2.5;
+        ctxA.strokeStyle = '#1565C0';
+        ctxA.beginPath(); ctxA.moveTo(Ax, Ay); ctxA.lineTo(Bx, By); ctxA.stroke();
+
+        // Arcos de compás para evidenciar por qué no cierran
+        ctxA.lineWidth = 1.5; ctxA.setLineDash([4, 4]);
+        ctxA.strokeStyle = '#2E7D32';
+        ctxA.beginPath(); ctxA.arc(Ax, Ay, b * scale, -Math.PI / 2, 0); ctxA.stroke();
+        ctxA.strokeStyle = '#C62828';
+        ctxA.beginPath(); ctxA.arc(Bx, By, a * scale, Math.PI, Math.PI * 1.5); ctxA.stroke();
+        ctxA.setLineDash([]);
+
+        ctxA.font = 'bold 15px sans-serif'; ctxA.fillStyle = '#333';
+        ctxA.fillText('A', Ax - 16, Ay + 18);
+        ctxA.fillText('B', Bx + 6, By + 18);
+
+        ctxA.font = 'bold 14px sans-serif'; ctxA.fillStyle = '#C62828';
+        ctxA.fillText('Los arcos de radio a=' + a + ' y b=' + b + ' no se cortan', ox + 20, 60);
+      }
+    }
+
+    [sa, sb, sc].forEach(s => s.addEventListener('input', drawA));
+    drawA();
+
+    // ======================== PARTE B ========================
+    const cvB = document.getElementById('cvB');
+    const ctxB = cvB.getContext('2d');
+    const sd = document.getElementById('sd');
+
+    function drawB() {
+      const d = +sd.value;
+      document.getElementById('vd').textContent = d;
+
+      const PQ = 7, PR = 5;
+      const rad = d * Math.PI / 180;
+      const Rx = PR * Math.cos(rad), Ry = PR * Math.sin(rad);
+      const QR = Math.sqrt((PQ - Rx) ** 2 + Ry ** 2);
+
+      document.getElementById('infoB').innerHTML =
+        `<b>DOS LADOS FIJOS:</b> PR = ${PR}, PQ = ${PQ}<br>` +
+        `<b>Ángulo comprendido:</b> ${d}°<br>` +
+        `<b>Tercer lado QR:</b> ${QR.toFixed(2)}`;
+
+      const W = cvB.width, H = cvB.height;
+      ctxB.clearRect(0, 0, W, H);
+
+      const scale = 32;
+      const ox = 60, oy = H - 60;
+
+      // Grid
+      ctxB.strokeStyle = '#e0e4ea'; ctxB.lineWidth = 0.5;
+      for (let i = 0; i <= 10; i++) {
+        const x = ox + i * scale;
+        ctxB.beginPath(); ctxB.moveTo(x, 20); ctxB.lineTo(x, oy + 10); ctxB.stroke();
+        const y = oy - i * scale;
+        ctxB.beginPath(); ctxB.moveTo(ox - 10, y); ctxB.lineTo(W - 20, y); ctxB.stroke();
+      }
+      ctxB.strokeStyle = '#999'; ctxB.lineWidth = 1;
+      ctxB.beginPath(); ctxB.moveTo(ox, 20); ctxB.lineTo(ox, oy + 10); ctxB.stroke();
+      ctxB.beginPath(); ctxB.moveTo(ox - 10, oy); ctxB.lineTo(W - 20, oy); ctxB.stroke();
+
+      const Px = ox, Py = oy;
+      const Qx = ox + PQ * scale, Qy = oy;
+      const CRx = ox + Rx * scale, CRy = oy - Ry * scale;
+
+      // Arco ángulo
+      ctxB.strokeStyle = '#E65100'; ctxB.lineWidth = 1.5;
+      ctxB.beginPath();
+      ctxB.arc(Px, Py, 30, -rad, 0);
+      ctxB.stroke();
+      ctxB.fillStyle = '#E65100'; ctxB.font = '12px sans-serif';
+      ctxB.fillText(d + '°', Px + 34, Py - 8);
+
+      // Triángulo relleno
+      ctxB.fillStyle = 'rgba(230,81,0,0.10)';
+      ctxB.beginPath(); ctxB.moveTo(Px, Py); ctxB.lineTo(Qx, Qy); ctxB.lineTo(CRx, CRy); ctxB.closePath(); ctxB.fill();
+
+      // Lados
+      ctxB.lineWidth = 2.5;
+      ctxB.strokeStyle = '#1565C0';
+      ctxB.beginPath(); ctxB.moveTo(Px, Py); ctxB.lineTo(Qx, Qy); ctxB.stroke(); // PQ=7
+      ctxB.strokeStyle = '#2E7D32';
+      ctxB.beginPath(); ctxB.moveTo(Px, Py); ctxB.lineTo(CRx, CRy); ctxB.stroke(); // PR=5
+      ctxB.strokeStyle = '#C62828';
+      ctxB.beginPath(); ctxB.moveTo(Qx, Qy); ctxB.lineTo(CRx, CRy); ctxB.stroke(); // QR
+
+      // Vértices
+      ctxB.font = 'bold 15px sans-serif'; ctxB.fillStyle = '#333';
+      ctxB.fillText('P', Px - 16, Py + 18);
+      ctxB.fillText('Q', Qx + 6, Qy + 18);
+      ctxB.fillText('R', CRx - 6, CRy - 10);
+
+      ctxB.font = '13px sans-serif';
+      ctxB.fillStyle = '#1565C0'; ctxB.fillText('7', (Px + Qx) / 2 - 4, Py + 20);
+      ctxB.fillStyle = '#2E7D32'; ctxB.fillText('5', (Px + CRx) / 2 - 22, (Py + CRy) / 2);
+      ctxB.fillStyle = '#C62828'; ctxB.fillText(QR.toFixed(1), (Qx + CRx) / 2 + 8, (Qy + CRy) / 2);
+
+      // Puntos
+      [[Px, Py], [Qx, Qy], [CRx, CRy]].forEach(([x, y]) => {
+        ctxB.beginPath(); ctxB.arc(x, y, 4, 0, Math.PI * 2);
+        ctxB.fillStyle = '#333'; ctxB.fill();
+      });
+    }
+
+    sd.addEventListener('input', drawB);
+    drawB();
+
+    // ======================== ACCESIBILIDAD DUA ========================
+    let baseFontSize = 16;
+    const btnFontAdd = document.getElementById('btn-font-add');
+    const btnFontSub = document.getElementById('btn-font-sub');
+    const btnFontReset = document.getElementById('btn-font-reset');
+    const btnContrast = document.getElementById('btn-contrast');
+    const btnTts = document.getElementById('btn-tts');
+
+    btnFontAdd.onclick = () => {
+      if (baseFontSize < 24) {
+        baseFontSize += 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    };
+    btnFontSub.onclick = () => {
+      if (baseFontSize > 12) {
+        baseFontSize -= 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    };
+    btnFontReset.onclick = () => {
+      baseFontSize = 16;
+      document.documentElement.style.fontSize = '16px';
+    };
+    btnContrast.onclick = () => {
+      document.body.classList.toggle('high-contrast');
+      btnContrast.classList.toggle('active');
+    };
+    btnTts.onclick = () => {
+      if (!('speechSynthesis' in window)) {
+        alert('Tu navegador no admite síntesis de voz.');
+        return;
+      }
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        btnTts.innerHTML = '<i class="fa-solid fa-volume-high"></i> Leer';
+        return;
+      }
+      const textToRead = `${document.querySelector('h1').textContent}. Estado: ${document.getElementById('estadoA').textContent}. ${document.querySelector('.cierre').innerText}`;
+      const utter = new SpeechSynthesisUtterance(textToRead);
+      utter.lang = 'es-AR';
+      utter.rate = 1.0;
+      utter.onend = () => {
+        btnTts.innerHTML = '<i class="fa-solid fa-volume-high"></i> Leer';
+      };
+      btnTts.innerHTML = '<i class="fa-solid fa-pause"></i> Detener';
+      window.speechSynthesis.speak(utter);
+    };
+  </script>
+</body>
+</html>

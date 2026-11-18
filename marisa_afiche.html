@@ -1,0 +1,1049 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><title>Creador de Afiches – Misión Batería</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Concepto: herramienta escolar con dos vistas. El afiche usa siempre la misma plantilla formal: fondo blanco, títulos azul oscuro, recuadros azul claro y gris, medidas en em para escalar de A3 a A4. */
+:root{
+  --ink:#14305a; --navy:#1b3f73; --blue-lt:#dbe8f5; --blue-line:#a9c3e0;
+  --gray-lt:#f1f4f8; --gray-line:#cfd7e2; --text:#1f2937; --muted:#5b6778;
+  --page:#eef2f7; --warn:#9a3412; --warn-bg:#fff4e8; --ok:#166534; --ok-bg:#eaf6ee;
+  --font:Arial,Helvetica,"Liberation Sans",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--page);color:var(--text);font-family:var(--font);font-size:1rem;line-height:1.5;
+  padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1000px;margin:0 auto}
+.top{padding-block:20px 4px}
+.top h1{margin:0 0 4px;font-size:1.5rem;color:var(--ink);text-wrap:balance}
+.top p{margin:0;color:var(--muted)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.tab{font:inherit;font-weight:700;padding:11px 18px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:6px;cursor:pointer}
+.tab[aria-selected=true]{background:var(--navy);color:#fff}
+.card{background:#fff;border:1px solid var(--gray-line);border-radius:8px;padding:20px;margin-bottom:16px;min-width:0}
+.card h2{margin:0 0 4px;font-size:1.2rem;color:var(--ink);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;text-wrap:balance}
+.step{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.help{margin:0 0 14px;color:var(--muted);font-size:.93rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0;margin-bottom:12px}
+.fld>label,.lbl{font-weight:700;color:var(--ink);font-size:.95rem}
+input[type=text],input[type=date],textarea,select{width:100%;font:inherit;color:var(--text);background:#fff;border:1px solid #8fa3bd;border-radius:5px;padding:10px 12px;min-width:0}
+textarea{resize:vertical;min-height:84px}
+:focus-visible{outline:3px solid #2f6fb5;outline-offset:1px}
+.cnt{align-self:flex-end;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-weight:700;padding:11px 18px;border-radius:6px;border:2px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer}
+.btn.sec{background:#fff;color:var(--navy)}
+.btn.sec[aria-pressed=true]{background:var(--navy);color:#fff}
+.btn.sm{padding:7px 12px;font-size:.9rem}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.nav{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.msg{padding:12px 14px;border-radius:6px;background:var(--warn-bg);color:var(--warn);border:1px solid #f1c9a5;font-size:.95rem;margin-bottom:10px}
+.msg.ok{background:var(--ok-bg);color:var(--ok);border-color:#b7dcc2}
+.miss{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.miss li{background:#fff;border:1px solid #f1c9a5;border-radius:4px;padding:2px 8px;font-size:.85rem}
+.units{background:var(--gray-lt);border:1px solid var(--gray-line);border-radius:6px;padding:10px 14px;font-size:.92rem;margin-bottom:14px}
+.units b{color:var(--ink)}
+/* tabla editable */
+.thead,.trow{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(200px,2fr) 84px 120px 110px 92px;gap:10px;align-items:center}
+.thead{font-size:.8rem;font-weight:700;color:var(--ink);padding:8px 10px;background:var(--blue-lt);border-radius:5px}
+.trow{padding:10px;border-bottom:1px solid var(--gray-line)}
+.c-calc{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);background:var(--gray-lt);border-radius:5px;padding:6px 8px;text-align:center;min-height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-wrap:anywhere;min-width:0}
+.c-calc::before{content:attr(data-label);font-size:.72rem;font-weight:400;color:var(--muted)}
+.c-msg{grid-column:1/-1;font-size:.88rem;color:var(--warn)}
+.c-msg:empty{display:none}
+.c-msg.info{color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (min-width:821px){.c-calc::before{display:none}}
+@media (max-width:820px){.thead{display:none}.trow{grid-template-columns:1fr 1fr 1fr}.c-name,.c-raw,.c-del{grid-column:1/-1}}
+.chartbox{border:1px solid var(--gray-line);border-radius:6px;padding:10px;background:#fff;margin-top:14px;max-width:720px}
+.sgrid{display:grid;gap:14px;margin-top:12px}
+.sblk{border:1px solid var(--gray-line);border-radius:6px;padding:14px;background:var(--gray-lt)}
+.sn{font-weight:700;color:var(--ink)}
+.sd{color:var(--muted);font-size:.88rem}
+.sres{font-size:1.4rem;font-weight:700;color:var(--ink);margin:4px 0 8px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sblk textarea{min-height:64px}
+.stage-wrap{width:100%}
+.stage{position:relative;margin:0 auto}
+
+/* ===== Afiche (medidas en em: 70 em de ancho) ===== */
+.poster{--w:297mm;--fit:1;--ink:#14305a;--navy:#1b3f73;--blue-lt:#dbe8f5;--blue-line:#a9c3e0;--gray-lt:#f1f4f8;--gray-line:#cfd7e2;--text:#1f2937;--muted:#5b6778;position:absolute;left:0;top:0;transform-origin:0 0;width:var(--w);height:calc(var(--w)*1.4135);
+  font-size:calc(var(--w)/70*var(--fit));background:#fff;color:#1f2937;font-family:var(--font);line-height:1.3;
+  padding:2.4em 2.6em;display:flex;flex-direction:column;gap:1.3em;overflow:hidden;box-shadow:0 3px 18px rgba(20,48,90,.3);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.poster.a4{--w:210mm}
+:where(.poster) *{margin:0}
+.p-head{border-bottom:.14em solid var(--navy);padding-bottom:.9em}
+.p-kicker{font-size:.9em;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--navy)}
+.p-head h1{font-size:2.7em;line-height:1.1;color:var(--ink);margin-top:.15em;text-wrap:balance}
+.p-head p{font-size:1.3em;color:#334155;margin-top:.4em}
+.p-team{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:.6em 1.4em;background:var(--gray-lt);border:.08em solid var(--gray-line);border-radius:.4em;padding:.8em 1em}
+.p-f span{display:block;font-size:.72em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.p-f b{font-size:1.2em;color:var(--ink)}
+.p-f.wide{grid-column:1/-1}
+.p-box{border:.1em solid var(--blue-line);border-radius:.4em;overflow:hidden;background:#fff;display:flex;flex-direction:column;min-width:0;break-inside:avoid}
+.p-box>h2{background:var(--blue-lt);color:var(--ink);font-size:1.45em;padding:.4em .8em}
+.p-body{padding:.8em 1em;font-size:1.15em;flex:1}
+.p-txt{white-space:pre-line;overflow-wrap:anywhere}
+.p-two{display:grid;grid-template-columns:1fr 1fr;gap:1.3em}
+.poster>*{flex-shrink:0}
+.poster>.p-c{flex:1 0 auto}
+.p-c .p-box{height:100%}
+.p-chart{padding:.6em;display:flex;align-items:center}
+.p-t{width:100%;border-collapse:collapse;font-size:.95em}
+.p-t th{background:var(--blue-lt);color:var(--ink);font-weight:700;text-align:center;padding:.4em .5em;border:.07em solid var(--blue-line);font-size:.92em}
+.p-t td{padding:.35em .55em;border:.07em solid var(--gray-line);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.p-t td:first-child{text-align:left;font-weight:700;color:var(--ink)}
+.p-t td.l{text-align:left;font-size:.95em}
+.p-note{font-size:.78em;color:var(--muted);margin-top:.6em}
+.p-sub{font-size:.9em;color:#334155;margin-bottom:.5em}
+.p-m{border-top:.07em solid var(--gray-line);padding:.45em 0}
+.p-m:first-of-type{border-top:0}
+.p-mh{display:flex;justify-content:space-between;align-items:baseline;gap:.8em}
+.p-mn{font-weight:700;color:var(--ink)}
+.p-md{font-size:.85em;color:#334155}
+.p-mr{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}
+.p-mt{font-size:.9em;margin-top:.15em;overflow-wrap:anywhere}
+.p-cc{padding:.35em 0;border-top:.07em solid var(--gray-line)}
+.p-cc:first-child{border-top:0}
+.p-cc small{display:block;font-size:.65em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.p-body ul{padding-left:1.2em;display:flex;flex-direction:column;gap:.4em}
+.p-body li{overflow-wrap:anywhere}
+.pend{color:#7b8696;font-style:italic;font-weight:400}
+
+/* ===== Tema juvenil del afiche: misma organización, colores por sector ===== */
+.poster{--tq:#12b5b0;--tq-d:#0b8f8b;--tq-s:#d9f4f2;--gr:#4fb36b;--gr-s:#e0f4e5;--vi:#7b5cd6;--vi-s:#ece6fb;--or:#f5902e;--or-s:#ffe9d3;--ye:#ffd75e;--ye-s:#fff6cf}
+.p-head{background:linear-gradient(100deg,var(--tq-s),var(--vi-s));border:0;border-radius:.9em;padding:1em 1.3em;display:flex;align-items:center;gap:1.2em}
+.p-ht{flex:1;min-width:0}
+.p-kicker{display:inline-block;background:var(--tq-d);color:#fff;border-radius:2em;padding:.25em .9em}
+.p-head h1{margin-top:.3em}
+.p-bat{width:6.4em;height:auto;flex:none}
+.p-team{background:var(--ye-s);border-color:#f2dc86;border-radius:.8em}
+.p-box{border:.12em solid var(--bd,var(--blue-line));border-radius:.8em}
+.p-box>h2{background:var(--bs,var(--blue-lt));display:flex;align-items:center;gap:.5em}
+.p-box>h2 svg{width:1.3em;height:1.3em;flex:none;color:var(--ic,var(--navy))}
+.c-tq{--bd:#7fd8d4;--bs:var(--tq-s);--ic:var(--tq-d)}
+.c-vi{--bd:#bba9ef;--bs:var(--vi-s);--ic:var(--vi)}
+.c-gr{--bd:#9bd8ac;--bs:var(--gr-s);--ic:#2f8f4d}
+.c-or{--bd:#f8c590;--bs:var(--or-s);--ic:#d97a14}
+.p-chartbox{background:#fff}
+.p-chart{flex:1}
+.p-why{padding:.6em .9em .8em;border-top:.08em solid #f8d9b0;font-size:.95em;overflow-wrap:anywhere}
+.p-t th{background:var(--vi-s);border-color:#bba9ef}
+.p-t td{border-color:#ddd6f7}
+.p-mn{color:#1f7a3b}
+.p-m{border-top-color:#cfe9d6}
+.p-cc{border-top-color:#f8d9b0}
+.p-cc small{color:#b45f0b}
+.p-body ul{list-style:none;padding-left:0}
+.p-body li{position:relative;background:var(--tq-s);border-radius:.5em;padding:.4em .7em .4em 1.8em}
+.p-body li::before{content:"";position:absolute;left:.75em;top:.95em;width:.55em;height:.55em;border-radius:50%;background:var(--tq-d)}
+.c-vi .p-body li{background:var(--vi-s)}
+.c-vi .p-body li::before{background:var(--vi)}
+
+/* ===== Selector de gráfico (interfaz de trabajo) ===== */
+.ctypes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.ctype{position:relative;display:flex;flex-direction:column;gap:4px;align-items:flex-start;padding:12px;border:2px solid var(--gray-line);border-radius:10px;background:#fff;cursor:pointer}
+.ctype input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.ctype:focus-within{outline:3px solid #2f6fb5;outline-offset:2px}
+.ctype.on{border-color:var(--navy);background:var(--blue-lt)}
+.ct-i{width:64px;height:44px}
+.ct-n{font-weight:700;color:var(--ink)}
+.ct-d{font-size:.88rem;color:var(--muted)}
+.ct-ok{display:none;font-weight:700;font-size:.85rem;color:var(--ink)}
+.ctype.on .ct-ok{display:inline}
+.cdata{margin:12px 0}
+.lhead,.lrow{display:grid;grid-template-columns:1fr 1fr 92px;gap:10px;align-items:center}
+.lhead{font-size:.8rem;font-weight:700;color:var(--ink);padding:8px 10px;background:var(--blue-lt);border-radius:5px}
+.lrow{padding:8px 10px;border-bottom:1px solid var(--gray-line)}
+html[data-hc="1"] .ctype{border-width:3px}
+
+.msg.info{background:var(--gray-lt);color:var(--text);border-color:var(--gray-line)}
+.pals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pal{position:relative;display:flex;flex-direction:column;gap:6px;padding:10px;border:2px solid var(--gray-line);border-radius:10px;background:#fff;cursor:pointer}
+.pal input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.pal:focus-within{outline:3px solid #2f6fb5;outline-offset:2px}
+.pal.on{border-color:var(--navy);background:var(--blue-lt)}
+.sw{display:flex;gap:3px}
+.sw i{display:block;width:22px;height:16px;border:1px solid #14305a;border-radius:3px}
+.pn{font-weight:700;color:var(--ink);font-size:.92rem}
+html[data-hc="1"] .pal{border-width:3px}
+
+/* ===== Datos por tipo de gráfico y colores (interfaz de trabajo) ===== */
+.colors{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 14px}
+.colr{display:flex;align-items:center;gap:8px;border:1px solid var(--gray-line);border-radius:6px;padding:6px 10px;background:#fff;min-width:0;cursor:pointer}
+.colr input{width:38px;height:32px;padding:0;border:1px solid #8fa3bd;background:#fff;cursor:pointer;flex:none}
+.colr span{overflow-wrap:anywhere;min-width:0}
+.card[hidden]{display:none}
+
+/* ===== Accesibilidad y revisión (solo interfaz de trabajo) ===== */
+.a11y{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-block:12px 0}
+.a11y .lbl{margin-right:4px}
+.btn[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(15,30,55,.55);display:flex;align-items:center;justify-content:center;
+  padding:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))}
+.dlg{background:#fff;color:var(--text);border:2px solid var(--navy);border-radius:8px;max-width:660px;width:100%;max-height:100%;overflow:auto;padding:22px}
+.dlg:focus{outline:none}
+.dlg h2{margin:0 0 6px;color:var(--ink);font-size:1.3rem}
+.rv-list{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:10px}
+.rv-item{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--gray-line);border-radius:6px;background:var(--gray-lt);cursor:pointer}
+.rv-item input{width:1.4em;height:1.4em;margin:.05em 0 0;flex:none;accent-color:var(--navy)}
+.rv-count{font-size:.9rem;color:var(--muted);margin:0 0 8px}
+html.bigui .thead{display:none}
+html.bigui .trow{grid-template-columns:1fr 1fr 1fr}
+html.bigui .c-name,html.bigui .c-raw,html.bigui .c-del{grid-column:1/-1}
+html.bigui .c-calc::before{display:block}
+html[data-hc="1"]{--page:#fff;--text:#000;--ink:#000;--navy:#000;--muted:#1a1a1a;--gray-line:#000;--gray-lt:#fff;--blue-lt:#fff;--blue-line:#000;--warn:#000;--warn-bg:#fff;--ok:#000;--ok-bg:#fff}
+html[data-hc="1"] input[type=text],html[data-hc="1"] input[type=date],html[data-hc="1"] textarea,html[data-hc="1"] select{border:2px solid #000}
+html[data-hc="1"] .msg,html[data-hc="1"] .c-calc,html[data-hc="1"] .units,html[data-hc="1"] .thead{border:2px solid #000}
+html[data-hc="1"] .miss li{border-color:#000}
+html[data-hc="1"] .card{border-width:2px}
+html[data-hc="1"] :focus-visible{outline:4px solid #000;outline-offset:3px}
+
+@media print{
+  :root{padding:0!important}
+  html,body{background:#fff!important}
+  body{padding:0!important}
+  .top,.tabs,#view-form,.prev-bar,.a11y,.modal{display:none!important}
+  .wrap{max-width:none}
+  .stage{width:auto!important;height:auto!important;margin:0}
+  .poster{position:static!important;transform:none!important;box-shadow:none!important}
+  .pend{visibility:hidden}
+}
+</style>
+<style id="pagecss">@page{size:A3 portrait;margin:0}</style>
+<div class="wrap">
+<div class="a11y" role="toolbar" aria-label="Barra de accesibilidad">
+  <span class="lbl">Accesibilidad</span>
+  <button class="btn sec sm" type="button" id="fs-up" aria-label="Aumentar el tamaño de letra">A+</button>
+  <button class="btn sec sm" type="button" id="fs-down" aria-label="Disminuir el tamaño de letra">A-</button>
+  <button class="btn sec sm" type="button" id="hc" aria-pressed="false">Alto contraste: <span id="hc-state">desactivado</span></button>
+  <button class="btn sec sm" type="button" id="tts" aria-pressed="false">Escuchar instrucciones</button>
+  <span class="help" id="a11y-msg" role="status" aria-live="polite" style="margin:0"></span>
+</div>
+<header class="top">
+  <div style="margin-bottom:8px;">
+    <a href="index.html" style="color:var(--navy); text-decoration:none; font-weight:700; font-size:0.9rem;">
+      ← Volver al repositorio de aplicaciones
+    </a>
+  </div>
+  <h1>Creador de Afiches – Misión Batería</h1>
+  <p>Completá los datos de tu equipo, revisá el afiche y guardalo para imprimirlo · Autora: <strong>Marisa Sierra</strong> (4° Año EDI · ISFDyT N° 24).</p>
+</header>
+<div class="tabs" role="tablist" aria-label="Vistas">
+  <button class="tab" role="tab" id="tab-form" aria-selected="true" aria-controls="view-form" type="button">Completar información</button>
+  <button class="tab" role="tab" id="tab-prev" aria-selected="false" aria-controls="view-prev" type="button">Vista previa del afiche</button>
+</div>
+
+<main id="view-form" role="tabpanel" aria-labelledby="tab-form">
+  <section class="card">
+    <h2><span class="step">Paso 1</span>Datos del equipo</h2>
+    <p class="help">Estos datos aparecen en la parte superior del afiche.</p>
+    <div class="grid2">
+      <div class="fld"><label for="f-team">Nombre del equipo</label><input id="f-team" type="text" maxlength="40" data-k="team" autocomplete="off"></div>
+      <div class="fld"><label for="f-course">Curso</label><input id="f-course" type="text" maxlength="20" data-k="course" placeholder="Por ejemplo: 2.º B" autocomplete="off"></div>
+      <div class="fld"><label for="f-date">Fecha</label><input id="f-date" type="text" maxlength="10" data-k="date" placeholder="DD/MM/AAAA" autocomplete="off" aria-describedby="date-hint"><span class="sd" id="date-hint">Formato: DD/MM/AAAA (día, mes y año).</span></div>
+    </div>
+    <div class="fld"><label for="f-members">Integrantes</label><textarea id="f-members" maxlength="140" data-k="members" placeholder="Escribí un nombre por renglón"></textarea></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">Paso 2</span>Nuestra investigación</h2>
+    <p class="help">Explicá brevemente cómo investigaron el consumo de batería durante 30 minutos: qué actividades midieron, cómo anotaron los porcentajes y cuántas veces lo hicieron.</p>
+    <div class="fld"><label class="sr" for="f-research">Nuestra investigación</label><textarea id="f-research" maxlength="420" data-k="research"></textarea></div>
+  </section>
+
+  <section class="card" id="card-type">
+    <h2><span class="step">Paso 3</span>Elegimos nuestro gráfico</h2>
+    <p class="help"><b id="qtype">¿Qué tipo de gráfico quieren realizar?</b> Elijan una opción. Después les pedimos los datos que necesita ese gráfico. Pueden cambiar de gráfico cuando quieran: los datos de cada tipo se guardan por separado.</p>
+    <div class="ctypes" role="radiogroup" aria-labelledby="qtype">
+      <label class="ctype"><input type="radio" name="ctype" value="bar"><svg class="ct-i" viewBox="0 0 64 44" aria-hidden="true"><rect x="6" y="20" width="12" height="22" fill="#12b5b0"/><rect x="26" y="8" width="12" height="34" fill="#7b5cd6"/><rect x="46" y="14" width="12" height="28" fill="#f5902e"/><path d="M2 42h60" stroke="#14305a" stroke-width="2"/></svg><span class="ct-n">Gráfico de barras</span><span class="ct-d">Compara valores entre categorías.</span><span class="ct-ok">✓ Elegido</span></label>
+      <label class="ctype"><input type="radio" name="ctype" value="line"><svg class="ct-i" viewBox="0 0 64 44" aria-hidden="true"><path d="M2 42h60M2 4v38" stroke="#14305a" stroke-width="2" fill="none"/><polyline points="8,12 24,24 38,18 58,34" fill="none" stroke="#7b5cd6" stroke-width="3.5"/><circle cx="8" cy="12" r="3.5" fill="#fff" stroke="#7b5cd6" stroke-width="2.5"/><circle cx="24" cy="24" r="3.5" fill="#fff" stroke="#7b5cd6" stroke-width="2.5"/><circle cx="38" cy="18" r="3.5" fill="#fff" stroke="#7b5cd6" stroke-width="2.5"/><circle cx="58" cy="34" r="3.5" fill="#fff" stroke="#7b5cd6" stroke-width="2.5"/></svg><span class="ct-n">Gráfico de líneas</span><span class="ct-d">Muestra cómo cambia algo a lo largo del tiempo.</span><span class="ct-ok">✓ Elegido</span></label>
+      <label class="ctype"><input type="radio" name="ctype" value="pie"><svg class="ct-i" viewBox="0 0 64 44" aria-hidden="true"><circle cx="32" cy="22" r="19" fill="#12b5b0"/><path d="M32 22L32 3A19 19 0 0 1 50.3 26.9Z" fill="#f5902e"/><path d="M32 22L50.3 26.9A19 19 0 0 1 21.1 37.6Z" fill="#ffd75e"/></svg><span class="ct-n">Gráfico de torta</span><span class="ct-d">Muestra cómo se reparte un total entre categorías.</span><span class="ct-ok">✓ Elegido</span></label>
+    </div>
+    <div class="msg" id="choose-hint">Todavía no eligieron un gráfico. Elijan una opción para continuar.</div>
+  </section>
+
+  <section class="card" id="card-data" hidden>
+    <h2><span class="step">Paso 4</span>Ingresamos los datos</h2>
+    <div class="cdata" id="cdata-bar" hidden>
+      <p class="help"><b>Ingresen los datos que desean comparar.</b> Escriban el nombre de cada celular o actividad y el consumo de batería que registraron durante 30 minutos, en puntos porcentuales (p. p.).</p>
+      <div class="units"><b>p. p. = puntos porcentuales de consumo.</b> Es cuánto bajó la batería: si empezó en 80 % y terminó en 75 %, el consumo fue de 5 p. p. No es el porcentaje de batería que queda.</div>
+      <div class="lhead" aria-hidden="true"><div>Celular o actividad</div><div>Consumo en 30 minutos (p. p.)</div><div></div></div>
+      <div id="bars"></div>
+      <div class="nav" style="margin-top:12px"><button class="btn sec" type="button" id="add-bar">Agregar categoría</button></div>
+    </div>
+    <div class="cdata" id="cdata-line" hidden>
+      <p class="help"><b>Ingresen los datos que registraron para mostrar cómo cambió la batería durante el tiempo de investigación.</b> Escriban los minutos que realmente usaron en su investigación y el porcentaje de batería restante en cada momento. Los puntos se ordenan solos por minuto.</p>
+      <div class="units">Acá van los porcentajes de batería que <b>quedaban</b> en cada momento. No es el consumo.</div>
+      <div class="lhead" aria-hidden="true"><div>Tiempo (minutos)</div><div>Batería restante (%)</div><div></div></div>
+      <div id="lines"></div>
+      <div class="nav" style="margin-top:12px"><button class="btn sec" type="button" id="add-line">Agregar registro</button></div>
+    </div>
+    <div class="cdata" id="cdata-pie" hidden>
+      <p class="help"><b>Ingresen los datos que desean representar como partes de un mismo total.</b> Escriban el nombre de cada categoría y la cantidad o el valor que le corresponde. La aplicación suma los valores y calcula qué porcentaje del total es cada categoría.</p>
+      <div class="units">Los valores tienen que ser partes de <b>un mismo total</b>, por ejemplo la cantidad de estudiantes que prefieren cada actividad o el tiempo dedicado a cada actividad. No sirven cantidades independientes que no se puedan interpretar como una distribución. Ese porcentaje es una parte del gráfico y no es un porcentaje de batería consumida.</div>
+      <div class="lhead" aria-hidden="true"><div>Categoría</div><div>Cantidad o valor</div><div></div></div>
+      <div id="pies"></div>
+      <div class="nav" style="margin-top:12px"><button class="btn sec" type="button" id="add-pie">Agregar categoría</button></div>
+    </div>
+    <div class="msg" id="cmsg" role="status" hidden style="margin-top:12px"></div>
+  </section>
+
+  <section class="card" id="card-prev" hidden>
+    <h2><span class="step">Paso 5</span>Vista previa del gráfico</h2>
+    <p class="help">Así queda el gráfico en el afiche. Se actualiza mientras escriben.</p>
+    <div class="chartbox" id="chart-form"></div>
+    <div class="fld" style="max-width:520px;margin-top:14px"><label for="f-ctitle">Título del gráfico</label><input id="f-ctitle" type="text" maxlength="60" autocomplete="off"></div>
+    <div class="lbl" id="colors-lbl">Colores</div>
+    <div class="colors" id="colors" role="group" aria-labelledby="colors-lbl"></div>
+    <div class="nav"><button class="btn sec" type="button" id="edit-data">Modificar los datos</button><button class="btn sec" type="button" id="change-type">Cambiar el tipo de gráfico</button></div>
+  </section>
+
+  <section class="card" id="card-why" hidden>
+    <h2><span class="step">Paso 6</span>Justificamos nuestra elección</h2>
+    <div class="fld"><label for="f-why">¿Por qué eligieron este tipo de gráfico para representar sus datos?</label><textarea id="f-why" maxlength="260" data-k="why"></textarea></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">Paso 7</span>Medidas estadísticas de nuestra investigación</h2>
+    <p class="help">Escriban los resultados que obtuvieron en las clases anteriores. La aplicación no calcula estas medidas.</p>
+    <div class="fld"><label for="f-dataset">¿A qué conjunto de datos corresponden estos resultados?</label><input id="f-dataset" type="text" maxlength="80" data-k="dataset" autocomplete="off"></div>
+    <div class="sgrid" id="sgrid"></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">Paso 8</span>Nuestras conclusiones matemáticas</h2>
+    <p class="help">Escribilas con tus palabras, usando los números de su investigación.</p>
+    <div class="fld"><label for="f-c0">Primera conclusión matemática</label><textarea id="f-c0" maxlength="260" data-k="concl" data-i="0"></textarea></div>
+    <div class="fld"><label for="f-c1">Segunda conclusión matemática</label><textarea id="f-c1" maxlength="260" data-k="concl" data-i="1"></textarea></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">Paso 9</span>Recomendaciones para cuidar la batería</h2>
+    <p class="help">Tres recomendaciones basadas en lo que investigaron.</p>
+    <div class="fld"><label for="f-r0">Recomendación 1</label><input id="f-r0" type="text" maxlength="110" data-k="recs" data-i="0" autocomplete="off"></div>
+    <div class="fld"><label for="f-r1">Recomendación 2</label><input id="f-r1" type="text" maxlength="110" data-k="recs" data-i="1" autocomplete="off"></div>
+    <div class="fld"><label for="f-r2">Recomendación 3</label><input id="f-r2" type="text" maxlength="110" data-k="recs" data-i="2" autocomplete="off"></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">Paso 10</span>Hábitos digitales responsables</h2>
+    <p class="help">Tres recomendaciones sobre el descanso, el estudio, la comunicación y el uso equilibrado del celular.</p>
+    <div class="fld"><label for="f-h0">Hábito 1</label><input id="f-h0" type="text" maxlength="110" data-k="habits" data-i="0" autocomplete="off"></div>
+    <div class="fld"><label for="f-h1">Hábito 2</label><input id="f-h1" type="text" maxlength="110" data-k="habits" data-i="1" autocomplete="off"></div>
+    <div class="fld"><label for="f-h2">Hábito 3</label><input id="f-h2" type="text" maxlength="110" data-k="habits" data-i="2" autocomplete="off"></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">Opcional</span>Tabla de resultados</h2>
+    <p class="help">Si quieren, agreguen una tabla con los registros de su investigación. Aparece en el afiche solo si completan al menos una actividad. Escribí cada actividad y los consumos que registraron en 30 minutos. Separá los consumos con coma o espacio. Para decimales usá punto (2.5).</p>
+    <div class="units"><b>p. p. = puntos porcentuales de consumo.</b> Es cuánto bajó la batería en 30 minutos: si empezó en 80 % y terminó en 75 %, el consumo fue de 5 p. p. No es el porcentaje de batería que queda.</div>
+    <div class="thead" aria-hidden="true"><div>Actividad investigada</div><div>Consumos registrados en 30 minutos (p. p.)</div><div>Cantidad de registros</div><div>Promedio de consumo (exacto)</div><div>Promedio redondeado</div><div></div></div>
+    <div id="rows"></div>
+    <div class="nav" style="margin-top:12px"><button class="btn sec" type="button" id="add">Agregar actividad</button><span class="help" style="margin:0" id="add-help">Hasta 8 actividades.</span></div>
+  </section>
+
+  <section class="card">
+    <div class="nav">
+      <button class="btn" type="button" id="go-prev">Ver vista previa del afiche</button>
+      <button class="btn sec js-review" type="button">Revisamos nuestro afiche</button>
+      <button class="btn sec sm" type="button" id="reset">Borrar todo y empezar de nuevo</button>
+      <span id="reset-ask" hidden class="nav"><b>¿Seguro? Se borran todos los datos.</b><button class="btn sm" type="button" id="reset-yes">Sí, borrar</button><button class="btn sec sm" type="button" id="reset-no">Cancelar</button></span>
+    </div>
+    <p class="help" style="margin:10px 0 0">Tu trabajo se guarda solo en este navegador mientras escribís.</p>
+  </section>
+</main>
+
+<section id="view-prev" role="tabpanel" aria-labelledby="tab-prev" hidden>
+  <div class="card prev-bar">
+    <div class="nav">
+      <span class="lbl">Tamaño de hoja</span>
+      <button class="btn sec sm" type="button" data-paper="A3" aria-pressed="true">A3</button>
+      <button class="btn sec sm" type="button" data-paper="A4" aria-pressed="false">A4</button>
+      <button class="btn sec sm" type="button" id="back">Volver a completar</button>
+      <button class="btn sec sm js-review" type="button">Revisamos nuestro afiche</button>
+      <button class="btn" type="button" onclick="window.print()">Imprimir o guardar como PDF</button>
+    </div>
+    <p class="help" style="margin:10px 0">Para imprimir o guardar como PDF usá Ctrl + P (en Mac, ⌘ + P). Elegí el mismo tamaño de hoja, márgenes «Ninguno» y escala 100 %. Los avisos grises en cursiva no se imprimen.</p>
+    <div id="check"></div>
+    <div class="msg" id="overflow" hidden>El afiche no entra completo en una hoja. Acortá algunos textos o quitá una actividad y volvé a mirar.</div>
+  </div>
+  <div class="stage-wrap" id="stage-wrap"><div class="stage" id="stage"><article class="poster" id="poster" aria-label="Vista previa del afiche"></article></div></div>
+</section>
+
+<footer style="margin-top:40px; padding:24px 20px; border-top:1px solid var(--gray-line); text-align:center; font-size:0.85rem; color:var(--muted); line-height:1.6;">
+  <p><strong>Creador de Afiches – Misión Batería</strong> · Autora: <strong>Marisa Sierra</strong> · Coordinación: <strong>Prof. Silvina Elena Busto</strong></p>
+  <p style="margin:6px 0;">
+    <span>Código bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer" style="color:var(--navy); font-weight:600;">GNU AGPL v3</a></span> ·
+    <span>Contenidos didácticos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style="color:var(--navy); font-weight:600;">CC BY-SA 4.0</a></span>
+  </p>
+  <p style="font-size:0.8rem;">Recurso educativo abierto bajo pautas de <em>Vibe Coding Responsable</em> (DUA, privacidad local sin rastreadores y asistencia ética de IA).</p>
+</footer>
+</div>
+
+<div class="modal" id="review" hidden>
+  <div class="dlg" id="rv-dlg" role="dialog" aria-modal="true" aria-labelledby="rv-title" tabindex="-1">
+    <h2 id="rv-title">Revisamos nuestro afiche</h2>
+    <p class="help">Esta revisión los ayuda a mejorar el afiche. Marquen cada casilla cuando consideren que la cumplieron.</p>
+    <ul class="rv-list">
+      <li><label class="rv-item" for="rv0"><input type="checkbox" id="rv0" data-rv="0"><span>¿El gráfico o la tabla representan correctamente los datos de nuestra investigación?</span></label></li>
+      <li><label class="rv-item" for="rv1"><input type="checkbox" id="rv1" data-rv="1"><span>¿Las medidas estadísticas corresponden a los registros que seleccionamos?</span></label></li>
+      <li><label class="rv-item" for="rv2"><input type="checkbox" id="rv2" data-rv="2"><span>¿Nuestras dos conclusiones matemáticas están fundamentadas en los datos?</span></label></li>
+      <li><label class="rv-item" for="rv3"><input type="checkbox" id="rv3" data-rv="3"><span>¿Incluimos al menos dos recomendaciones para cuidar la batería?</span></label></li>
+      <li><label class="rv-item" for="rv4"><input type="checkbox" id="rv4" data-rv="4"><span>¿Incluimos al menos dos recomendaciones sobre hábitos digitales responsables?</span></label></li>
+      <li><label class="rv-item" for="rv5"><input type="checkbox" id="rv5" data-rv="5"><span>¿El afiche tiene un título atractivo y se puede leer fácilmente desde cierta distancia?</span></label></li>
+    </ul>
+    <p class="rv-count" id="rv-count"></p>
+    <div class="msg" id="rv-msg" role="status" aria-live="polite"></div>
+    <div class="nav"><button class="btn" type="button" id="rv-close">Cerrar</button></div>
+  </div>
+</div>
+<script>
+(function(){"use strict";
+var PALS=[["#12b5b0", "#4fb36b", "#7b5cd6", "#f5902e", "#ffd75e", "#3b82f6", "#ef7a85", "#8a94a3"], ["#12b5b0", "#3b82f6", "#7b5cd6", "#4fb36b", "#5ec8e5", "#a78bfa", "#2f9e8f", "#8a94a3"], ["#f5902e", "#ffd75e", "#ef7a85", "#e4572e", "#f2a65a", "#c8553d", "#ffb4a2", "#8a94a3"], ["#14305a", "#f5902e", "#12b5b0", "#7b5cd6", "#ffd75e", "#d94f70", "#4fb36b", "#555555"]];
+var COLORS=['#12b5b0','#4fb36b','#7b5cd6','#f5902e','#ffd75e','#3b82f6','#ef7a85','#8a94a3'];
+var MEAS=[
+  {k:'mean',name:'Media aritmética',def:'se obtiene sumando todos los valores y dividiendo el resultado por la cantidad de datos.'},
+  {k:'median',name:'Mediana',def:'es el valor central de los datos cuando están ordenados. Si hay dos valores centrales, se calcula su promedio.'},
+  {k:'mode',name:'Moda',def:'es el valor que aparece con mayor frecuencia. Puede haber más de una moda o no haber ninguna.'},
+  {k:'range',name:'Rango',def:'es la diferencia entre el valor máximo y el valor mínimo.'}
+];
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function gcd(a,b){while(b){var t=a%b;a=b;b=t;}return a;}
+function dig(r,d,k){var s='';for(var i=0;i<k;i++){r*=10;s+=Math.floor(r/d);r%=d;}return s;}
+/* Fracción n/d (enteros) a texto con coma decimal. Si no termina, muestra 3 decimales y la fracción exacta. */
+function fmt(n,d){
+  var g=gcd(n,d)||1;n/=g;d/=g;
+  var q=Math.floor(n/d),r=n%d;
+  if(r===0)return{txt:String(q)};
+  var t=d,c2=0,c5=0;
+  while(t%2===0){t/=2;c2++;}
+  while(t%5===0){t/=5;c5++;}
+  if(t===1)return{txt:q+','+dig(r,d,Math.max(c2,c5))};
+  return{txt:q+','+dig(r,d,3)+'…',frac:n+'/'+d};
+}
+function show(f){return f.txt+' p. p.'+(f.frac?' (= '+f.frac+')':'');}
+/* Lee y valida los consumos de una fila. Trabaja con enteros escalados para evitar errores de coma flotante. */
+function analyze(r){
+  var a={id:r.id,name:String(r.name).trim(),n:0,valid:false,err:'',note:''};
+  var toks=String(r.raw).split(/[\s,;]+/).filter(Boolean);
+  if(!toks.length)return a;
+  if(/\d,\d/.test(r.raw))a.note='Las comas separan los consumos. Si querías escribir un decimal, usá punto (por ejemplo 2.5).';
+  var bad=[],dec=0;
+  toks.forEach(function(t){
+    if(/^\d+(\.\d{1,3})?$/.test(t)){var f=t.split('.')[1];if(f&&f.length>dec)dec=f.length;}
+    else bad.push(t);
+  });
+  if(bad.length){a.err='No se entiende «'+bad.slice(0,3).join('», «')+'»'+(bad.length>3?' y otros':'')+'. Escribí solo números, separados por coma o espacio.';return a;}
+  var Sc=Math.pow(10,dec),vals=[];
+  for(var i=0;i<toks.length;i++){
+    var p=toks[i].split('.');
+    var v=Number(p[0])*Sc+(p[1]?Number((p[1]+'000').slice(0,dec)):0);
+    if(v>100*Sc){a.err='Un consumo no puede ser mayor que 100 puntos porcentuales ('+toks[i]+').';return a;}
+    vals.push(v);
+  }
+  if(!a.name){a.err='Falta escribir el nombre de la actividad.';return a;}
+  a.valid=true;a.vals=vals;a.S=Sc;a.n=vals.length;
+  var sum=vals.reduce(function(x,y){return x+y;},0),den=a.n*Sc;
+  a.avg=fmt(sum,den);
+  a.rnd=Math.floor((2*sum+den)/(2*den));
+  a.list=vals.map(function(v){return fmt(v,Sc).txt;}).join(', ');
+  return a;
+}
+function wrap(s,m){
+  var w=s.split(/\s+/),lines=[],cur='';
+  w.forEach(function(x){
+    while(x.length>m){if(cur){lines.push(cur);cur='';}lines.push(x.slice(0,m-1)+'-');x=x.slice(m-1);}
+    if(!cur)cur=x;else if((cur+' '+x).length<=m)cur+=' '+x;else{lines.push(cur);cur=x;}
+  });
+  if(cur)lines.push(cur);
+  if(lines.length>3){lines=lines.slice(0,3);lines[2]=lines[2].slice(0,Math.max(1,m-1))+'…';}
+  return lines;
+}
+/* ===== Gráficos de barras, líneas y torta. Cada tipo usa solo sus propios datos. ===== */
+var DEFT={bar:'Consumo de batería en 30 minutos',line:'Porcentaje de batería restante en el tiempo',pie:'Distribución del total entre las categorías'};
+function nTxt(n){return String(n).replace('.',',');}
+function parseNum(s){s=String(s).trim().replace(',','.');return /^\d+(\.\d*)?$/.test(s)?Number(s):null;}
+function hexOk(c){return typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c);}
+function rowColor(r,i){return hexOk(r.c)?r.c:COLORS[i%COLORS.length];}
+function svgOpen(label){return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="'+esc(label)+'" style="display:block;width:100%;height:auto;background:#fff" font-family="Arial, Helvetica, sans-serif">';}
+function svgTitle(t){
+  if(!t)return '';
+  return '<text x="320" y="26" text-anchor="middle" font-size="'+(t.length>46?15:17)+'" font-weight="700" fill="#14305a">'+esc(t)+'</text>';
+}
+function chartEmpty(title,text){
+  return svgOpen('Gráfico sin datos suficientes')+svgTitle(title)+'<text x="320" y="190" text-anchor="middle" font-size="15" fill="#5b6778">'+esc(text)+'</text></svg>';
+}
+function niceTop(max){
+  var steps=[1,2,5,10,20,25,50,100],step=100,k;
+  for(k=0;k<steps.length;k++){if(Math.ceil(Math.max(max,1)/steps[k])<=6){step=steps[k];break;}}
+  return{step:step,top:Math.max(Math.ceil(max/step),1)*step};
+}
+var NOTE_ROW='Falta completar alguna fila, o tiene un valor que no se puede usar: todavía no aparece en el gráfico.';
+
+/* --- barras: nombre y consumo en puntos porcentuales --- */
+function prepBar(rows){
+  var items=[],problem=false;
+  rows.forEach(function(r,i){
+    var n=String(r.name).trim(),v=String(r.v).trim();
+    if(!n&&!v)return;
+    var vn=parseNum(v);
+    if(!n||vn===null||vn>100){problem=true;return;}
+    items.push({name:n,v:vn,c:rowColor(r,i)});
+  });
+  var res={ok:items.length>=1,items:items,note:problem?NOTE_ROW+' Cada fila necesita un nombre y un consumo entre 0 y 100.':''};
+  if(!res.ok)res.msg='Para ver el gráfico de barras, escriban el nombre y el consumo de al menos una categoría. Pueden completar los datos o elegir otro gráfico.';
+  return res;
+}
+function chartBar(items,title){
+  var W=640,H=380,L=74,R=14,T=56,B=92,pw=W-L-R,ph=H-T-B;
+  var s=svgOpen('Gráfico de barras: '+title)+svgTitle(title);
+  var max=Math.max.apply(null,items.map(function(i){return i.v;})),nt=niceTop(max),step=nt.step,top=nt.top,t;
+  var Y=function(v){return T+ph-v/top*ph;};
+  for(t=0;t<=top+1e-9;t+=step){
+    s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(t)+'" y2="'+Y(t)+'" stroke="'+(t?'#d5dce6':'#14305a')+'" stroke-width="'+(t?1:2)+'"/>';
+    s+='<text x="'+(L-8)+'" y="'+(Y(t)+5)+'" text-anchor="end" font-size="13" fill="#334155">'+nTxt(t)+'</text>';
+  }
+  s+='<line x1="'+L+'" x2="'+L+'" y1="'+T+'" y2="'+(T+ph)+'" stroke="#14305a" stroke-width="2"/>';
+  var n=items.length,slot=pw/n,bw=Math.min(slot*0.62,76);
+  items.forEach(function(it,i){
+    var x=L+slot*i+(slot-bw)/2,h=it.v/top*ph,cx=x+bw/2;
+    s+='<rect x="'+x+'" y="'+(T+ph-h)+'" width="'+bw+'" height="'+h+'" fill="'+it.c+'" stroke="#14305a" stroke-width="1.2"/>';
+    s+='<text x="'+cx+'" y="'+(Y(it.v)-7)+'" text-anchor="middle" font-size="14" font-weight="700" fill="#14305a">'+nTxt(it.v)+' p. p.</text>';
+    wrap(it.name,Math.max(7,Math.floor(slot/7))).forEach(function(l,j){
+      s+='<text x="'+cx+'" y="'+(T+ph+20+j*15)+'" text-anchor="middle" font-size="13" fill="#1f2937">'+esc(l)+'</text>';
+    });
+  });
+  s+='<text x="'+(L+pw/2)+'" y="356" text-anchor="middle" font-size="13" font-weight="700" fill="#14305a">Celular o actividad</text>';
+  s+='<text x="'+(L+pw/2)+'" y="373" text-anchor="middle" font-size="11.5" fill="#334155">p. p. = puntos porcentuales de consumo: cuánto bajó la batería (no es el porcentaje que queda).</text>';
+  var cy=-(T+ph/2);
+  s+='<text transform="rotate(-90)" x="'+cy+'" y="14" text-anchor="middle" font-size="12.5" font-weight="700" fill="#14305a">Consumo de batería en 30 minutos</text>';
+  s+='<text transform="rotate(-90)" x="'+cy+'" y="30" text-anchor="middle" font-size="12.5" font-weight="700" fill="#14305a">(puntos porcentuales, p. p.)</text>';
+  return s+'</svg>';
+}
+
+/* --- líneas: minuto (eje horizontal) y porcentaje de batería restante (eje vertical) --- */
+function prepLine(rows){
+  var pts=[],problem=false,dup=false,seen={};
+  rows.forEach(function(r){
+    var t=String(r.t).trim(),v=String(r.v).trim();
+    if(!t&&!v)return;
+    var tn=parseNum(t),vn=parseNum(v);
+    if(tn===null||vn===null||vn>100||tn>1000){problem=true;return;}
+    if(seen[tn]){dup=true;return;}
+    seen[tn]=1;pts.push({t:tn,v:vn});
+  });
+  pts.sort(function(a,b){return a.t-b.t;});
+  var notes=[];
+  if(problem)notes.push(NOTE_ROW+' Cada fila necesita un minuto y un porcentaje de batería entre 0 y 100.');
+  if(dup)notes.push('Hay dos mediciones en el mismo minuto: el gráfico usa la primera.');
+  var res={ok:pts.length>=2,pts:pts,note:notes.join(' ')};
+  if(!res.ok)res.msg='El gráfico de líneas muestra cómo cambia el porcentaje de batería restante con el tiempo, por eso necesita al menos dos mediciones: el minuto y el porcentaje de batería en ese momento. Completen los datos o elijan otro gráfico.';
+  return res;
+}
+function chartLine(pts,title,color){
+  var W=640,H=380,L=74,R=26,T=56,B=76,pw=W-L-R,ph=H-T-B;
+  var s=svgOpen('Gráfico de líneas: '+title)+svgTitle(title);
+  var maxT=pts[pts.length-1].t,steps=[1,2,5,10,15,20,30,60,120,240],step=240,k,v,t;
+  for(k=0;k<steps.length;k++){if(Math.ceil(Math.max(maxT,1)/steps[k])<=8){step=steps[k];break;}}
+  var xmax=Math.max(Math.ceil(maxT/step),1)*step;
+  var X=function(a){return L+a/xmax*pw;},Y=function(b){return T+ph-b/100*ph;};
+  for(v=0;v<=100;v+=20){
+    s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="'+(v?'#d5dce6':'#14305a')+'" stroke-width="'+(v?1:2)+'"/>';
+    s+='<text x="'+(L-8)+'" y="'+(Y(v)+5)+'" text-anchor="end" font-size="13" fill="#334155">'+v+' %</text>';
+  }
+  s+='<line x1="'+L+'" x2="'+L+'" y1="'+T+'" y2="'+(T+ph)+'" stroke="#14305a" stroke-width="2"/>';
+  for(t=0;t<=xmax+1e-9;t+=step){
+    s+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="'+(T+ph)+'" y2="'+(T+ph+6)+'" stroke="#14305a" stroke-width="2"/>';
+    s+='<text x="'+X(t)+'" y="'+(T+ph+22)+'" text-anchor="middle" font-size="13" fill="#334155">'+nTxt(t)+'</text>';
+  }
+  s+='<polyline fill="none" stroke="'+color+'" stroke-width="3.5" stroke-linejoin="round" points="'+pts.map(function(p){return X(p.t)+','+Y(p.v);}).join(' ')+'"/>';
+  pts.forEach(function(p){
+    s+='<circle cx="'+X(p.t)+'" cy="'+Y(p.v)+'" r="6" fill="#ffffff" stroke="'+color+'" stroke-width="3.5"/>';
+    s+='<text x="'+X(p.t)+'" y="'+(Y(p.v)-12)+'" text-anchor="middle" font-size="13" font-weight="700" fill="#14305a">'+nTxt(p.v)+' %</text>';
+  });
+  s+='<text x="'+(L+pw/2)+'" y="'+(H-10)+'" text-anchor="middle" font-size="13" font-weight="700" fill="#14305a">Tiempo (minutos)</text>';
+  s+='<text transform="rotate(-90)" x="'+(-(T+ph/2))+'" y="16" text-anchor="middle" font-size="12.5" font-weight="700" fill="#14305a">Porcentaje de batería restante (%)</text>';
+  return s+'</svg>';
+}
+
+/* --- torta: partes de un mismo total --- */
+function prepPie(rows){
+  var parts=[],problem=false;
+  rows.forEach(function(r,i){
+    var n=String(r.name).trim(),v=String(r.v).trim();
+    if(!n&&!v)return;
+    var vn=parseNum(v);
+    if(!n||vn===null){problem=true;return;}
+    if(vn>0)parts.push({name:n,v:vn,c:rowColor(r,i)});
+  });
+  var res={ok:parts.length>=2,parts:parts,note:problem?NOTE_ROW+' Cada fila necesita un nombre y un valor mayor o igual que 0.':''};
+  if(!res.ok)res.msg='El gráfico de torta muestra cómo se reparte un total, por eso necesita al menos dos categorías con valores mayores que 0 que sean partes de un mismo total. Si quieren comparar valores que no forman un total, el gráfico de barras los representa mejor.';
+  return res;
+}
+function chartPie(parts,title){
+  var cx=190,cy=212,r=128,total=0,ang=-Math.PI/2,s=svgOpen('Gráfico de torta: '+title)+svgTitle(title);
+  parts.forEach(function(p){total+=p.v;});
+  var pct=function(v){return nTxt(Math.round(v/total*1000)/10)+' %';};
+  parts.forEach(function(p){
+    var f=p.v/total,a2=ang+f*2*Math.PI;
+    if(parts.length===1||f>=0.99999){
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+p.c+'" stroke="#ffffff" stroke-width="3"/>';
+    }else{
+      var x1=cx+r*Math.cos(ang),y1=cy+r*Math.sin(ang),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
+      s+='<path d="M'+cx+' '+cy+' L'+x1+' '+y1+' A'+r+' '+r+' 0 '+(f>0.5?1:0)+' 1 '+x2+' '+y2+' Z" fill="'+p.c+'" stroke="#ffffff" stroke-width="3"/>';
+    }
+    if(f>=0.07){
+      var m=ang+f*Math.PI;
+      s+='<text x="'+(cx+r*0.62*Math.cos(m))+'" y="'+(cy+r*0.62*Math.sin(m)+5)+'" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff" stroke="#14305a" stroke-width="3.5" paint-order="stroke">'+pct(p.v)+'</text>';
+    }
+    ang=a2;
+  });
+  parts.forEach(function(p,i){
+    var y=80+i*35,nm=p.name.length>26?p.name.slice(0,25)+'…':p.name;
+    s+='<rect x="352" y="'+(y-12)+'" width="16" height="16" rx="3" fill="'+p.c+'" stroke="#14305a" stroke-width="1.2"/>';
+    s+='<text x="376" y="'+y+'" font-size="15" font-weight="700" fill="#14305a">'+esc(nm)+'</text>';
+    s+='<text x="376" y="'+(y+16)+'" font-size="13.5" fill="#334155">'+pct(p.v)+' del total (valor: '+esc(nTxt(p.v))+')</text>';
+  });
+  s+='<text x="320" y="372" text-anchor="middle" font-size="12" fill="#334155">Cada sector es un porcentaje del total del gráfico. No es el porcentaje de batería consumida.</text>';
+  return s+'</svg>';
+}
+var KEY='mision-bateria-afiche-v1',UIKEY='mision-bateria-ui-v1',MAXACT=8,FS=[100,112,125,140,160];
+var $=function(id){return document.getElementById(id);};
+var uid=0;
+function newRow(){uid++;return{id:'r'+uid,name:'',raw:''};}
+function newLine(){uid++;return{id:'l'+uid,t:'',v:''};}
+function newPie(){uid++;return{id:'p'+uid,name:'',v:'',c:''};}
+function newBar(){uid++;return{id:'b'+uid,name:'',v:'',c:''};}
+var colSig='',titleKind='__';
+function fresh(){return{team:'',members:'',course:'',date:'',research:'',rows:[newRow(),newRow(),newRow()],dataset:'',ms:['','','',''],v:2,ctype:'',why:'',title:{bar:'',line:'',pie:''},lineColor:'#7b5cd6',bar:[newBar(),newBar(),newBar()],line:[newLine(),newLine(),newLine()],pie:[newPie(),newPie(),newPie()],concl:['',''],recs:['','',''],habits:['','',''],review:[false,false,false,false,false,false],paper:'A3'};}
+var S=fresh(),st;
+
+/* ---------- fecha DD/MM/AAAA ---------- */
+function parseDate(s){
+  var m=/^\s*(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})\s*$/.exec(s||'');
+  if(!m)return null;
+  var d=+m[1],mo=+m[2],y=+m[3];
+  if(mo<1||mo>12||d<1||y<1900||y>2100||d>new Date(y,mo,0).getDate())return null;
+  return(d<10?'0':'')+d+'/'+(mo<10?'0':'')+mo+'/'+y;
+}
+function fmtDate(s){return parseDate(s)||(s||'').trim();}
+function autoDate(v){
+  if(/^\d{2}$/.test(v)||/^\d{2}\/\d{2}$/.test(v))return v+'/';
+  if(/^\d{8}$/.test(v))return v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+  return v.slice(0,10);
+}
+
+/* ---------- guardado ---------- */
+function load(){
+  try{
+    var o=JSON.parse(localStorage.getItem(KEY)||'null');if(!o)return;
+    ['team','members','course','research','dataset','why'].forEach(function(k){if(typeof o[k]==='string')S[k]=o[k];});
+    if(typeof o.date==='string'){
+      var iso=/^(\d{4})-(\d{2})-(\d{2})$/.exec(o.date);
+      S.date=iso?iso[3]+'/'+iso[2]+'/'+iso[1]:o.date.slice(0,10);
+    }
+    ['ms','concl','recs','habits'].forEach(function(k){if(Array.isArray(o[k]))for(var i=0;i<S[k].length;i++)if(typeof o[k][i]==='string')S[k][i]=o[k][i];});
+    if(Array.isArray(o.review))for(var q=0;q<6;q++)S.review[q]=o.review[q]===true;
+    if(o.paper==='A4')S.paper='A4';
+    if(o.v===2&&(o.ctype==='bar'||o.ctype==='line'||o.ctype==='pie'))S.ctype=o.ctype;
+    if(o.title&&typeof o.title==='object')['bar','line','pie'].forEach(function(k){if(typeof o.title[k]==='string')S.title[k]=o.title[k].slice(0,60);});
+    if(hexOk(o.lineColor))S.lineColor=o.lineColor;
+    if(Array.isArray(o.bar)&&o.bar.length)S.bar=o.bar.slice(0,8).map(function(r){
+      var id=/^b\d+$/.test(String(r&&r.id))?r.id:newBar().id;uid=Math.max(uid,+id.slice(1));
+      return{id:id,name:String((r&&r.name)||'').slice(0,30),v:String((r&&r.v)||'').slice(0,10),c:hexOk(r&&r.c)?r.c:''};
+    });
+    if(Array.isArray(o.line)&&o.line.length)S.line=o.line.slice(0,12).map(function(r){
+      var id=/^l\d+$/.test(String(r&&r.id))?r.id:newLine().id;uid=Math.max(uid,+id.slice(1));
+      return{id:id,t:String((r&&r.t)||'').slice(0,6),v:String((r&&r.v)||'').slice(0,6)};
+    });
+    if(Array.isArray(o.pie)&&o.pie.length)S.pie=o.pie.slice(0,8).map(function(r){
+      var id=/^p\d+$/.test(String(r&&r.id))?r.id:newPie().id;uid=Math.max(uid,+id.slice(1));
+      return{id:id,name:String((r&&r.name)||'').slice(0,30),v:String((r&&r.v)||'').slice(0,10),c:hexOk(r&&r.c)?r.c:''};
+    });
+    if(Array.isArray(o.rows)&&o.rows.length){
+      S.rows=o.rows.slice(0,MAXACT).map(function(r){
+        var id=(typeof r.id==='string'&&/^r\d+$/.test(r.id))?r.id:newRow().id;
+        uid=Math.max(uid,+id.slice(1));
+        return{id:id,name:String(r.name||'').slice(0,40),raw:String(r.raw||'').slice(0,160)};
+      });
+    }
+  }catch(e){}
+}
+function save(){clearTimeout(st);st=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);}
+
+/* ---------- construcción de la pantalla ---------- */
+function rowEl(r){
+  var d=document.createElement('div');d.className='trow';d.setAttribute('data-id',r.id);
+  d.innerHTML=
+    '<div class="c-name"><label class="sr" for="n-'+r.id+'">Actividad investigada</label><input id="n-'+r.id+'" class="in-name" type="text" maxlength="40" placeholder="Actividad investigada" autocomplete="off"></div>'+
+    '<div class="c-raw"><label class="sr" for="v-'+r.id+'">Consumos registrados en 30 minutos</label><input id="v-'+r.id+'" class="in-raw" type="text" maxlength="160" placeholder="Consumos separados por coma" autocomplete="off"></div>'+
+    '<div class="c-calc" data-label="Registros"><span class="o-n">–</span></div>'+
+    '<div class="c-calc" data-label="Promedio exacto"><span class="o-avg">–</span></div>'+
+    '<div class="c-calc" data-label="Promedio redondeado"><span class="o-rnd">–</span></div>'+
+    '<div class="c-del"><button type="button" class="btn sec sm del">Eliminar</button></div>'+
+    '<div class="c-msg" role="status"></div>';
+  d.querySelector('.in-name').value=r.name;
+  d.querySelector('.in-raw').value=r.raw;
+  d.querySelector('.del').setAttribute('aria-label','Eliminar la actividad '+(r.name||'sin nombre'));
+  return d;
+}
+function renderRows(){
+  var box=$('rows');box.innerHTML='';
+  S.rows.forEach(function(r){box.appendChild(rowEl(r));});
+  $('add').disabled=S.rows.length>=MAXACT;
+  $('add-help').textContent=S.rows.length>=MAXACT?'Llegaste al máximo de 8 actividades.':'Hasta 8 actividades.';
+}
+function buildMeasures(){
+  $('sgrid').innerHTML=MEAS.map(function(m,i){
+    return '<div class="sblk"><div><span class="sn">'+m.name+':</span> <span class="sdef">'+m.def+'</span></div>'+
+      '<div class="fld" style="margin:10px 0 0"><label for="ms-'+i+'">Resultado de nuestra investigación:</label>'+
+      '<textarea id="ms-'+i+'" maxlength="140" data-k="ms" data-i="'+i+'"></textarea></div></div>';
+  }).join('');
+}
+function lineRowEl(r){
+  var d=document.createElement('div');d.className='lrow';d.setAttribute('data-id',r.id);d.setAttribute('data-kind','line');
+  d.innerHTML='<div><label class="sr" for="lt-'+r.id+'">Minuto de la medición</label><input id="lt-'+r.id+'" class="in-lt" type="text" maxlength="6" autocomplete="off"></div>'+
+    '<div><label class="sr" for="lv-'+r.id+'">Porcentaje de batería en ese minuto</label><input id="lv-'+r.id+'" class="in-lv" type="text" maxlength="6" autocomplete="off"></div>'+
+    '<div><button type="button" class="btn sec sm ldel" aria-label="Eliminar esta medición">Eliminar</button></div>';
+  d.querySelector('.in-lt').value=r.t;d.querySelector('.in-lv').value=r.v;
+  return d;
+}
+function pieRowEl(r){
+  var d=document.createElement('div');d.className='lrow';d.setAttribute('data-id',r.id);d.setAttribute('data-kind','pie');
+  d.innerHTML='<div><label class="sr" for="pn-'+r.id+'">Nombre de la categoría</label><input id="pn-'+r.id+'" class="in-pn" type="text" maxlength="30" autocomplete="off"></div>'+
+    '<div><label class="sr" for="pv-'+r.id+'">Valor de la categoría</label><input id="pv-'+r.id+'" class="in-pv" type="text" maxlength="10" autocomplete="off"></div>'+
+    '<div><button type="button" class="btn sec sm ldel" aria-label="Eliminar esta categoría">Eliminar</button></div>';
+  d.querySelector('.in-pn').value=r.name;d.querySelector('.in-pv').value=r.v;
+  return d;
+}
+function barRowEl(r){
+  var d=document.createElement('div');d.className='lrow';d.setAttribute('data-id',r.id);d.setAttribute('data-kind','bar');
+  d.innerHTML='<div><label class="sr" for="bn-'+r.id+'">Nombre del celular o de la actividad</label><input id="bn-'+r.id+'" class="in-bn" type="text" maxlength="30" autocomplete="off"></div>'+
+    '<div><label class="sr" for="bv-'+r.id+'">Consumo de batería en 30 minutos, en puntos porcentuales</label><input id="bv-'+r.id+'" class="in-bv" type="text" maxlength="10" inputmode="decimal" autocomplete="off"></div>'+
+    '<div><button type="button" class="btn sec sm ldel" aria-label="Eliminar esta categoría">Eliminar</button></div>';
+  d.querySelector('.in-bn').value=r.name;d.querySelector('.in-bv').value=r.v;
+  return d;
+}
+function renderLists(){
+  var a=$('lines'),b=$('pies'),c=$('bars');a.innerHTML='';b.innerHTML='';c.innerHTML='';
+  S.bar.forEach(function(r){c.appendChild(barRowEl(r));});
+  S.line.forEach(function(r){a.appendChild(lineRowEl(r));});
+  S.pie.forEach(function(r){b.appendChild(pieRowEl(r));});
+  $('add-bar').disabled=S.bar.length>=8;$('add-line').disabled=S.line.length>=12;$('add-pie').disabled=S.pie.length>=8;
+}
+function listRow(el,arr){var id=el.closest('.lrow').getAttribute('data-id');return arr.filter(function(r){return r.id===id;})[0];}
+function mk(p,ti,draw){
+  var msg=[p.msg,p.note].filter(Boolean).join(' ');
+  return p.ok?{ok:true,msg:msg,svg:draw()}:{ok:false,msg:msg,svg:chartEmpty(ti,'El gráfico aparece cuando completes los datos.')};
+}
+function chartFor(){
+  var k=S.ctype,ti,p;
+  if(!k)return{ok:false,none:true,msg:'',svg:chartEmpty('','Falta elegir el tipo de gráfico.')};
+  ti=(S.title[k]||'').trim()||DEFT[k];
+  if(k==='bar'){p=prepBar(S.bar);return mk(p,ti,function(){return chartBar(p.items,ti);});}
+  if(k==='line'){p=prepLine(S.line);return mk(p,ti,function(){return chartLine(p.pts,ti,S.lineColor);});}
+  p=prepPie(S.pie);return mk(p,ti,function(){return chartPie(p.parts,ti);});
+}
+function renderColors(items){
+  var sig=S.ctype+'|'+items.map(function(i){return i.id+':'+i.label;}).join('|');
+  if(sig===colSig)return;
+  colSig=sig;
+  $('colors').innerHTML=items.length?items.map(function(it){
+    return '<label class="colr"><input type="color" data-cid="'+it.id+'" value="'+it.c+'"><span>Color: '+esc(it.label)+'</span></label>';
+  }).join(''):'<span class="sd">Los colores aparecen cuando escriban el nombre de cada categoría.</span>';
+}
+function addCounters(){
+  document.querySelectorAll('#view-form [maxlength]').forEach(function(el){
+    if(el.id==='f-date'||el.closest('.trow')||(el.nextElementSibling&&el.nextElementSibling.classList.contains('cnt')))return;
+    var c=document.createElement('span');c.className='cnt';el.parentNode.insertBefore(c,el.nextSibling);updCnt(el);
+  });
+}
+function updCnt(el){var c=el.nextElementSibling;if(c&&c.classList.contains('cnt'))c.textContent=el.value.length+' / '+el.maxLength;}
+function fillFields(){
+  document.querySelectorAll('[data-k]').forEach(function(el){
+    var k=el.getAttribute('data-k'),i=el.getAttribute('data-i');
+    el.value=i!==null?S[k][+i]:S[k];updCnt(el);
+  });
+}
+
+/* ---------- vista previa del afiche ---------- */
+function T(v,ph){v=(v||'').trim();return v?esc(v):'<span class="pend">'+ph+'</span>';}
+function field(l,v,c){return '<div class="p-f '+(c||'')+'"><span>'+l+'</span><b>'+T(v,'Falta completar')+'</b></div>';}
+var ICO={
+  mag:'<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
+  grid:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/>',
+  sigma:'<path d="M18 5H6l6 7-6 7h12"/>',
+  ok:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  bat:'<rect x="2" y="7" width="17" height="10" rx="2"/><path d="M21 10v4M6 10v4M10 10v4M14 10v4"/>',
+  phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+  chart:'<path d="M4 20V4M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/>'
+};
+function ico(n){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICO[n]+'</svg>';}
+var BATG='<svg class="p-bat" viewBox="0 0 100 52" aria-hidden="true"><rect x="2" y="4" width="86" height="44" rx="9" fill="#ffffff" stroke="#14305a" stroke-width="4"/><rect x="90" y="18" width="8" height="16" rx="3" fill="#14305a"/><rect x="9" y="11" width="16" height="30" rx="4" fill="#12b5b0"/><rect x="28" y="11" width="16" height="30" rx="4" fill="#4fb36b"/><rect x="47" y="11" width="16" height="30" rx="4" fill="#ffd75e"/><rect x="66" y="11" width="16" height="30" rx="4" fill="#f5902e"/></svg>';
+function posterHTML(R,ch){
+  var h='';
+  h+='<header class="p-head"><div class="p-ht"><div class="p-kicker">Misión Batería</div><h1>¿Por qué nunca me alcanza la batería?</h1><p>Investigamos nuestros hábitos de uso, analizamos datos y elaboramos recomendaciones</p></div>'+BATG+'</header>';
+  var mem=S.members.split(/\n+/).map(function(x){return x.trim();}).filter(Boolean).join(', ');
+  h+='<section class="p-team">'+field('Equipo',S.team)+field('Curso',S.course)+field('Fecha',fmtDate(S.date))+field('Integrantes',mem,'wide')+'</section>';
+  h+='<section class="p-box c-tq"><h2>'+ico('mag')+'Nuestra investigación</h2><div class="p-body p-txt">'+T(S.research,'Falta explicar cómo investigaron.')+'</div></section>';
+  if(R.length){
+    h+='<section class="p-box c-vi"><h2>'+ico('grid')+'Resultados de nuestra investigación (consumo en 30 minutos)</h2><div class="p-body"><table class="p-t"><thead><tr><th>Actividad investigada</th><th>Consumos registrados en 30 minutos (p. p.)</th><th>Cantidad de registros</th><th>Promedio exacto (p. p.)</th><th>Promedio redondeado (p. p.)</th></tr></thead><tbody>';
+    R.forEach(function(a){h+='<tr><td>'+esc(a.name)+'</td><td class="l">'+esc(a.list)+'</td><td>'+a.n+'</td><td>'+esc(show(a.avg))+'</td><td><b>'+a.rnd+' p. p.</b></td></tr>';});
+    h+='</tbody></table><p class="p-note">p. p. = puntos porcentuales de consumo: cuánto bajó la batería en 30 minutos (de 80 % a 75 % son 5 p. p.). No es el porcentaje de batería que queda.</p></div></section>';
+  }
+  h+='<div class="p-two p-c"><section class="p-box p-chartbox c-or"><h2>'+ico('chart')+'Nuestro gráfico</h2><div class="p-chart">'+ch.svg+'</div><div class="p-why"><b>¿Por qué elegimos este gráfico?</b> '+T(S.why,'Falta explicar por qué eligieron este gráfico.')+'</div></section>';
+  h+='<section class="p-box c-gr"><h2>'+ico('sigma')+'Medidas estadísticas de nuestra investigación</h2><div class="p-body"><div class="p-sub">Conjunto de datos: <b>'+T(S.dataset,'Falta indicar a qué datos corresponden.')+'</b></div>';
+  MEAS.forEach(function(m,i){
+    h+='<div class="p-m"><div class="p-md"><span class="p-mn">'+m.name+':</span> '+m.def+'</div><div class="p-mt"><b>Resultado de nuestra investigación:</b> '+T(S.ms[i],'Falta escribir el resultado.')+'</div></div>';
+  });
+  h+='</div></section></div>';
+  h+='<section class="p-box c-or"><h2>'+ico('ok')+'Nuestras conclusiones matemáticas</h2><div class="p-body"><div class="p-cc"><small>Primera conclusión</small><span class="p-txt">'+T(S.concl[0],'Falta la primera conclusión.')+'</span></div><div class="p-cc"><small>Segunda conclusión</small><span class="p-txt">'+T(S.concl[1],'Falta la segunda conclusión.')+'</span></div></div></section>';
+  function list(arr,ph){return '<ul>'+arr.map(function(x,i){return '<li>'+T(x,ph+' '+(i+1)+'.')+'</li>';}).join('')+'</ul>';}
+  h+='<div class="p-two"><section class="p-box c-tq"><h2>'+ico('bat')+'Recomendaciones para cuidar la batería</h2><div class="p-body">'+list(S.recs,'Falta la recomendación')+'</div></section>';
+  h+='<section class="p-box c-vi"><h2>'+ico('phone')+'Hábitos digitales responsables</h2><div class="p-body">'+list(S.habits,'Falta el hábito')+'</div></section></div>';
+  return h;
+}
+function fit(){
+  var p=$('poster'),f=1,g=0;
+  p.style.setProperty('--fit',f);
+  while(p.scrollHeight>p.clientHeight+1&&f>0.72&&g++<40){f=Math.round((f-0.02)*100)/100;p.style.setProperty('--fit',f);}
+  $('overflow').hidden=!(p.scrollHeight>p.clientHeight+1);
+}
+function scaleStage(){
+  var s=$('stage'),p=$('poster'),avail=$('stage-wrap').clientWidth,pw=p.offsetWidth,ph=p.offsetHeight;
+  var k=Math.min(1,avail/pw);
+  p.style.transform='scale('+k+')';s.style.width=pw*k+'px';s.style.height=ph*k+'px';
+}
+function prevVisible(){return !$('view-prev').hidden;}
+function applyPaper(){
+  $('poster').classList.toggle('a4',S.paper==='A4');
+  $('pagecss').textContent='@page{size:'+S.paper+' portrait;margin:0}';
+  document.querySelectorAll('[data-paper]').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-paper')===S.paper));});
+}
+function refreshPrev(){if(!prevVisible())return;fit();scaleStage();}
+
+/* ---------- actualización general ---------- */
+function update(){
+  var A=S.rows.map(analyze),R=A.filter(function(a){return a.valid;});
+  S.rows.forEach(function(r,i){
+    var el=document.querySelector('.trow[data-id="'+r.id+'"]');if(!el)return;
+    var a=A[i];
+    el.querySelector('.o-n').textContent=a.valid?a.n:'–';
+    el.querySelector('.o-avg').textContent=a.valid?show(a.avg):'–';
+    el.querySelector('.o-rnd').textContent=a.valid?a.rnd+' p. p.':'–';
+    var m=el.querySelector('.c-msg');m.textContent=a.err?'Aviso: '+a.err:(a.note?'Nota: '+a.note:'');m.className='c-msg'+(a.err?'':' info');
+  });
+  var ch=chartFor();
+  $('chart-form').innerHTML=ch.svg;
+  var cm=$('cmsg');cm.hidden=!ch.msg;cm.textContent=ch.msg||'';
+  var on=!!S.ctype;
+  ['card-data','card-prev','card-why'].forEach(function(id){$(id).hidden=!on;});
+  $('choose-hint').hidden=on;
+  ['bar','line','pie'].forEach(function(k){$('cdata-'+k).hidden=S.ctype!==k;});
+  document.querySelectorAll('.ctype').forEach(function(l){var r=l.querySelector('input'),sel=r.value===S.ctype;l.classList.toggle('on',sel);r.checked=sel;});
+  var tt=$('f-ctitle');
+  if(titleKind!==S.ctype){titleKind=S.ctype;tt.value=on?(S.title[S.ctype]||''):'';tt.placeholder=on?DEFT[S.ctype]:'';updCnt(tt);}
+  var citems=[];
+  if(S.ctype==='line')citems=[{id:'line',label:'línea del gráfico',c:S.lineColor}];
+  else if(on)S[S.ctype].forEach(function(r,i){if(r.name.trim())citems.push({id:r.id,label:r.name.trim().slice(0,30),c:rowColor(r,i)});});
+  renderColors(citems);
+  $('date-hint').textContent=(S.date.trim()&&!parseDate(S.date))?'Revisá la fecha: escribila como DD/MM/AAAA.':'Formato: DD/MM/AAAA (día, mes y año).';
+  $('poster').innerHTML=posterHTML(R,ch).replace(/p\. p\./g,'p. p.');
+  renderCheck(A,R,ch);
+  refreshPrev();
+  save();
+}
+function renderCheck(A,R,ch){
+  var m=[];
+  if(!S.team.trim())m.push('Nombre del equipo');
+  if(!S.members.trim())m.push('Integrantes');
+  if(!S.course.trim())m.push('Curso');
+  if(!parseDate(S.date))m.push('Fecha (DD/MM/AAAA)');
+  if(!S.research.trim())m.push('Nuestra investigación');
+  if(A.some(function(a){return a.err;}))m.push('Corregir los avisos de la tabla');
+  if(!S.ctype)m.push('Elegir el tipo de gráfico');
+  else if(!ch.ok)m.push('Datos del gráfico elegido');
+  if(!S.why.trim())m.push('Por qué elegimos este gráfico');
+  if(!S.dataset.trim())m.push('Conjunto de datos de las medidas');
+  MEAS.forEach(function(x,i){if(!S.ms[i].trim())m.push('Resultado: '+x.name);});
+  S.concl.forEach(function(c,i){if(!c.trim())m.push((i?'Segunda':'Primera')+' conclusión');});
+  S.recs.forEach(function(c,i){if(!c.trim())m.push('Recomendación '+(i+1));});
+  S.habits.forEach(function(c,i){if(!c.trim())m.push('Hábito '+(i+1));});
+  $('check').innerHTML=m.length?'<div class="msg"><b>Todavía falta completar:</b><ul class="miss">'+m.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>':'<div class="msg ok"><b>El afiche está completo.</b> Revisalo y, si todo está bien, imprimilo.</div>';
+}
+
+/* ---------- revisión formativa ---------- */
+var RV_FROM=null;
+function syncReview(){
+  var n=0;
+  document.querySelectorAll('[data-rv]').forEach(function(c){var i=+c.getAttribute('data-rv');c.checked=!!S.review[i];if(S.review[i])n++;});
+  var ok=n===S.review.length,m=$('rv-msg');
+  $('rv-count').textContent='Casillas marcadas: '+n+' de '+S.review.length+'.';
+  m.className='msg'+(ok?' ok':'');
+  m.textContent=ok?'¡Muy bien! Revisaron todos los aspectos del afiche. Ya pueden realizar una última lectura antes de imprimirlo.':'Revisen los aspectos pendientes antes de compartir su afiche.';
+}
+function openReview(from){RV_FROM=from;syncReview();$('review').hidden=false;$('rv-dlg').focus();}
+function closeReview(){$('review').hidden=true;if(RV_FROM&&document.body.contains(RV_FROM))RV_FROM.focus();}
+
+/* ---------- accesibilidad ---------- */
+var ui={fs:0,hc:false},speaking=false;
+var TEXT='Instrucciones para usar el creador de afiches. '+
+  'Paso 1: escribí el nombre del equipo, los integrantes, el curso y la fecha con el formato día, mes y año. '+
+  'Paso 2: explicá cómo investigaron el consumo de batería durante 30 minutos. '+
+  'Paso 3: elegí el tipo de gráfico que quieren realizar: de barras, de líneas o de torta. Hasta que elijan uno, la aplicación no pide datos. '+
+  'Paso 4: escribí los datos que necesita el gráfico elegido. En barras, el nombre y el consumo de cada celular o actividad. En líneas, los minutos y el porcentaje de batería restante. En torta, las categorías y sus valores, que deben ser partes de un mismo total. '+
+  'Paso 5: mirá la vista previa del gráfico y cambiá el título y los colores si querés. '+
+  'Paso 6: explicá por qué eligieron ese tipo de gráfico. '+
+  'Paso 7: escribí los resultados de la media aritmética, la mediana, la moda y el rango que obtuvieron en las clases anteriores. La aplicación no los calcula. '+
+  'Paso 8: escribí dos conclusiones matemáticas con tus propias palabras. '+
+  'Pasos 9 y 10: escribí recomendaciones para cuidar la batería y hábitos digitales responsables. La tabla de resultados del final es opcional. '+
+  'Después, abrí la vista previa del afiche para ver cómo queda. Usá el botón Revisamos nuestro afiche para controlar tu trabajo. '+
+  'Podés corregir lo que quieras antes de imprimir o guardar el afiche en PDF con la impresión del navegador.';
+function say(t){$('a11y-msg').textContent=t;}
+function loadUI(){
+  try{var o=JSON.parse(localStorage.getItem(UIKEY)||'null');if(o){ui.fs=Math.min(FS.length-1,Math.max(0,+o.fs||0));ui.hc=o.hc===true;}}catch(e){}
+}
+function applyUI(msg){
+  var h=document.documentElement;
+  h.style.fontSize=FS[ui.fs]+'%';
+  h.setAttribute('data-hc',ui.hc?'1':'0');
+  h.classList.toggle('bigui',ui.fs>=2);
+  $('fs-up').setAttribute('aria-disabled',String(ui.fs>=FS.length-1));
+  $('fs-down').setAttribute('aria-disabled',String(ui.fs<=0));
+  $('hc').setAttribute('aria-pressed',String(ui.hc));
+  $('hc-state').textContent=ui.hc?'activado':'desactivado';
+  try{localStorage.setItem(UIKEY,JSON.stringify(ui));}catch(e){}
+  if(msg)say(msg);
+  refreshPrev();
+}
+function setTts(){var b=$('tts');b.textContent=speaking?'Detener lectura':'Escuchar instrucciones';b.setAttribute('aria-pressed',String(speaking));}
+function stopSpeech(){try{window.speechSynthesis.cancel();}catch(e){}speaking=false;setTts();}
+function toggleSpeech(){
+  if(speaking){stopSpeech();say('Lectura detenida.');return;}
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){
+    say('Este navegador no permite la lectura en voz alta. Podés leer las instrucciones en pantalla.');return;
+  }
+  try{
+    var s=window.speechSynthesis;s.cancel();
+    var u=new SpeechSynthesisUtterance(TEXT);u.lang='es-AR';u.rate=0.95;
+    var vs=s.getVoices(),es=null,i;
+    for(i=0;i<vs.length;i++){if(/^es/i.test(vs[i].lang)){if(!es||/es-(AR|419|MX)/i.test(vs[i].lang))es=vs[i];}}
+    if(es)u.voice=es;
+    u.onend=function(){speaking=false;setTts();say('Lectura terminada.');};
+    u.onerror=function(ev){speaking=false;setTts();if(!ev||(ev.error!=='canceled'&&ev.error!=='interrupted'))say('No se pudo reproducir el audio en este navegador.');};
+    speaking=true;setTts();
+    say(vs.length&&!es?'Leyendo las instrucciones. Este navegador no tiene voz en español, por eso puede sonar distinto.':'Leyendo las instrucciones…');
+    s.speak(u);
+  }catch(e){speaking=false;setTts();say('No se pudo reproducir el audio en este navegador.');}
+}
+window.addEventListener('pagehide',function(){if(speaking)stopSpeech();});
+
+/* ---------- eventos ---------- */
+function show2(which){
+  var p=which==='prev';
+  $('view-form').hidden=p;$('view-prev').hidden=!p;
+  $('tab-form').setAttribute('aria-selected',String(!p));$('tab-prev').setAttribute('aria-selected',String(p));
+  if(p){applyPaper();requestAnimationFrame(refreshPrev);}
+  window.scrollTo(0,0);
+}
+function findRow(el){var id=el.closest('.trow').getAttribute('data-id');return S.rows.filter(function(r){return r.id===id;})[0];}
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.hasAttribute('data-k')){
+    var k=t.getAttribute('data-k'),i=t.getAttribute('data-i');
+    if(t.id==='f-date'&&e.inputType&&e.inputType.indexOf('insert')===0&&t.selectionStart===t.value.length)t.value=autoDate(t.value);
+    if(i!==null)S[k][+i]=t.value;else S[k]=t.value;
+    updCnt(t);update();
+  }else if(t.classList.contains('in-bn')||t.classList.contains('in-bv')){
+    listRow(t,S.bar)[t.classList.contains('in-bn')?'name':'v']=t.value;update();
+  }else if(t.classList.contains('in-lt')||t.classList.contains('in-lv')){
+    listRow(t,S.line)[t.classList.contains('in-lt')?'t':'v']=t.value;update();
+  }else if(t.classList.contains('in-pn')||t.classList.contains('in-pv')){
+    listRow(t,S.pie)[t.classList.contains('in-pn')?'name':'v']=t.value;update();
+  }else if(t.id==='f-ctitle'){
+    if(S.ctype){S.title[S.ctype]=t.value;updCnt(t);update();}
+  }else if(t.hasAttribute('data-cid')){
+    var cid=t.getAttribute('data-cid');
+    if(cid==='line')S.lineColor=t.value;
+    else if(S.ctype==='bar'||S.ctype==='pie'){var cr=S[S.ctype].filter(function(x){return x.id===cid;})[0];if(cr)cr.c=t.value;}
+    update();
+  }else if(t.classList.contains('in-name')||t.classList.contains('in-raw')){
+    var r=findRow(t);r[t.classList.contains('in-name')?'name':'raw']=t.value;update();
+  }
+});
+document.addEventListener('focusout',function(e){
+  var t=e.target;
+  if(t.id==='f-date'){var d=parseDate(t.value);if(d){t.value=d;S.date=d;update();}}
+});
+document.addEventListener('change',function(e){
+  var c=e.target;
+  if(c.hasAttribute&&c.hasAttribute('data-rv')){S.review[+c.getAttribute('data-rv')]=c.checked;syncReview();save();}
+  else if(c.name==='ctype'){S.ctype=c.value;update();}
+});
+document.addEventListener('keydown',function(e){
+  if($('review').hidden)return;
+  if(e.key==='Escape'){e.preventDefault();closeReview();return;}
+  if(e.key==='Tab'){
+    var f=$('rv-dlg').querySelectorAll('input,button');if(!f.length)return;
+    var a=f[0],z=f[f.length-1],cur=document.activeElement;
+    if(e.shiftKey&&(cur===a||cur===$('rv-dlg'))){e.preventDefault();z.focus();}
+    else if(!e.shiftKey&&cur===z){e.preventDefault();a.focus();}
+  }
+});
+document.addEventListener('click',function(e){
+  if(e.target.id==='review'){closeReview();return;}
+  var b=e.target.closest('button');if(!b)return;
+  if(b.classList.contains('del')){
+    var r=findRow(b);
+    S.rows=S.rows.filter(function(x){return x!==r;});
+    if(!S.rows.length)S.rows.push(newRow());
+    renderRows();update();
+  }else if(b.id==='add'){
+    if(S.rows.length>=MAXACT)return;
+    var n=newRow();S.rows.push(n);renderRows();update();
+    var inp=document.getElementById('n-'+n.id);if(inp)inp.focus();
+  }else if(b.classList.contains('ldel')){
+    var lw=b.closest('.lrow'),kind=lw.getAttribute('data-kind'),lid=lw.getAttribute('data-id');
+    var rest=S[kind].filter(function(x){return x.id!==lid;});
+    if(!rest.length)rest.push({bar:newBar,line:newLine,pie:newPie}[kind]());
+    S[kind]=rest;renderLists();update();
+  }else if(b.id==='add-bar'||b.id==='add-line'||b.id==='add-pie'){
+    var kd=b.id.slice(4),mx={bar:8,line:12,pie:8}[kd];
+    if(S[kd].length<mx){
+      var nr={bar:newBar,line:newLine,pie:newPie}[kd]();S[kd].push(nr);renderLists();update();
+      var fi=$({bar:'bn-',line:'lt-',pie:'pn-'}[kd]+nr.id);if(fi)fi.focus();
+    }
+  }else if(b.id==='edit-data'){
+    var f1=document.querySelector('#cdata-'+S.ctype+' input');if(f1)f1.focus();
+  }else if(b.id==='change-type'){
+    var f2=document.querySelector('input[name=ctype]:checked')||document.querySelector('input[name=ctype]');
+    if(f2){f2.focus();var cc=$('card-type');if(cc&&cc.scrollIntoView)cc.scrollIntoView({block:'start'});}
+  }
+  else if(b.classList.contains('js-review'))openReview(b);
+  else if(b.id==='rv-close')closeReview();
+  else if(b.id==='fs-up'){
+    if(ui.fs<FS.length-1){ui.fs++;applyUI('Tamaño de letra: '+FS[ui.fs]+' %.');}else say('Ya está en el tamaño máximo.');
+  }else if(b.id==='fs-down'){
+    if(ui.fs>0){ui.fs--;applyUI(ui.fs?'Tamaño de letra: '+FS[ui.fs]+' %.':'Tamaño de letra original.');}else say('Ya está en el tamaño original.');
+  }else if(b.id==='hc'){ui.hc=!ui.hc;applyUI(ui.hc?'Alto contraste activado.':'Alto contraste desactivado.');}
+  else if(b.id==='tts')toggleSpeech();
+  else if(b.id==='tab-form'||b.id==='back')show2('form');
+  else if(b.id==='tab-prev'||b.id==='go-prev')show2('prev');
+  else if(b.hasAttribute('data-paper')){S.paper=b.getAttribute('data-paper');applyPaper();refreshPrev();save();}
+  else if(b.id==='reset'){$('reset').hidden=true;$('reset-ask').hidden=false;$('reset-no').focus();}
+  else if(b.id==='reset-no'){$('reset-ask').hidden=true;$('reset').hidden=false;}
+  else if(b.id==='reset-yes'){
+    try{localStorage.removeItem(KEY);}catch(x){}
+    uid=0;S=fresh();colSig='';titleKind='__';
+    $('reset-ask').hidden=true;$('reset').hidden=false;
+    fillFields();renderRows();renderLists();update();syncReview();
+  }
+});
+window.addEventListener('resize',refreshPrev);
+
+load();loadUI();
+buildMeasures();addCounters();fillFields();renderRows();renderLists();applyPaper();update();applyUI();setTts();syncReview();
+})();
+</script>
+</body></html>

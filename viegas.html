@@ -1,0 +1,825 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pioneras de la Geometría y el Enigma del Panal — Escape Room</title>
+  <meta name="description" content="Escape Room interactivo sobre geometría, polígonos, optimización de áreas y científicas pioneras. Desarrollado por Ángel Viegas para EDI 2026.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #f4f7f6;
+      --card-bg: #ffffff;
+      --primary: #1e7e4a;
+      --primary-hover: #166534;
+      --accent: #d97706;
+      --navy: #1e3a5f;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --bio-bg: #eaf4fb;
+      --bio-border: #0284c7;
+      --error: #b91c1c;
+      --error-bg: #fee2e2;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --base-font-size: 16px;
+    }
+
+    body.high-contrast {
+      --bg: #000000;
+      --card-bg: #121212;
+      --primary: #ffff00;
+      --primary-hover: #ffffff;
+      --accent: #00ffff;
+      --navy: #ffffff;
+      --text: #ffffff;
+      --text-muted: #e2e8f0;
+      --border: #ffffff;
+      --bio-bg: #1e293b;
+      --bio-border: #38bdf8;
+      --error: #fca5a5;
+      --error-bg: #450a0a;
+      --success: #86efac;
+      --success-bg: #052e16;
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: var(--base-font-size);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* Barra DUA Superior */
+    .top-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--navy);
+      color: #ffffff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .top-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .top-brand a {
+      color: #ffffff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tool-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .tool-btn:hover {
+      background: #ffffff;
+      color: var(--navy);
+    }
+
+    body.high-contrast .tool-btn {
+      border-color: #ffffff;
+    }
+
+    /* Contenedor Principal */
+    .main-wrap {
+      flex: 1;
+      max-width: 760px;
+      width: 100%;
+      margin: 32px auto;
+      padding: 0 18px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    .header-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header-icon {
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.85rem;
+      color: var(--navy);
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    body.high-contrast h1 { color: #ffff00; }
+
+    .author-badge {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .mission-box {
+      background: var(--bio-bg);
+      border-left: 4px solid var(--bio-border);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.96rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Progreso del Escape Room */
+    .progress-bar-wrap {
+      margin-bottom: 26px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    body.high-contrast .progress-bar { background: #333333; }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 16.66%;
+      transition: width 0.4s ease;
+    }
+
+    /* Estaciones */
+    .station {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .station.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .station-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    body.high-contrast .station-badge {
+      background: #ffff00;
+      color: #000000;
+    }
+
+    h2.station-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      color: var(--navy);
+      margin-bottom: 14px;
+      line-height: 1.3;
+    }
+
+    body.high-contrast h2.station-title { color: #ffffff; }
+
+    .bio {
+      background: var(--bio-bg);
+      border-left: 4px solid var(--bio-border);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 18px;
+    }
+
+    .problem-box {
+      font-size: 1.02rem;
+      font-style: normal;
+      background: rgba(30, 126, 74, 0.06);
+      border: 1px dashed var(--primary);
+      padding: 16px 18px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    body.high-contrast .problem-box {
+      background: #181818;
+      border-color: #ffffff;
+    }
+
+    .input-group {
+      margin-top: 14px;
+    }
+
+    label.input-label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: var(--navy);
+    }
+
+    body.high-contrast label.input-label { color: #ffffff; }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 13px 16px;
+      font-size: 1.05rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: #ffffff;
+      color: #000000;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    body.high-contrast input[type="text"] {
+      background: #000000;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
+
+    .btn-action {
+      margin-top: 14px;
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-action:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    body.high-contrast .btn-action {
+      background: #ffff00;
+      color: #000000;
+      font-weight: 800;
+    }
+
+    .feedback-msg {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: none;
+      text-align: center;
+    }
+
+    .feedback-msg.error {
+      display: block;
+      background: var(--error-bg);
+      color: var(--error);
+      border: 1px solid var(--error);
+    }
+
+    .feedback-msg.success {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    /* Pantalla Final */
+    .final-screen {
+      text-align: center;
+      padding: 20px 10px;
+    }
+
+    .final-badge-icon {
+      font-size: 4rem;
+      margin-bottom: 12px;
+      animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-8px); }
+    }
+
+    .final-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      color: var(--success);
+      margin-bottom: 12px;
+    }
+
+    body.high-contrast .final-title { color: #86efac; }
+
+    .diploma-box {
+      background: #fdfbf7;
+      border: 3px double #d97706;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 22px 0;
+      text-align: center;
+    }
+
+    body.high-contrast .diploma-box {
+      background: #111111;
+      border-color: #ffff00;
+    }
+
+    .diploma-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    body.high-contrast .diploma-title { color: #ffffff; }
+
+    /* Pie de página VCER */
+    .vcer-footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      padding: 26px 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 40px;
+      line-height: 1.6;
+    }
+
+    body.high-contrast .vcer-footer {
+      background: #000000;
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    .vcer-footer a {
+      color: var(--primary);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    body.high-contrast .vcer-footer a { color: #00ffff; }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de Accesibilidad DUA -->
+  <header class="top-toolbar" aria-label="Herramientas de Accesibilidad">
+    <div class="top-brand">
+      <a href="index.html" title="Volver al repositorio de aplicaciones">
+        <i class="fa-solid fa-arrow-left"></i> <span>Repositorio apps</span>
+      </a>
+      <span style="opacity: 0.4;">|</span>
+      <span>🐝 Enigma del Panal</span>
+    </div>
+    <div class="top-controls">
+      <button class="tool-btn" id="btn-font-sub" title="Disminuir tamaño de letra" aria-label="Disminuir fuente">A-</button>
+      <button class="tool-btn" id="btn-font-reset" title="Restablecer tamaño de letra" aria-label="Tamaño original">A</button>
+      <button class="tool-btn" id="btn-font-add" title="Aumentar tamaño de letra" aria-label="Aumentar fuente">A+</button>
+      <button class="tool-btn" id="btn-contrast" title="Alternar alto contraste" aria-label="Alto contraste"><i class="fa-solid fa-circle-half-stroke"></i> Contraste</button>
+      <button class="tool-btn" id="btn-read" title="Leer estación en voz alta" aria-label="Leer en voz alta"><i class="fa-solid fa-volume-high"></i> Leer</button>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <div class="card">
+      
+      <!-- Encabezado -->
+      <div class="header-section">
+        <div class="header-icon" aria-hidden="true">🐝</div>
+        <h1>Pioneras de la Geometría y el Enigma del Panal</h1>
+        <div class="author-badge">
+          <i class="fa-solid fa-user-pen"></i> Autor: <strong>Ángel Viegas</strong> · 4° Año EDI · ISFDyT N° 24
+        </div>
+        <div class="mission-box">
+          <strong>Misión:</strong> Resolvé los 6 desafíos geométricos junto a las grandes científicas para abrir cada candado y obtener la <em>Licencia de Diseñador Geométrico de la Huerta</em>.
+        </div>
+      </div>
+
+      <!-- Barra de Progreso -->
+      <div class="progress-bar-wrap" id="progressWrap">
+        <div class="progress-info">
+          <span id="progressText">Estación 1 de 6</span>
+          <span id="progressPercent">17%</span>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- ESTACIÓN 1 -->
+      <section id="st1" class="station active" aria-labelledby="title-st1">
+        <span class="station-badge">Estación 1 de 6</span>
+        <h2 class="station-title" id="title-st1">Maryam Mirzakhani y los Ángulos del Polígono</h2>
+        <div class="bio" id="bio1">
+          <strong>Maryam Mirzakhani (1977-2017)</strong> fue una matemática iraní y la primera mujer en ganar la Medalla Fields, el galardón más prestigioso de la matemática mundial. Sus investigaciones revolucionaron el estudio de la geometría de superficies complejas y la simetría de formas geométricas no euclídeas, demostrando que patrones aparentemente caóticos responden a reglas matemáticas perfectas.
+        </div>
+        <div class="problem-box" id="prob1">
+          "Si \(n\) es la cantidad de ángulos interiores de un polígono regular, y \(S\) es la suma de los grados interiores dada por la ecuación \(S = 180^\circ \times (n - 2)\). Sabiendo que las abejas construyen celdas con \(n = 6\), <strong>¿cuántos grados suman en total los ángulos interiores de un solo hexágono regular?</strong>"
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="ans1">Ingresá la suma de ángulos (solo número entero):</label>
+          <input type="text" id="ans1" inputmode="numeric" placeholder="Ej: 720" autocomplete="off" aria-describedby="err1 fb1">
+          <button class="btn-action" onclick="checkStation(1, '720')"><i class="fa-solid fa-lock-open"></i> Abrir Candado 1</button>
+          <div id="err1" class="feedback-msg error" role="alert" style="display:none;"></div>
+          <div id="fb1" class="feedback-msg success" role="status" style="display:none;">¡Acertaste! Avanzando a la siguiente estación...</div>
+        </div>
+      </section>
+
+      <!-- ESTACIÓN 2 -->
+      <section id="st2" class="station" aria-labelledby="title-st2">
+        <span class="station-badge">Estación 2 de 6</span>
+        <h2 class="station-title" id="title-st2">Tatiana Ehrenfest y la Economía de Cera</h2>
+        <div class="bio" id="bio2">
+          <strong>Tatiana Ehrenfest-Afanassjewa (1876-1964)</strong> fue una matemática y física ruso-holandesa que transformó la didáctica de la geometría moderna. Pionera en promover la enseñanza intuitiva y práctica de la matemática, demostró cómo los principios geométricos permiten comprender la optimización de formas y el uso eficiente de la materia en los sistemas físicos y naturales.
+        </div>
+        <div class="problem-box" id="prob2">
+          "Tatiana demostró que las abejas gastan mucha energía al construir el panal, por lo que necesitan encerrar la mayor cantidad de superficie con el menor gasto de cera posible. Para comparar 3 bancales de igual perímetro (24 m): un triángulo equilátero de lado \(l = 8\text{ m}\), un cuadrado de lado \(l = 6\text{ m}\), y un hexágono regular de lado \(l = 4\text{ m}\). Calculá el área de cada una de las tres figuras, sumalas e <strong>ingresá el resultado final redondeado al entero más próximo</strong>. Recordá que el área del hexágono es: \(\text{Área} = \frac{\text{Perímetro} \times \text{Apotema}}{2}\)."
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="ans2">Ingresá la suma de las 3 áreas redondeada:</label>
+          <input type="text" id="ans2" inputmode="numeric" placeholder="Ej: 105" autocomplete="off" aria-describedby="err2 fb2">
+          <button class="btn-action" onclick="checkStation(2, '105')"><i class="fa-solid fa-lock-open"></i> Abrir Candado 2</button>
+          <div id="err2" class="feedback-msg error" role="alert" style="display:none;"></div>
+          <div id="fb2" class="feedback-msg success" role="status" style="display:none;">¡Acertaste! Avanzando a la siguiente estación...</div>
+        </div>
+      </section>
+
+      <!-- ESTACIÓN 3 -->
+      <section id="st3" class="station" aria-labelledby="title-st3">
+        <span class="station-badge">Estación 3 de 6</span>
+        <h2 class="station-title" id="title-st3">Entomólogas del INTA y el Vértice del Panal</h2>
+        <div class="bio" id="bio3">
+          Las biólogas y entomólogas del <strong>INTA (Instituto Nacional de Tecnología Agropecuaria de Argentina)</strong> investigan el comportamiento biológico y la arquitectura de la especie <em>Apis mellifera</em>. Sus estudios interdisciplinarios combinan la ecología con la geometría analítica para comprender cómo las abejas optimizan la temperatura, el espacio hídrico y el almacenamiento de miel en la producción apícola regional.
+        </div>
+        <div class="problem-box" id="prob3">
+          "Las investigadoras observan cómo las abejas unen celdas sin dejar espacios vacíos (teselación). Si cada ángulo interior del hexágono regular mide \(120^\circ\), <strong>¿cuántos grados suman en total los ángulos que convergen en un único vértice cuando se unen tres celdas contiguas?</strong>"
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="ans3">Ingresá la suma de ángulos en el vértice:</label>
+          <input type="text" id="ans3" inputmode="numeric" placeholder="Ej: 360" autocomplete="off" aria-describedby="err3 fb3">
+          <button class="btn-action" onclick="checkStation(3, '360')"><i class="fa-solid fa-lock-open"></i> Abrir Candado 3</button>
+          <div id="err3" class="feedback-msg error" role="alert" style="display:none;"></div>
+          <div id="fb3" class="feedback-msg success" role="status" style="display:none;">¡Acertaste! Avanzando a la siguiente estación...</div>
+        </div>
+      </section>
+
+      <!-- ESTACIÓN 4 -->
+      <section id="st4" class="station" aria-labelledby="title-st4">
+        <span class="station-badge">Estación 4 de 6</span>
+        <h2 class="station-title" id="title-st4">Maria Sibylla Merian y el Riego por Aspersión</h2>
+        <div class="bio" id="bio4">
+          <strong>Maria Sibylla Merian (1647-1717)</strong> fue una naturalista, exploradora e ilustradora científica alemana, considerada una de las fundadoras de la entomología moderna. A través de observaciones minuciosas en América del Sur y Europa, documentó con precisión matemática la metamorfosis de los insectos y la interacción entre la geometría vegetal y la distribución de agua en los ecosistemas.
+        </div>
+        <div class="problem-box" id="prob4">
+          "Al adaptar el diseño a la huerta escolar, instalamos aspersores circulares. Si un gotero o aspersor tiene un radio de alcance \(r = 3\text{ metros}\), <strong>¿cuál es la superficie mojada redondeada al entero más próximo?</strong> (Tomá \(\pi \approx 3,1416\))."
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="ans4">Ingresá el área mojada redondeada en m²:</label>
+          <input type="text" id="ans4" inputmode="numeric" placeholder="Ej: 28" autocomplete="off" aria-describedby="err4 fb4">
+          <button class="btn-action" onclick="checkStation(4, '28')"><i class="fa-solid fa-lock-open"></i> Abrir Candado 4</button>
+          <div id="err4" class="feedback-msg error" role="alert" style="display:none;"></div>
+          <div id="fb4" class="feedback-msg success" role="status" style="display:none;">¡Acertaste! Avanzando a la siguiente estación...</div>
+        </div>
+      </section>
+
+      <!-- ESTACIÓN 5 -->
+      <section id="st5" class="station" aria-labelledby="title-st5">
+        <span class="station-badge">Estación 5 de 6</span>
+        <h2 class="station-title" id="title-st5">Hypatia y la Escala de la Huerta</h2>
+        <div class="bio" id="bio5">
+          <strong>Hypatia de Alejandría (360-415 d.C.)</strong> fue la primera mujer matemática de la historia de la cual se conserva un registro detallado de sus obras. Maestra de la escuela neoplatónica de Alejandría, escribió comentarios sobre las cónicas de Apolonio y los tratados de geometría euclidiana, diseñando además instrumentos astronómicos y sistemas de cálculo de proporciones a escala.
+        </div>
+        <div class="problem-box" id="prob5">
+          "Para proyectar los bancales en la lámina técnica a escala <strong>1:20</strong>, un bancal que en la huerta mide \(240\text{ cm}\) de lado, <strong>¿cuántos centímetros mide ese lado en el plano o papel?</strong>"
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="ans5">Ingresá la medida en cm para el lado en el papel:</label>
+          <input type="text" id="ans5" inputmode="numeric" placeholder="Ej: 12" autocomplete="off" aria-describedby="err5 fb5">
+          <button class="btn-action" onclick="checkStation(5, '12')"><i class="fa-solid fa-lock-open"></i> Abrir Candado 5</button>
+          <div id="err5" class="feedback-msg error" role="alert" style="display:none;"></div>
+          <div id="fb5" class="feedback-msg success" role="status" style="display:none;">¡Acertaste! Avanzando a la siguiente estación...</div>
+        </div>
+      </section>
+
+      <!-- ESTACIÓN 6 -->
+      <section id="st6" class="station" aria-labelledby="title-st6">
+        <span class="station-badge">Estación 6 de 6</span>
+        <h2 class="station-title" id="title-st6">Científicas de la CONAE y la Zona Seca Compuesta</h2>
+        <div class="bio" id="bio6">
+          Las investigadoras e ingenieras de la <strong>CONAE (Comisión Nacional de Actividades Espaciales)</strong> procesan imágenes satelitales y desarrollan modelos geométricos hídricos para el sector agropecuario argentino. Mediante el uso de álgebra geométrica y sensores remotos, calculan áreas de cobertura, zonas secas y patrones de humedad en cultivos a escala nacional y escolar.
+        </div>
+        <div class="problem-box" id="prob6">
+          "En un bancal de \(30\text{ m}^2\), un aspersor de riego actúa con un radio \(r = 2,5\text{ metros}\). <strong>¿Cuántos metros cuadrados del bancal quedan como 'zona seca'?</strong> Redondeá el resultado final al entero más próximo."
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="ans6">Ingresá la superficie seca redondeada en m²:</label>
+          <input type="text" id="ans6" inputmode="numeric" placeholder="Ej: 10" autocomplete="off" aria-describedby="err6 fb6">
+          <button class="btn-action" onclick="checkStation(6, '10')"><i class="fa-solid fa-key"></i> Abrir Candado Final</button>
+          <div id="err6" class="feedback-msg error" role="alert" style="display:none;"></div>
+          <div id="fb6" class="feedback-msg success" role="status" style="display:none;">¡Acertaste! Abriendo la cámara final...</div>
+        </div>
+      </section>
+
+      <!-- PANTALLA FINAL -->
+      <section id="st7" class="station final-screen" aria-labelledby="final-title">
+        <div class="final-badge-icon" aria-hidden="true">🎉</div>
+        <h2 class="final-title" id="final-title">¡Misión Cumplida! Descifraste el Enigma del Panal</h2>
+        <p style="font-size: 1.05rem; margin-bottom: 20px;">
+          Superaste con éxito los 6 candados geométricos junto a las grandes pioneras de la ciencia y la matemática.
+        </p>
+
+        <div class="diploma-box">
+          <div class="diploma-title">🏅 Licencia de Diseñador Geométrico de la Huerta</div>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+            Acreditación formativa otorgada en el marco del Proyecto de Huerta y Geometría.<br>
+            <strong>¡Listos para comenzar a modelar en GeoGebra!</strong>
+          </p>
+        </div>
+
+        <button class="btn-action" onclick="restartEscape()" style="max-width: 280px; margin: 0 auto;">
+          <i class="fa-solid fa-rotate-left"></i> Jugar Nuevamente
+        </button>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Pie de página VCER -->
+  <footer class="vcer-footer" role="contentinfo">
+    <p><strong>Pioneras de la Geometría y el Enigma del Panal</strong> · Autor: <strong>Ángel Viegas</strong> · Coordinación didáctica: <strong>Prof. Silvina Elena Busto</strong></p>
+    <p style="margin: 6px 0;">
+      <span><i class="fa-solid fa-code"></i> Código bajo <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU AGPL v3</a></span>
+      <span style="margin: 0 8px;">·</span>
+      <span><i class="fa-brands fa-creative-commons"></i> Contenidos didácticos bajo <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></span>
+    </p>
+    <p style="font-size: 0.8rem; margin-top: 4px;">
+      Recurso educativo abierto adaptado con pautas de <em>Vibe Coding Responsable</em> (DUA, privacidad sin recolección de datos y asistencia ética de IA).
+    </p>
+  </footer>
+
+  <script>
+    let currentStation = 1;
+    const totalStations = 6;
+
+    function updateProgress(st) {
+      if (st > totalStations) {
+        document.getElementById('progressWrap').style.display = 'none';
+        return;
+      }
+      document.getElementById('progressWrap').style.display = 'block';
+      const pct = Math.round((st / totalStations) * 100);
+      document.getElementById('progressText').textContent = `Estación ${st} de ${totalStations}`;
+      document.getElementById('progressPercent').textContent = `${pct}%`;
+      document.getElementById('progressBar').setAttribute('aria-valuenow', st);
+      document.getElementById('progressFill').style.width = `${pct}%`;
+    }
+
+    function checkStation(stationNum, correctAnswer) {
+      const inputEl = document.getElementById('ans' + stationNum);
+      const userVal = inputEl.value.trim().replace(',', '.');
+      const errDiv = document.getElementById('err' + stationNum);
+      const fbDiv = document.getElementById('fb' + stationNum);
+
+      // Normalizar número
+      const parsedUser = parseFloat(userVal);
+      const parsedCorrect = parseFloat(correctAnswer);
+
+      if (userVal === correctAnswer || (!isNaN(parsedUser) && parsedUser === parsedCorrect)) {
+        errDiv.style.display = 'none';
+        fbDiv.style.display = 'block';
+        
+        // Efecto audio sutil nativo
+        playBeep(true);
+
+        setTimeout(() => {
+          document.getElementById('st' + stationNum).classList.remove('active');
+          const nextSt = stationNum + 1;
+          const nextEl = document.getElementById('st' + nextSt);
+          if (nextEl) {
+            nextEl.classList.add('active');
+            updateProgress(nextSt);
+            const nextInput = document.getElementById('ans' + nextSt);
+            if (nextInput) nextInput.focus();
+          }
+        }, 1100);
+      } else {
+        playBeep(false);
+        errDiv.textContent = '❌ Código incorrecto. Revisá tus cálculos con las fórmulas y probá nuevamente.';
+        errDiv.style.display = 'block';
+        fbDiv.style.display = 'none';
+        inputEl.focus();
+      }
+    }
+
+    function restartEscape() {
+      for (let i = 1; i <= totalStations; i++) {
+        const inp = document.getElementById('ans' + i);
+        if (inp) inp.value = '';
+        const err = document.getElementById('err' + i);
+        if (err) err.style.display = 'none';
+        const fb = document.getElementById('fb' + i);
+        if (fb) fb.style.display = 'none';
+        document.getElementById('st' + i).classList.remove('active');
+      }
+      document.getElementById('st7').classList.remove('active');
+      document.getElementById('st1').classList.add('active');
+      updateProgress(1);
+      document.getElementById('ans1').focus();
+    }
+
+    // Permitir presionar tecla 'Enter' en los inputs
+    for (let i = 1; i <= totalStations; i++) {
+      const inp = document.getElementById('ans' + i);
+      if (inp) {
+        inp.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const btn = inp.parentElement.querySelector('.btn-action');
+            if (btn) btn.click();
+          }
+        });
+      }
+    }
+
+    // --- SÍNTESIS DE AUDIO SIMPLE (Web Audio API) ---
+    function playBeep(success) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        if (success) {
+          osc.frequency.setValueAtTime(523.25, ctx.currentTime); // Do
+          osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // Mi
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } else {
+          osc.frequency.setValueAtTime(220, ctx.currentTime);
+          osc.frequency.setValueAtTime(180, ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.18, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.25);
+        }
+      } catch (e) {}
+    }
+
+    // --- HERRAMIENTAS DUA (Tipografía, Contraste, TTS) ---
+    let baseFontSize = 16;
+    const btnFontAdd = document.getElementById('btn-font-add');
+    const btnFontSub = document.getElementById('btn-font-sub');
+    const btnFontReset = document.getElementById('btn-font-reset');
+    const btnContrast = document.getElementById('btn-contrast');
+    const btnRead = document.getElementById('btn-read');
+
+    btnFontAdd.addEventListener('click', () => {
+      if (baseFontSize < 24) {
+        baseFontSize += 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    });
+
+    btnFontSub.addEventListener('click', () => {
+      if (baseFontSize > 12) {
+        baseFontSize -= 2;
+        document.documentElement.style.fontSize = baseFontSize + 'px';
+      }
+    });
+
+    btnFontReset.addEventListener('click', () => {
+      baseFontSize = 16;
+      document.documentElement.style.fontSize = '16px';
+    });
+
+    btnContrast.addEventListener('click', () => {
+      document.body.classList.toggle('high-contrast');
+      btnContrast.classList.toggle('active');
+    });
+
+    btnRead.addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) {
+        alert('Tu navegador no admite la síntesis de voz nativa.');
+        return;
+      }
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        btnRead.innerHTML = '<i class="fa-solid fa-volume-high"></i> Leer';
+        return;
+      }
+      const activeStation = document.querySelector('.station.active');
+      if (!activeStation) return;
+      const textToRead = activeStation.innerText;
+      const utter = new SpeechSynthesisUtterance(textToRead);
+      utter.lang = 'es-AR';
+      utter.rate = 1.0;
+      utter.onend = () => {
+        btnRead.innerHTML = '<i class="fa-solid fa-volume-high"></i> Leer';
+      };
+      btnRead.innerHTML = '<i class="fa-solid fa-pause"></i> Detener';
+      window.speechSynthesis.speak(utter);
+    });
+
+    updateProgress(1);
+  </script>
+</body>
+</html>
