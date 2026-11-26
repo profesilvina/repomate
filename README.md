@@ -38,6 +38,7 @@ El repositorio está diseñado como un catálogo dinámico y responsivo, listo p
 | **🧊 Escape Room: Muestra Virtual de Cuerpos Geométricos** (Gabriel D'Amelia y Ana Lía Solores - 2.° año Enseñar con Tecnología) | Geometría y Magnitudes | Secundaria | Escape room 3D interactivo para 1.° año de secundaria (DGCyE) con 4 salas temáticas: elementos, fórmula de Euler ($C + V = A + 2$), sólidos platónicos y escáner clasificador. |
 | **🏀 El Tiro Perfecto: Laboratorio de Lanzamiento** (Fabricio Rebolledo) | Funciones y Análisis | Secundaria | Simulador físico-matemático en tiempo real con accesibilidad DUA para modelizar tiros al aro de básquet mediante funciones cuadráticas, analizando la parábola y su vértice. |
 | **🦠 Simulá el Brote: Función Exponencial y Capacidad Hospitalaria** (Nicolás Gómez) | Funciones y Análisis | Secundaria | Simulador interactivo del modelo de crecimiento exponencial epidémico $N(t) = N_0 \cdot (1+r)^t$ y colapso hospitalario para 5.° año con tiempo de duplicación, intervención para aplanar la curva, escala logarítmica y preguntas ABP. |
+| **🛵 Simulador de Delivery Urbano: Función Lineal y Optimización** (Jazmín Carrizo) | Funciones y Análisis | Secundaria | Simulador interactivo de logística urbana para modelizar recorridos de motos y bicicletas mediante funciones lineales (pendiente y ordenada al origen), comparar costos de envío y tiempos de entrega en tiempo real, calcular puntos de intersección y optimizar decisiones. |
 
 ---
 
@@ -59,6 +60,7 @@ repoapps_mate/
 ├── viegas.html                  # Pioneras de la Geometría y el Enigma del Panal – Escape Room (Ángel Viegas)
 ├── geoagrolab.html              # GeoAgro-Lab: Simulador y Dibujo Técnico de Bancales (Ángel Viegas - 2da app)
 ├── nicolas.html                 # Simulá el Brote: Función Exponencial y Capacidad Hospitalaria (Nicolás Gómez)
+├── jazmin.html                  # Simulador de Delivery Urbano: Función Lineal (Jazmín Carrizo)
 ├── mision_triangulos.html       # Misión Triángulos – Desigualdad Triangular (Enzo y Alberto - 2.° Enseñar con Tecnología)
 ├── escape_cuerpos_geometricos.html # Escape Room 3D Cuerpos Geométricos (Gabriel D'Amelia y Ana Lía Solores - 2.° Enseñar con Tecnología)
 ├── escape_cuerpos_geometricos/  # Versión empaquetada alternativa

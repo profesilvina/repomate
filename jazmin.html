@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Logística de Delivery Urbano</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* Custom scrollbar for control panels */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(71, 85, 105, 1);
+        }
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            border-radius: 9999px;
+        }
+        /* Moto Slider Accent */
+        .slider-moto::-webkit-slider-runnable-track {
+            background: #334155;
+        }
+        .slider-moto::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #ef4444;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -5px;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+            transition: transform 0.1s ease;
+        }
+        .slider-moto::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        /* Bici Slider Accent */
+        .slider-bici::-webkit-slider-runnable-track {
+            background: #334155;
+        }
+        .slider-bici::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -5px;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            transition: transform 0.1s ease;
+        }
+        .slider-bici::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        /* Canvas shadow glow */
+        .canvas-container {
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+
+    <!-- Header Principal -->
+    <header class="bg-slate-900/90 border-b border-slate-800 px-4 py-3 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs font-semibold" title="Volver al Catálogo de Repomate">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Repomate</span>
+                </a>
+                <div class="p-2 bg-indigo-600/20 border border-indigo-500/40 rounded-xl text-indigo-400">
+                    <i data-lucide="truck" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl text-white tracking-wide flex items-center gap-2">
+                        Simulador de Delivery Urbano
+                    </h1>
+                    <p class="text-xs text-slate-400">Jazmín Carrizo — Exploración Logística y Función Lineal</p>
+                </div>
+            </div>
+
+
+            <!-- Botones de Control Principal -->
+            <div class="flex items-center gap-2 sm:gap-3 bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+                <button id="btnPlay" class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold rounded-lg transition-all shadow-lg shadow-indigo-600/30 text-sm">
+                    <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                    <span>Iniciar</span>
+                </button>
+                <button id="btnPause" class="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 font-semibold rounded-lg transition-all border border-slate-700 text-sm opacity-50 cursor-not-allowed" disabled>
+                    <i data-lucide="pause" class="w-4 h-4 fill-current"></i>
+                    <span>Pausar</span>
+                </button>
+                <button id="btnReset" class="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 font-semibold rounded-lg transition-all border border-slate-700 text-sm">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span>Reiniciar</span>
+                </button>
+                <div class="h-6 w-px bg-slate-800 mx-1"></div>
+                <div class="flex items-center gap-1.5 px-2">
+                    <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+                    <select id="simSpeed" class="bg-slate-900 text-xs text-slate-300 font-medium rounded border border-slate-700 px-2 py-1 focus:outline-none focus:border-indigo-500">
+                        <option value="1">1x</option>
+                        <option value="2" selected>2x</option>
+                        <option value="5">5x</option>
+                        <option value="10">10x</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl w-full mx-auto p-3 sm:p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 flex-grow">
+        
+        <!-- Panel Izquierdo: Controles de Parámetros (4 columnas en Desktop) -->
+        <div class="lg:col-span-4 flex flex-col gap-4">
+            
+            <!-- Controles Motocicleta (Rojo) -->
+            <div class="bg-slate-900/80 rounded-2xl p-4 border border-rose-500/20 shadow-lg relative overflow-hidden backdrop-blur-sm">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-rose-500"></div>
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 bg-rose-500/10 text-rose-400 rounded-lg">
+                            <i data-lucide="bike" class="w-5 h-5"></i>
+                        </div>
+                        <h2 class="font-bold text-rose-400 tracking-wide text-sm sm:text-base">Motocicleta</h2>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 font-mono" id="valMotoSpeedState">0 km/h</span>
+                </div>
+
+
+                <div class="space-y-3.5">
+                    <!-- Velocidad Moto -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Velocidad Promedio</span>
+                            <span class="font-mono text-rose-400" id="valMotoSpeed">35 km/h</span>
+                        </div>
+                        <input type="range" id="inputMotoSpeed" min="0" max="60" step="1" value="35" class="w-full slider-moto">
+                    </div>
+
+
+                    <!-- Costo por KM -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Costo por Kilómetro</span>
+                            <span class="font-mono text-rose-400" id="valMotoCostKm">$15 / km</span>
+                        </div>
+                        <input type="range" id="inputMotoCostKm" min="0" max="60" step="1" value="15" class="w-full slider-moto">
+                    </div>
+
+
+                    <!-- Costo Fijo Salida -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Costo Fijo por Salida</span>
+                            <span class="font-mono text-rose-400" id="valMotoCostBase">$50</span>
+                        </div>
+                        <input type="range" id="inputMotoCostBase" min="0" max="100" step="1" value="50" class="w-full slider-moto">
+                    </div>
+
+
+                    <!-- Distancia Total -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Distancia Total Recorrido</span>
+                            <span class="font-mono text-rose-400" id="valMotoDist">20 km</span>
+                        </div>
+                        <input type="range" id="inputMotoDist" min="1" max="50" step="1" value="20" class="w-full slider-moto">
+                    </div>
+
+
+                    <!-- Cantidad de Paradas -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Paradas Intermedias</span>
+                            <span class="font-mono text-rose-400" id="valMotoStops">3 paradas</span>
+                        </div>
+                        <input type="range" id="inputMotoStops" min="0" max="10" step="1" value="3" class="w-full slider-moto">
+                    </div>
+
+
+                    <!-- Tiempo por Parada -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Tiempo de Espera / Parada</span>
+                            <span class="font-mono text-rose-400" id="valMotoStopTime">5 min</span>
+                        </div>
+                        <input type="range" id="inputMotoStopTime" min="0" max="30" step="1" value="5" class="w-full slider-moto">
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Controles Bicicleta Eléctrica (Verde) -->
+            <div class="bg-slate-900/80 rounded-2xl p-4 border border-emerald-500/20 shadow-lg relative overflow-hidden backdrop-blur-sm">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                            <i data-lucide="zap" class="w-5 h-5"></i>
+                        </div>
+                        <h2 class="font-bold text-emerald-400 tracking-wide text-sm sm:text-base">Bicicleta Eléctrica</h2>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono" id="valBiciSpeedState">0 km/h</span>
+                </div>
+
+
+                <div class="space-y-3.5">
+                    <!-- Velocidad Bici -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Velocidad Promedio</span>
+                            <span class="font-mono text-emerald-400" id="valBiciSpeed">20 km/h</span>
+                        </div>
+                        <input type="range" id="inputBiciSpeed" min="0" max="60" step="1" value="20" class="w-full slider-bici">
+                    </div>
+
+
+                    <!-- Costo por KM -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Costo por Kilómetro</span>
+                            <span class="font-mono text-emerald-400" id="valBiciCostKm">$5 / km</span>
+                        </div>
+                        <input type="range" id="inputBiciCostKm" min="0" max="60" step="1" value="5" class="w-full slider-bici">
+                    </div>
+
+
+                    <!-- Costo Fijo Salida -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Costo Fijo por Salida</span>
+                            <span class="font-mono text-emerald-400" id="valBiciCostBase">$10</span>
+                        </div>
+                        <input type="range" id="inputBiciCostBase" min="0" max="100" step="1" value="10" class="w-full slider-bici">
+                    </div>
+
+
+                    <!-- Distancia Total -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Distancia Total Recorrido</span>
+                            <span class="font-mono text-emerald-400" id="valBiciDist">20 km</span>
+                        </div>
+                        <input type="range" id="inputBiciDist" min="1" max="50" step="1" value="20" class="w-full slider-bici">
+                    </div>
+
+
+                    <!-- Cantidad de Paradas -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Paradas Intermedias</span>
+                            <span class="font-mono text-emerald-400" id="valBiciStops">3 paradas</span>
+                        </div>
+                        <input type="range" id="inputBiciStops" min="0" max="10" step="1" value="3" class="w-full slider-bici">
+                    </div>
+
+
+                    <!-- Tiempo por Parada -->
+                    <div>
+                        <div class="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                            <span>Tiempo de Espera / Parada</span>
+                            <span class="font-mono text-emerald-400" id="valBiciStopTime">3 min</span>
+                        </div>
+                        <input type="range" id="inputBiciStopTime" min="0" max="30" step="1" value="3" class="w-full slider-bici">
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <!-- Área Central y Derecha: Mapa Canvas y Gráficos (8 columnas en Desktop) -->
+        <div class="lg:col-span-8 flex flex-col gap-4">
+            
+            <!-- Mapa Animado 2D Canvas -->
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-3 sm:p-4 flex flex-col shadow-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-indigo-400"></i>
+                        <h2 class="font-bold text-slate-200 text-sm sm:text-base">Mapa de Recorrido Urbano en Tiempo Real</h2>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs font-medium">
+                        <span class="flex items-center gap-1.5 text-rose-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                            Motocicleta
+                        </span>
+                        <span class="flex items-center gap-1.5 text-emerald-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Bici Eléctrica
+                        </span>
+                    </div>
+                </div>
+
+
+                <!-- Canvas Wrapper -->
+                <div class="relative w-full aspect-[16/9] sm:aspect-[21/9] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 canvas-container">
+                    <canvas id="simCanvas" class="w-full h-full block"></canvas>
+                </div>
+            </div>
+
+
+            <!-- Panel de Gráficos Dinámicos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Gráfico 1: Costo Total vs Distancia -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 shadow-xl flex flex-col">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="dollar-sign" class="w-4 h-4 text-amber-400"></i>
+                        <h3 class="font-semibold text-slate-200 text-xs sm:text-sm">Costo Acumulado vs Distancia</h3>
+                    </div>
+                    <div class="relative w-full h-52">
+                        <canvas id="chartCost"></canvas>
+                    </div>
+                </div>
+
+
+                <!-- Gráfico 2: Tiempo Total vs Distancia / Progreso -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 shadow-xl flex flex-col">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+                        <h3 class="font-semibold text-slate-200 text-xs sm:text-sm">Tiempo Transcurrido vs Distancia</h3>
+                    </div>
+                    <div class="relative w-full h-52">
+                        <canvas id="chartTime"></canvas>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+    <!-- Footer minimalista -->
+    <footer class="bg-slate-900/60 border-t border-slate-800 py-2.5 text-center text-xs text-slate-500">
+        <span>Simulador Interactivo de Logística Urbana &bull; Exploración Empírica</span>
+    </footer>
+
+
+    <!-- Lógica JavaScript de la Simulación y Visualización -->
+    <script>
+        // Inicialización de Iconos Lucide
+        lucide.createIcons();
+
+
+        // ----------------------------------------------------
+        // Estado Global del Simulador
+        // ----------------------------------------------------
+        const state = {
+            isRunning: false,
+            isPaused: false,
+            timeScale: 2, // Multiplicador de velocidad de tiempo
+            simTimeSeconds: 0, // Tiempo virtual transcurrido (en minutos)
+            
+            // Vehículo 1: Motocicleta
+            moto: {
+                speed: 35, // km/h
+                costKm: 15,
+                costBase: 50,
+                distTotal: 20, // km
+                stops: 3,
+                stopTime: 5, // min por parada
+                
+                // Estado dinámico de simulación
+                distCurrent: 0, // km recorridos
+                currentStopIndex: 0,
+                stopTimer: 0, // minutos restantes en parada actual
+                isStopped: false,
+                isFinished: false,
+                totalTimeMin: 0,
+                totalCost: 0
+            },
+
+
+            // Vehículo 2: Bicicleta Eléctrica
+            bici: {
+                speed: 20, // km/h
+                costKm: 5,
+                costBase: 10,
+                distTotal: 20, // km
+                stops: 3,
+                stopTime: 3, // min por parada
+
+
+                // Estado dinámico de simulación
+                distCurrent: 0, // km recorridos
+                currentStopIndex: 0,
+                stopTimer: 0,
+                isStopped: false,
+                isFinished: false,
+                totalTimeMin: 0,
+                totalCost: 0
+            }
+        };
+
+
+        // ----------------------------------------------------
+        // Captura de Elementos del DOM
+        // ----------------------------------------------------
+        const btnPlay = document.getElementById('btnPlay');
+        const btnPause = document.getElementById('btnPause');
+        const btnReset = document.getElementById('btnReset');
+        const simSpeedSelect = document.getElementById('simSpeed');
+
+
+        // Controles Moto
+        const inputMotoSpeed = document.getElementById('inputMotoSpeed');
+        const inputMotoCostKm = document.getElementById('inputMotoCostKm');
+        const inputMotoCostBase = document.getElementById('inputMotoCostBase');
+        const inputMotoDist = document.getElementById('inputMotoDist');
+        const inputMotoStops = document.getElementById('inputMotoStops');
+        const inputMotoStopTime = document.getElementById('inputMotoStopTime');
+
+
+        const valMotoSpeed = document.getElementById('valMotoSpeed');
+        const valMotoCostKm = document.getElementById('valMotoCostKm');
+        const valMotoCostBase = document.getElementById('valMotoCostBase');
+        const valMotoDist = document.getElementById('valMotoDist');
+        const valMotoStops = document.getElementById('valMotoStops');
+        const valMotoStopTime = document.getElementById('valMotoStopTime');
+        const valMotoSpeedState = document.getElementById('valMotoSpeedState');
+
+
+        // Controles Bici
+        const inputBiciSpeed = document.getElementById('inputBiciSpeed');
+        const inputBiciCostKm = document.getElementById('inputBiciCostKm');
+        const inputBiciCostBase = document.getElementById('inputBiciCostBase');
+        const inputBiciDist = document.getElementById('inputBiciDist');
+        const inputBiciStops = document.getElementById('inputBiciStops');
+        const inputBiciStopTime = document.getElementById('inputBiciStopTime');
+
+
+        const valBiciSpeed = document.getElementById('valBiciSpeed');
+        const valBiciCostKm = document.getElementById('valBiciCostKm');
+        const valBiciCostBase = document.getElementById('valBiciCostBase');
+        const valBiciDist = document.getElementById('valBiciDist');
+        const valBiciStops = document.getElementById('valBiciStops');
+        const valBiciStopTime = document.getElementById('valBiciStopTime');
+        const valBiciSpeedState = document.getElementById('valBiciSpeedState');
+
+
+        // Canvas
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+
+
+        // Chart.js Contexts
+        const ctxCost = document.getElementById('chartCost').getContext('2d');
+        const ctxTime = document.getElementById('chartTime').getContext('2d');
+
+
+        // ----------------------------------------------------
+        // Configuración de Gráficos (Chart.js)
+        // ----------------------------------------------------
+        const chartTheme = {
+            gridColor: 'rgba(51, 65, 85, 0.4)',
+            textColor: '#94a3b8'
+        };
+
+
+        const chartCost = new Chart(ctxCost, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: 'Motocicleta',
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        data: [],
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Bici Eléctrica',
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        data: [],
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'Distancia (km)', color: chartTheme.textColor, font: { size: 10 } },
+                        grid: { color: chartTheme.gridColor },
+                        ticks: { color: chartTheme.textColor, font: { size: 10 } }
+                    },
+                    y: {
+                        title: { display: true, text: 'Costo ($)', color: chartTheme.textColor, font: { size: 10 } },
+                        grid: { color: chartTheme.gridColor },
+                        ticks: { color: chartTheme.textColor, font: { size: 10 } },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+
+        const chartTime = new Chart(ctxTime, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: 'Motocicleta',
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        data: [],
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Bici Eléctrica',
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        data: [],
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'Distancia (km)', color: chartTheme.textColor, font: { size: 10 } },
+                        grid: { color: chartTheme.gridColor },
+                        ticks: { color: chartTheme.textColor, font: { size: 10 } }
+                    },
+                    y: {
+                        title: { display: true, text: 'Tiempo (min)', color: chartTheme.textColor, font: { size: 10 } },
+                        grid: { color: chartTheme.gridColor },
+                        ticks: { color: chartTheme.textColor, font: { size: 10 } },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+
+        // ----------------------------------------------------
+        // Actualización de Valores UI & Sliders
+        // ----------------------------------------------------
+        function updateInputsUI() {
+            // Moto UI
+            state.moto.speed = parseInt(inputMotoSpeed.value);
+            state.moto.costKm = parseInt(inputMotoCostKm.value);
+            state.moto.costBase = parseInt(inputMotoCostBase.value);
+            state.moto.distTotal = parseInt(inputMotoDist.value);
+            state.moto.stops = parseInt(inputMotoStops.value);
+            state.moto.stopTime = parseInt(inputMotoStopTime.value);
+
+
+            valMotoSpeed.textContent = `${state.moto.speed} km/h`;
+            valMotoCostKm.textContent = `$${state.moto.costKm} / km`;
+            valMotoCostBase.textContent = `$${state.moto.costBase}`;
+            valMotoDist.textContent = `${state.moto.distTotal} km`;
+            valMotoStops.textContent = `${state.moto.stops} paradas`;
+            valMotoStopTime.textContent = `${state.moto.stopTime} min`;
+
+
+            // Bici UI
+            state.bici.speed = parseInt(inputBiciSpeed.value);
+            state.bici.costKm = parseInt(inputBiciCostKm.value);
+            state.bici.costBase = parseInt(inputBiciCostBase.value);
+            state.bici.distTotal = parseInt(inputBiciDist.value);
+            state.bici.stops = parseInt(inputBiciStops.value);
+            state.bici.stopTime = parseInt(inputBiciStopTime.value);
+
+
+            valBiciSpeed.textContent = `${state.bici.speed} km/h`;
+            valBiciCostKm.textContent = `$${state.bici.costKm} / km`;
+            valBiciCostBase.textContent = `$${state.bici.costBase}`;
+            valBiciDist.textContent = `${state.bici.distTotal} km`;
+            valBiciStops.textContent = `${state.bici.stops} paradas`;
+            valBiciStopTime.textContent = `${state.bici.stopTime} min`;
+
+
+            if (!state.isRunning) {
+                resetSimulation();
+            }
+        }
+
+
+        // Listener para todos los controles sliders
+        const allInputs = [
+            inputMotoSpeed, inputMotoCostKm, inputMotoCostBase, inputMotoDist, inputMotoStops, inputMotoStopTime,
+            inputBiciSpeed, inputBiciCostKm, inputBiciCostBase, inputBiciDist, inputBiciStops, inputBiciStopTime
+        ];
+
+
+        allInputs.forEach(input => {
+            input.addEventListener('input', updateInputsUI);
+        });
+
+
+        simSpeedSelect.addEventListener('change', (e) => {
+            state.timeScale = parseFloat(e.target.value);
+        });
+
+
+        // ----------------------------------------------------
+        // Lógica de Simulación Cinemática
+        // ----------------------------------------------------
+        function resetSimulation() {
+            state.isRunning = false;
+            state.isPaused = false;
+            state.simTimeSeconds = 0;
+
+
+            // Reiniciar Moto
+            state.moto.distCurrent = 0;
+            state.moto.currentStopIndex = 0;
+            state.moto.stopTimer = 0;
+            state.moto.isStopped = false;
+            state.moto.isFinished = false;
+            state.moto.totalTimeMin = 0;
+            state.moto.totalCost = state.moto.costBase;
+
+
+            // Reiniciar Bici
+            state.bici.distCurrent = 0;
+            state.bici.currentStopIndex = 0;
+            state.bici.stopTimer = 0;
+            state.bici.isStopped = false;
+            state.bici.isFinished = false;
+            state.bici.totalTimeMin = 0;
+            state.bici.totalCost = state.bici.costBase;
+
+
+            // Reset UI Botones
+            btnPlay.disabled = false;
+            btnPlay.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnPause.disabled = true;
+            btnPause.classList.add('opacity-50', 'cursor-not-allowed');
+            btnPlay.querySelector('span').textContent = 'Iniciar';
+
+
+            valMotoSpeedState.textContent = '0 km/h';
+            valBiciSpeedState.textContent = '0 km/h';
+
+
+            // Reset Charts Data
+            chartCost.data.datasets[0].data = [{ x: 0, y: state.moto.costBase }];
+            chartCost.data.datasets[1].data = [{ x: 0, y: state.bici.costBase }];
+            chartCost.update();
+
+
+            chartTime.data.datasets[0].data = [{ x: 0, y: 0 }];
+            chartTime.data.datasets[1].data = [{ x: 0, y: 0 }];
+            chartTime.update();
+
+
+            drawCanvas();
+        }
+
+
+        // Posiciones de paradas intermedias precalculadas proporcionalmente
+        function getStopDistances(totalDist, stopsCount) {
+            if (stopsCount <= 0) return [];
+            const step = totalDist / (stopsCount + 1);
+            const stops = [];
+            for (let i = 1; i <= stopsCount; i++) {
+                stops.push(step * i);
+            }
+            return stops;
+        }
+
+
+        let lastTimestamp = 0;
+
+
+        function updateSimulation(dtSeconds) {
+            if (!state.isRunning || state.isPaused) return;
+
+
+            // Avanzar el reloj global de simulación
+            const deltaSimMinutes = (dtSeconds * state.timeScale) / 60; // Convertir segundos reales a minutos simulados
+            state.simTimeSeconds += dtSeconds * state.timeScale;
+
+
+            // --- Actualización Motocicleta ---
+            if (!state.moto.isFinished) {
+                const motoStops = getStopDistances(state.moto.distTotal, state.moto.stops);
+                
+                if (state.moto.isStopped) {
+                    // Está esperando en una parada
+                    state.moto.stopTimer -= deltaSimMinutes;
+                    state.moto.totalTimeMin += deltaSimMinutes;
+                    valMotoSpeedState.textContent = 'Parada (0 km/h)';
+
+
+                    if (state.moto.stopTimer <= 0) {
+                        state.moto.isStopped = false;
+                        state.moto.currentStopIndex++;
+                    }
+                } else {
+                    // En movimiento
+                    valMotoSpeedState.textContent = `${state.moto.speed} km/h`;
+                    const distDelta = (state.moto.speed / 60) * deltaSimMinutes; // km avanzadas
+                    const nextStopDist = motoStops[state.moto.currentStopIndex];
+
+
+                    if (nextStopDist && (state.moto.distCurrent + distDelta >= nextStopDist)) {
+                        // Llegó a una parada
+                        state.moto.distCurrent = nextStopDist;
+                        state.moto.isStopped = true;
+                        state.moto.stopTimer = state.moto.stopTime;
+                    } else {
+                        state.moto.distCurrent += distDelta;
+                    }
+
+
+                    state.moto.totalTimeMin += deltaSimMinutes;
+
+
+                    // Comprobar llegada
+                    if (state.moto.distCurrent >= state.moto.distTotal) {
+                        state.moto.distCurrent = state.moto.distTotal;
+                        state.moto.isFinished = true;
+                        valMotoSpeedState.textContent = 'Destino alcanzado';
+                    }
+                }
+                
+                // Costo Moto en tiempo real
+                state.moto.totalCost = state.moto.costBase + (state.moto.distCurrent * state.moto.costKm);
+
+
+                // Agregar datos a los gráficos
+                chartCost.data.datasets[0].data.push({ x: state.moto.distCurrent, y: state.moto.totalCost });
+                chartTime.data.datasets[0].data.push({ x: state.moto.distCurrent, y: state.moto.totalTimeMin });
+            }
+
+
+            // --- Actualización Bicicleta ---
+            if (!state.bici.isFinished) {
+                const biciStops = getStopDistances(state.bici.distTotal, state.bici.stops);
+                
+                if (state.bici.isStopped) {
+                    // En parada
+                    state.bici.stopTimer -= deltaSimMinutes;
+                    state.bici.totalTimeMin += deltaSimMinutes;
+                    valBiciSpeedState.textContent = 'Parada (0 km/h)';
+
+
+                    if (state.bici.stopTimer <= 0) {
+                        state.bici.isStopped = false;
+                        state.bici.currentStopIndex++;
+                    }
+                } else {
+                    // En movimiento
+                    valBiciSpeedState.textContent = `${state.bici.speed} km/h`;
+                    const distDelta = (state.bici.speed / 60) * deltaSimMinutes; // km avanzadas
+                    const nextStopDist = biciStops[state.bici.currentStopIndex];
+
+
+                    if (nextStopDist && (state.bici.distCurrent + distDelta >= nextStopDist)) {
+                        // Llegó a una parada
+                        state.bici.distCurrent = nextStopDist;
+                        state.bici.isStopped = true;
+                        state.bici.stopTimer = state.bici.stopTime;
+                    } else {
+                        state.bici.distCurrent += distDelta;
+                    }
+
+
+                    state.bici.totalTimeMin += deltaSimMinutes;
+
+
+                    // Comprobar llegada
+                    if (state.bici.distCurrent >= state.bici.distTotal) {
+                        state.bici.distCurrent = state.bici.distTotal;
+                        state.bici.isFinished = true;
+                        valBiciSpeedState.textContent = 'Destino alcanzado';
+                    }
+                }
+
+
+                // Costo Bici en tiempo real
+                state.bici.totalCost = state.bici.costBase + (state.bici.distCurrent * state.bici.costKm);
+
+
+                // Agregar datos a los gráficos
+                chartCost.data.datasets[1].data.push({ x: state.bici.distCurrent, y: state.bici.totalCost });
+                chartTime.data.datasets[1].data.push({ x: state.bici.distCurrent, y: state.bici.totalTimeMin });
+            }
+
+
+            // Actualizar gráficos
+            chartCost.update('none');
+            chartTime.update('none');
+
+
+            // Pausar automáticamente si ambos terminaron
+            if (state.moto.isFinished && state.bici.isFinished) {
+                state.isRunning = false;
+                btnPlay.disabled = true;
+                btnPlay.classList.add('opacity-50', 'cursor-not-allowed');
+                btnPause.disabled = true;
+                btnPause.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // Renderizado del Mapa Urbano 2D en Canvas
+        // ----------------------------------------------------
+        function setupCanvasSize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+        }
+
+
+        function drawCanvas() {
+            const width = canvas.width;
+            const height = canvas.height;
+
+
+            if (width === 0 || height === 0) return;
+
+
+            // Fondo Ciudad Nocturna / Tech
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, width, height);
+
+
+            // Red de rejilla urbana (Grid)
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            const gridSize = 40 * window.devicePixelRatio;
+            for (let x = 0; x < width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+
+            // Dimensiones para los dos carriles paralelos (Moto arriba, Bici abajo)
+            const marginX = 60 * window.devicePixelRatio;
+            const motoTrackY = height * 0.32;
+            const biciTrackY = height * 0.72;
+            const trackWidth = width - (marginX * 2);
+
+
+            // Función auxiliar para dibujar un carril/carretera
+            function drawTrack(yPos, color, titleText) {
+                // Asfalto
+                ctx.fillStyle = '#1e293b';
+                ctx.roundRect(marginX - 15, yPos - 22, trackWidth + 30, 44, 12);
+                ctx.fill();
+
+
+                // Línea de carril central punteada
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 2 * window.devicePixelRatio;
+                ctx.setLineDash([10 * window.devicePixelRatio, 10 * window.devicePixelRatio]);
+                ctx.beginPath();
+                ctx.moveTo(marginX, yPos);
+                ctx.lineTo(marginX + trackWidth, yPos);
+                ctx.stroke();
+                ctx.setLineDash([]); // Reset dash
+
+
+                // Punto Inicio (Origen)
+                ctx.fillStyle = '#64748b';
+                ctx.beginPath();
+                ctx.arc(marginX, yPos, 8 * window.devicePixelRatio, 0, Math.PI * 2);
+                ctx.fill();
+
+
+                // Punto Fin (Meta)
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(marginX + trackWidth, yPos, 8 * window.devicePixelRatio, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+
+            // Dibujar Pistas
+            drawTrack(motoTrackY, '#ef4444');
+            drawTrack(biciTrackY, '#10b981');
+
+
+            // --- Dibujar Paradas Intermedias ---
+            // Paradas Moto
+            const motoStops = getStopDistances(state.moto.distTotal, state.moto.stops);
+            motoStops.forEach((stopDist) => {
+                const ratio = stopDist / state.moto.distTotal;
+                const stopX = marginX + (ratio * trackWidth);
+
+
+                ctx.fillStyle = '#f87171';
+                ctx.strokeStyle = '#090d16';
+                ctx.lineWidth = 2 * window.devicePixelRatio;
+                ctx.beginPath();
+                ctx.arc(stopX, motoTrackY, 6 * window.devicePixelRatio, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            });
+
+
+            // Paradas Bici
+            const biciStops = getStopDistances(state.bici.distTotal, state.bici.stops);
+            biciStops.forEach((stopDist) => {
+                const ratio = stopDist / state.bici.distTotal;
+                const stopX = marginX + (ratio * trackWidth);
+
+
+                ctx.fillStyle = '#34d399';
+                ctx.strokeStyle = '#090d16';
+                ctx.lineWidth = 2 * window.devicePixelRatio;
+                ctx.beginPath();
+                ctx.arc(stopX, biciTrackY, 6 * window.devicePixelRatio, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            });
+
+
+            // --- Dibujar Vehículos ---
+
+
+            // 1. Motocicleta (Rojo)
+            const motoProgress = state.moto.distCurrent / state.moto.distTotal;
+            const motoX = marginX + (motoProgress * trackWidth);
+
+
+            // Halo luminoso Moto
+            const glowMoto = ctx.createRadialGradient(motoX, motoTrackY, 2, motoX, motoTrackY, 20 * window.devicePixelRatio);
+            glowMoto.addColorStop(0, 'rgba(239, 68, 68, 0.6)');
+            glowMoto.addColorStop(1, 'rgba(239, 68, 68, 0)');
+            ctx.fillStyle = glowMoto;
+            ctx.beginPath();
+            ctx.arc(motoX, motoTrackY, 20 * window.devicePixelRatio, 0, Math.PI * 2);
+            ctx.fill();
+
+
+            // Icono Moto (Círculo estilizado con pulso si está detenida)
+            ctx.fillStyle = '#ef4444';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3 * window.devicePixelRatio;
+            ctx.beginPath();
+            ctx.arc(motoX, motoTrackY, 11 * window.devicePixelRatio, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+
+            // Indicador de Detención en Parada (Moto)
+            if (state.moto.isStopped) {
+                ctx.fillStyle = '#fbcfe8';
+                ctx.font = `bold ${10 * window.devicePixelRatio}px Inter`;
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSA', motoX, motoTrackY - 18 * window.devicePixelRatio);
+            }
+
+
+            // 2. Bicicleta Eléctrica (Verde)
+            const biciProgress = state.bici.distCurrent / state.bici.distTotal;
+            const biciX = marginX + (biciProgress * trackWidth);
+
+
+            // Halo luminoso Bici
+            const glowBici = ctx.createRadialGradient(biciX, biciTrackY, 2, biciX, biciTrackY, 20 * window.devicePixelRatio);
+            glowBici.addColorStop(0, 'rgba(16, 185, 129, 0.6)');
+            glowBici.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            ctx.fillStyle = glowBici;
+            ctx.beginPath();
+            ctx.arc(biciX, biciTrackY, 20 * window.devicePixelRatio, 0, Math.PI * 2);
+            ctx.fill();
+
+
+            // Icono Bici
+            ctx.fillStyle = '#10b981';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3 * window.devicePixelRatio;
+            ctx.beginPath();
+            ctx.arc(biciX, biciTrackY, 11 * window.devicePixelRatio, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+
+            // Indicador de Detención en Parada (Bici)
+            if (state.bici.isStopped) {
+                ctx.fillStyle = '#a7f3d0';
+                ctx.font = `bold ${10 * window.devicePixelRatio}px Inter`;
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSA', biciX, biciTrackY - 18 * window.devicePixelRatio);
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // Bucle de Animación / Main Loop
+        // ----------------------------------------------------
+        function loop(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const dtSeconds = Math.min((timestamp - lastTimestamp) / 1000, 0.1); // Cap a 100ms para estabilidad
+            lastTimestamp = timestamp;
+
+
+            updateSimulation(dtSeconds);
+            drawCanvas();
+
+
+            requestAnimationFrame(loop);
+        }
+
+
+        // ----------------------------------------------------
+        // Control de Interacción y Eventos
+        // ----------------------------------------------------
+        btnPlay.addEventListener('click', () => {
+            if (!state.isRunning) {
+                state.isRunning = true;
+                state.isPaused = false;
+            } else if (state.isPaused) {
+                state.isPaused = false;
+            }
+
+
+            btnPlay.disabled = true;
+            btnPlay.classList.add('opacity-50', 'cursor-not-allowed');
+
+
+            btnPause.disabled = false;
+            btnPause.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+
+
+        btnPause.addEventListener('click', () => {
+            if (state.isRunning && !state.isPaused) {
+                state.isPaused = true;
+
+
+                btnPlay.disabled = false;
+                btnPlay.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnPlay.querySelector('span').textContent = 'Continuar';
+
+
+                btnPause.disabled = true;
+                btnPause.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+
+        btnReset.addEventListener('click', () => {
+            resetSimulation();
+        });
+
+
+        window.addEventListener('resize', () => {
+            setupCanvasSize();
+            drawCanvas();
+        });
+
+
+        // ----------------------------------------------------
+        // Inicio de la Aplicación
+        // ----------------------------------------------------
+        window.onload = () => {
+            setupCanvasSize();
+            updateInputsUI();
+            resetSimulation();
+            requestAnimationFrame(loop);
+        };
+    </script>
+</body>
+</html>
